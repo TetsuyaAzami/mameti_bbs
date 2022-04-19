@@ -1,0 +1,12 @@
+@import models.domains.Post
+@import models.domains.User
+@import java.time.format._
+@(posts: List[Post])(implicit request: MessagesRequestHeader)
+
+@main("投稿一覧"){
+<h1>投稿一覧</h1>
+
+@posts.map{post =>
+	<div class="post"></div>
+}
+}
