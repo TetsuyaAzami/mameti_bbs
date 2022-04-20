@@ -22,8 +22,10 @@
         @* And here's where we render the `Html` object containing
          * the page content. *@
          <div class="d-flex flex-row">
+             <!-- ナビゲーションバー -->
              <section style="width: 300px;">@commons.navigation()</section>
-             <section class="flex-grow-1" style="margin-right: 200px;">@content</section>
+             <!-- メインコンテンツ -->
+             <section class="flex-grow-1">@content</section>
          </div>
         <script src="@routes.Assets.versioned("lib/bootstrap/js/bootstrap.min.js")"></script>
       <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>
