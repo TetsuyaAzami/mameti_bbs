@@ -10,12 +10,19 @@ INSERT INTO posts (content,user_id,posted_at) VALUES ('user1投稿2', 1, NOW());
 INSERT INTO posts (content,user_id,posted_at) VALUES ('user2投稿1', 2, NOW());
 INSERT INTO posts (content,user_id,posted_at) VALUES ('user2投稿2', 2, NOW());
 
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (1,1,'user1のpost1に対するコメント1',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (1,1,'user1のpost1に対するコメント2',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (1,1,'user1のpost1に対するコメント3',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (1,1,'user1のpost1に対するコメント4',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (1,1,'user1のpost1に対するコメント5',NOW());
+
 INSERT INTO likes (user_id, post_id) VALUES(1,1);
 INSERT INTO likes (user_id, post_id) VALUES(1,2);
 INSERT INTO likes (user_id, post_id) VALUES(2,1);
 
 --!Downs
 DELETE FROM likes;
+DELETE FROM comments;
 DELETE FROM posts;
 DELETE FROM users;
 DELETE FROM departments;

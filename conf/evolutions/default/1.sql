@@ -25,7 +25,9 @@ posted_at timestamp NOT NULL
 CREATE TABLE comments(
 comment_id serial PRIMARY KEY,
 user_id integer REFERENCES users(user_id),
-post_id integer REFERENCES posts(post_id)
+post_id integer REFERENCES posts(post_id),
+content varchar(140) NOT NULL,
+commented_at timestamp NOT NULL
 );
 
 CREATE TABLE likes(
