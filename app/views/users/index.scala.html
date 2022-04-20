@@ -1,8 +1,9 @@
-@import domains.User
-@(user: User)(implicit request: MessagesRequestHeader)
+@import domains.Post
+
+@(posts: List[Post])(implicit request: MessagesRequestHeader)
 
 @main("マイページ"){
-<p>@user.userId</p>
-<p>@user.name</p>
-<p>@user.email</p>
+@posts.map{post =>
+	@post.user.name
+}
 }

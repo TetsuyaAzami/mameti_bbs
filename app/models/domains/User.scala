@@ -15,6 +15,7 @@ final case class User(
 
 // 投稿したユーザ
 final case class UserWhoPosted(
+    userId: Long,
     name: String,
     profileImg: Option[String]
 )

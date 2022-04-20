@@ -1,5 +1,7 @@
 @(elements: helper.FieldElements)
 <div class="@if(elements.hasErrors){error}">
-	<span class="errors text-danger">@elements.errors.mkString(",")</span>
-		@elements.input
+	@elements.errors.map{error =>
+		<span class="errors text-danger">@error</span><br>
+	}
+    @elements.input
 </div>
