@@ -42,11 +42,11 @@ class PostRepository @Inject() (dbApi: DBApi, userRepository: UserRepository)(
               u.profile_img
             FROM posts p
             INNER JOIN users u
-            USING (user_id);"""
+            USING (user_id)
+            ORDER BY p.posted_at DESC;"""
           .as(
             simple.*
           )
-      println(allPosts)
       allPosts
     }
   }

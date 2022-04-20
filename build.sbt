@@ -9,8 +9,10 @@ lazy val root = (project in file("."))
       guice,
       jdbc,
       evolutions,
-      "org.postgresql" % "postgresql" % "42.1.4",
+      "org.postgresql" % "postgresql" % "42.3.3",
       "org.playframework.anorm" %% "anorm" % "2.6.5",
+      "org.webjars" % "bootstrap" % "5.0.0",
+      "org.webjars" % "font-awesome" % "5.15.4",
       "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
     ),
     scalacOptions ++= List(
