@@ -11,11 +11,15 @@
 		<h1 class="text-center mt-5 fw-bold">みんなの豆知識一覧</h1>
 	<div class="text-center text-success fw-bold py-3"><span>@flash.get("success").getOrElse("")</span></div>
 
-	<section class="">
-		@form(routes.PostController.create()) {
+	<section class="mb-5">
+		@form(routes.PostController.insert()) {
 			@CSRF.formField
-			@textarea(postForm("content"),Symbol("class")->"form-control", Symbol("placeholder")->"今日の豆知識をつぶやこう!") <br>
-			<button class="btn btn-primary btn-sm" type="submit">投稿する</button>
+			@textarea(postForm("content"),Symbol("class")->"form-control", Symbol("placeholder")->"今日の豆知識をつぶやこう!")
+			<div class="mt-1 text-end">
+				<span class="me-5">
+					<button class="btn btn-primary btn-sm" type="submit">投稿する</button>
+				</span>
+			</div>
 		}
 	</section>
 
@@ -25,9 +29,7 @@
 			<section class="card-header bg-white">
 				<span class="fs-5 fw-bold">@post.user.name</span>
 				<span class="ps-3 text-secondary">
-					@post.postedAt.map{ postedAt =>
-						@postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
-					}
+					@post.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
 				</span>
 			</section>
 			<section class="card-body">
