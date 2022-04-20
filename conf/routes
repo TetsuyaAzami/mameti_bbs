@@ -8,7 +8,7 @@ GET     /                           controllers.HomeController.index()
 
 # Post
 GET     /posts                      controllers.PostController.index()
-POST    /posts                      controllers.PostController.create()
+POST    /posts                      controllers.PostController.insert()
 
 # User
 GET     /users                      controllers.UserController.index()
