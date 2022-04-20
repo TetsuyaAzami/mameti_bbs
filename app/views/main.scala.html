@@ -4,22 +4,28 @@
  * two arguments, a `String` for the title of the page and an `Html`
  * object to insert into the body of the page.
  *@
-@(title: String)(content: Html)
+ @(title: String)(content: Html)
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
         @* Here's where we render the page title `String`. *@
         <title>@title</title>
+        <link rel="stylesheet" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+        <link rel="stylesheet" href="@routes.Assets.versioned("lib/font-awesome/css/all.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+
 
     </head>
     <body>
         @* And here's where we render the `Html` object containing
          * the page content. *@
-        @content
-
+         <div class="d-flex flex-row">
+             <section style="width: 300px;">@commons.navigation()</section>
+             <section class="flex-grow-1" style="margin-right: 200px;">@content</section>
+         </div>
+        <script src="@routes.Assets.versioned("lib/bootstrap/js/bootstrap.min.js")"></script>
       <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>
     </body>
 </html>

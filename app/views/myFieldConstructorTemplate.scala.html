@@ -1,0 +1,7 @@
+@(elements: helper.FieldElements)
+<div class="@if(elements.hasErrors){error}">
+	@elements.errors.map{error =>
+		<span class="errors text-danger">@error</span><br>
+	}
+    @elements.input
+</div>

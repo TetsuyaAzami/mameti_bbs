@@ -7,3 +7,11 @@ target
 /.project
 /.settings
 /RUNNING_PID
+
+# bloop and metals
+.bloop
+
+
+# metals
+project/metals.sbt
+.metals
