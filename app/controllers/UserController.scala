@@ -16,8 +16,9 @@ class UserController @Inject() (
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
 
-  def index() = Action.async { implicit request =>
-    postService.findByUserId(1).map { posts =>
+  def index(id: Long) = Action.async { implicit request =>
+    // ログインユーザのidと一致しているかのチェック あとで実装
+    postService.findByUserId(id).map { posts =>
       Ok(views.html.users.index(posts))
     }
   }

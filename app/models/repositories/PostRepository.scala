@@ -51,7 +51,7 @@ class PostRepository @Inject() (dbApi: DBApi, userRepository: UserRepository)(
     }
   }
 
-  def findByUserId(userId: Int): Future[List[Post]] = Future {
+  def findByUserId(userId: Long): Future[List[Post]] = Future {
     db.withConnection { implicit conn =>
       SQL"""
       SELECT

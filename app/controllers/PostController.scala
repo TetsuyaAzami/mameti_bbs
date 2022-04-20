@@ -25,6 +25,10 @@ class PostController @Inject() (
     }
   }
 
+  def detail(id: Long) = Action { implicit request =>
+    Ok(views.html.posts.detail())
+  }
+
   def insert() = Action.async { implicit request =>
     val errorFunction = { formWithErrors: Form[PostForm.PostFormData] =>
       println("エラーがありました")
