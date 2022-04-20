@@ -1,12 +1,41 @@
+@import helper._
+@import java.time.format._
 @import models.domains.Post
 @import models.domains.User
-@import java.time.format._
-@(posts: List[Post])(implicit request: MessagesRequestHeader)
+@import forms.PostForm.PostFormData
+@(postForm: Form[PostFormData],posts: List[Post])(implicit request: MessagesRequestHeader,flash: Flash)
+@implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 
 @main("投稿一覧"){
-<h1>投稿一覧</h1>
+<div class="container me-5">
+		<h1 class="text-center mt-5 fw-bold">みんなの豆知識一覧</h1>
+	<div class="text-center text-success fw-bold py-3"><span>@flash.get("success").getOrElse("")</span></div>
 
-@posts.map{post =>
-	<div class="post"></div>
-}
+	<section class="">
+		@form(routes.PostController.create()) {
+			@CSRF.formField
+			@textarea(postForm("content"),Symbol("class")->"form-control", Symbol("placeholder")->"今日の豆知識をつぶやこう!") <br>
+			<button class="btn btn-primary btn-sm" type="submit">投稿する</button>
+		}
+	</section>
+
+	@posts.map{post =>
+	<article class="border">
+		<a href="#">
+			<section class="card-header bg-white">
+				<span class="fs-5 fw-bold">@post.user.name</span>
+				<span class="ps-3 text-secondary">
+					@post.postedAt.map{ postedAt =>
+						@postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+					}
+				</span>
+			</section>
+			<section class="card-body">
+				<div class="card-text p-3">@post.content</div>
+				<div><i class="far fa-comment"></i> <i class="far fa-heart ps-5"></i></div>
+			</section>
+		</a>
+	</article>
+	}
+</div>
 }
