@@ -25,8 +25,11 @@ class PostController @Inject() (
     }
   }
 
-  def detail(id: Long) = Action { implicit request =>
-    Ok(views.html.posts.detail())
+  def detail(id: Long) = Action.async { implicit request =>
+    postService.findByPostId(id).map { postWithComments =>
+      println(postWithComments)
+      Ok(views.html.posts.detail(postWithComments))
+    }
   }
 
   def insert() = Action.async { implicit request =>
