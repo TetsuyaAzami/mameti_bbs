@@ -1,6 +1,45 @@
 @import domains.Post
+@import java.time.format._
 @(post: Post)
 @main("投稿詳細"){
-	<h1>投稿詳細ページ</h1>
-
+<div class="container main-contents">
+	<div class="page-title text-center mt-5">
+		<h1 class="fw-bold">
+			投稿詳細ページ
+		</h1>
+		<span class="text-secondary">({ログインユーザ}さん)</span>
+	</div>
+	<article class="border">
+			<section class="card-header bg-white">
+				<span class="fs-5 fw-bold">@post.user.name</span>
+				<span class="ps-3 text-secondary">
+					@post.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+				</span>
+			</section>
+			<section class="card-body">
+				<div class="card-text p-3">@post.content</div>
+				<div class="px-3 w-25 d-flex justify-content-between">
+					<i title="コメントする" class="far fa-comment"></i>
+					<i title="いいね！" class="far fa-heart"></i>
+				</div>
+			</section>
+	</article>
+	@post.commentList.map{comment =>
+		<article class="border">
+			<section class="card-header bg-white">
+				<span class="fs-5 fw-bold">@comment.user.name</span>
+				<span class="ps-3 text-secondary">
+					@comment.commentedAt
+				</span>
+			</section>
+			<section class="card-body">
+				<div class="card-text p-3">@comment.content</div>
+				<div class="px-3 w-25 d-flex justify-content-between">
+					<i title="コメントする" class="far fa-comment"></i>
+					<i title="いいね！" class="far fa-heart"></i>
+				</div>
+			</section>
+	</article>
+	}
+</div>
 }
