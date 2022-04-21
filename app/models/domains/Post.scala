@@ -22,3 +22,11 @@ object PostForInsert {
   implicit def toParameters: ToParameterList[PostForInsert] =
     Macro.toParameters[PostForInsert]
 }
+
+case class PostWithComments(
+    postId: Option[Long] = None,
+    content: String,
+    user: UserWhoPosted,
+    postedAt: LocalDateTime,
+    commentList: List[Comment]
+)

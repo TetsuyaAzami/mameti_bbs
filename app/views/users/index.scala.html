@@ -15,7 +15,7 @@
 	<div class="text-center text-success fw-bold my-3"><span>@flash.get("success").getOrElse("")</span></div>
 	@posts.map{post =>
 	<article class="border">
-		<a href="#">
+		<a href="@routes.PostController.detail(post.postId.get)">
 			<section class="card-header bg-white">
 				<span class="fs-5 fw-bold">@post.user.name</span>
 				<span class="ps-3 text-secondary">
