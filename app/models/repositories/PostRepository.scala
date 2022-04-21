@@ -2,8 +2,8 @@ package models.repositories
 
 import models.domains.Post
 import models.domains.PostForInsert
-import models.domains.PostWithComments
 import models.domains.User
+import models.domains.UserWhoPosted
 import models.domains.Comment
 import models.DatabaseExecutionContext
 
@@ -15,7 +15,7 @@ import javax.inject.Inject
 import java.time.LocalDateTime
 
 import scala.concurrent.Future
-import models.domains.UserWhoPosted
+import scala.language.postfixOps
 
 class PostRepository @Inject() (
     dbApi: DBApi,
@@ -32,20 +32,9 @@ class PostRepository @Inject() (
       userRepository.userWhoPostedParser ~
       get[LocalDateTime]("posts.posted_at") map {
         case postId ~ content ~ user ~ postedAt =>
-          Post(postId, content, user, postedAt)
+          Post(postId, content, user, postedAt, Nil)
       }
   }
-
-  // private[repositories] val withComments = {
-  //   get[Option[Long]]("posts.post_id") ~
-  //     get[String]("posts.content") ~
-  //     userRepository.userWhoPostedParser ~
-  //     get[LocalDateTime]("posts.posted_at") ~
-  //     commentRepository.simple map {
-  //       case postId ~ content ~ user ~ postedAt ~ comments =>
-  //         PostWithComments(postId, content, user, postedAt, comments)
-  //     }
-  // }
 
   def findAll(): Future[List[Post]] = Future {
     db.withConnection { implicit con =>
@@ -88,45 +77,32 @@ class PostRepository @Inject() (
     }
   }
 
-  def findByPostId(postId: Long): Future[(PostWithComments)] = Future {
+  def findByPostId(postId: Long) = Future {
     db.withConnection { implicit conn =>
-      // postの1件取得
-      val post =
-        SQL"""
-            SELECT
+      SQL"""SELECT
             p.post_id,
             p.content,
-            p.user_id,
             p.posted_at,
-            user_id,
+            u.user_id,
             u.name,
-            u.profile_img
+            u.profile_img,
+            c.comment_id,
+            c.user_id,
+            c.post_id,
+            c.content,
+            c.commented_at
             FROM posts p
-            INNER JOIN users u
-            USING (user_id)
-            WHERE post_id = ${postId};
-            """.as(withUser.single)
-
-      // postに紐づくcommentsの取得
-      val comments =
-        SQL"""
-            SELECT
-            comment_id,
-            user_id,
-            post_id,
-            content,
-            commented_at
-            FROM comments
-            WHERE post_id = ${postId};""".as(
-          commentRepository.simple.*
-        )
-      PostWithComments(
-        post.postId,
-        post.content,
-        post.user,
-        post.postedAt,
-        comments
-      )
+            INNER JOIN users u USING(user_id)
+            INNER JOIN comments c USING(post_id)
+            WHERE post_id = 1; """
+        .as((withUser ~ commentRepository.simple).*)
+        .groupBy(_._1)
+        .map { e =>
+          val post = e._1
+          val commentList = e._2.map(_._2)
+          post.copy(commentList = commentList)
+        }
+        .toList(0)
     }
   }
 

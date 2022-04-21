@@ -9,7 +9,8 @@ final case class Post(
     postId: Option[Long] = None,
     content: String,
     user: UserWhoPosted,
-    postedAt: LocalDateTime
+    postedAt: LocalDateTime,
+    commentList: List[Comment]
 )
 
 final case class PostForInsert(
@@ -22,11 +23,3 @@ object PostForInsert {
   implicit def toParameters: ToParameterList[PostForInsert] =
     Macro.toParameters[PostForInsert]
 }
-
-case class PostWithComments(
-    postId: Option[Long] = None,
-    content: String,
-    user: UserWhoPosted,
-    postedAt: LocalDateTime,
-    commentList: List[Comment]
-)
