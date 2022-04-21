@@ -27,14 +27,12 @@ class PostController @Inject() (
 
   def detail(id: Long) = Action.async { implicit request =>
     postService.findByPostId(id).map { postWithComments =>
-      println(postWithComments)
       Ok(views.html.posts.detail(postWithComments))
     }
   }
 
   def insert() = Action.async { implicit request =>
     val errorFunction = { formWithErrors: Form[PostForm.PostFormData] =>
-      println("エラーがありました")
       postService.findAll().map { allPosts =>
         BadRequest(views.html.posts.index(formWithErrors, allPosts))
       }
