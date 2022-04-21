@@ -22,12 +22,23 @@ class UserRepository @Inject() (dbApi: DBApi)(implicit
     Macro.namedParser[User](Macro.ColumnNaming.SnakeCase)
 
   // 投稿一覧取得の際に使用する
-  private[repositories] val postUserParser: RowParser[UserWhoPosted] =
+  private[repositories] val userWhoPostedParser: RowParser[UserWhoPosted] =
     Macro.namedParser[UserWhoPosted](Macro.ColumnNaming.SnakeCase)
 
   def findUserById(id: Long): Future[Option[User]] = Future {
     db.withConnection { implicit con =>
-      SQL"SELECT user_id, name, email, password, birthday, introduce, profile_img, department_id FROM users WHERE user_id = $id;"
+      SQL"""
+      SELECT
+      user_id,
+      name,
+      email,
+      password,
+      birthday,
+      introduce,
+      profile_img,
+      department_id
+      FROM users
+      WHERE user_id = $id;"""
         .as(simple.singleOpt)
     }
   }

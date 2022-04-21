@@ -8,10 +8,11 @@ GET     /                           controllers.HomeController.index()
 
 # Post
 GET     /posts                      controllers.PostController.index()
-POST    /posts                      controllers.PostController.create()
+POST    /posts                      controllers.PostController.insert()
+GET     /posts/:id           controllers.PostController.detail(id: Long)
 
 # User
-GET     /users                      controllers.UserController.index()
+GET     /users/:id                  controllers.UserController.index(id:Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

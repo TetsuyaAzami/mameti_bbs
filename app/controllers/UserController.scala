@@ -7,18 +7,19 @@ import scala.concurrent.ExecutionContext
 import play.api.mvc.Action
 import play.api.mvc.MessagesAbstractController
 import scala.concurrent.Future
+import models.repositories.PostRepository
 
 class UserController @Inject() (
     mcc: MessagesControllerComponents,
-    userService: UserRepository
+    userService: UserRepository,
+    postService: PostRepository
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
 
-  def index() = Action.async { implicit request =>
-    userService.findUserById(1).map {
-      case Some(user) =>
-        Ok(views.html.users.index(user))
-      case other => NotFound
+  def index(id: Long) = Action.async { implicit request =>
+    // ログインユーザのidと一致しているかのチェック あとで実装
+    postService.findByUserId(id).map { posts =>
+      Ok(views.html.users.index(posts))
     }
   }
 }

@@ -1,8 +1,38 @@
-@import domains.User
-@(user: User)(implicit request: MessagesRequestHeader)
+@import domains.Post
+@import java.time.format._
+
+@(posts: List[Post])(implicit request: MessagesRequestHeader, flash: Flash)
 
 @main("マイページ"){
-<p>@user.userId</p>
-<p>@user.name</p>
-<p>@user.email</p>
+<div class="container main-contents">
+	<div class="page-title text-center mt-5">
+		<h1 class="fw-bold">
+			豆知識履歴
+		</h1>
+		<span class="text-secondary">({ログインユーザ}さん)</span>
+	</div>
+
+	<div class="text-center text-success fw-bold my-3"><span>@flash.get("success").getOrElse("")</span></div>
+	@posts.map{post =>
+	<article class="border">
+		<a href="@routes.PostController.detail(post.postId.get)">
+			<section class="card-header bg-white">
+				<span class="fs-5 fw-bold">@post.user.name</span>
+				<span class="ps-3 text-secondary">
+					@post.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+				</span>
+			</section>
+			<section class="card-body">
+				<div class="card-text p-3">@post.content</div>
+				<div class="px-3 w-50 d-flex justify-content-between">
+					<i title="コメントする" class="far fa-comment"></i>
+					<i title="いいね！" class="far fa-heart"></i>
+					<i title="削除する" class="far fa-trash-alt"></i>
+					<i title="編集する" class="far fa-edit"></i>
+				</div>
+			</section>
+		</a>
+	</article>
+	}
+</div>
 }
