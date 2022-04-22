@@ -12,23 +12,29 @@ import java.time.LocalDateTime
 import models.domains.OptionComment
 
 class CommentRepository @Inject() (
-    dbApi: DBApi
+    dbApi: DBApi,
+    userRepository: UserRepository
 )(implicit
     dec: DatabaseExecutionContext
 ) {
   private val db = dbApi.database("default")
 
-//   private[repositories] val simple: RowParser[Comment] =
-//     Macro.namedParser[Comment](Macro.ColumnNaming.SnakeCase)
-
-  private[repositories] val optionCommentParser = {
+  private[repositories] val optionCommentWithUserParser = {
     get[Option[Long]]("c_comment_id") ~
       get[Option[Long]]("c_user_id") ~
+      userRepository.userWhoCommentedParser.? ~
       get[Option[Long]]("c_post_id") ~
       get[Option[String]]("c_content") ~
       get[Option[LocalDateTime]]("c_commented_at") map {
-        case commentId ~ userId ~ postId ~ content ~ commentedAt =>
-          OptionComment(commentId, userId, postId, content, commentedAt)
+        case commentId ~ userId ~ userWhoCommented ~ postId ~ content ~ commentedAt =>
+          OptionComment(
+            commentId,
+            userId,
+            userWhoCommented,
+            postId,
+            content,
+            commentedAt
+          )
       }
   }
 }

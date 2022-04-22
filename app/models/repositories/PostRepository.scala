@@ -92,13 +92,17 @@ class PostRepository @Inject() (
           c.user_id c_user_id,
           c.post_id c_post_id,
           c.content c_content,
-          c.commented_at c_commented_at
+          c.commented_at c_commented_at,
+          cu.user_id cu_user_id,
+          cu.name cu_name,
+          cu.profile_img cu_profile_img
           FROM posts p
           LEFT OUTER JOIN users u ON p.user_id = u.user_id
           LEFT OUTER JOIN comments c ON p.post_id = c.post_id
+          LEFT OUTER JOIN users cu ON c.user_id = cu.user_id
           WHERE p.post_id = ${postId}
           ORDER BY c_commented_at ASC; """
-          .as((withUser ~ commentRepository.optionCommentParser).*)
+          .as((withUser ~ commentRepository.optionCommentWithUserParser).*)
 
       val post = sqlResult(0)._1
 
