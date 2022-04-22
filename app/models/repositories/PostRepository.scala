@@ -2,6 +2,7 @@ package models.repositories
 
 import models.domains.Post
 import models.domains.PostForInsert
+import models.domains.PostForUpdate
 import models.domains.User
 import models.domains.UserWhoPosted
 import models.domains.Comment
@@ -25,6 +26,15 @@ class PostRepository @Inject() (
     dec: DatabaseExecutionContext
 ) {
   private val db = dbApi.database("default")
+
+  private[repositories] val forUpdate = {
+    get[Long]("p_post_id") ~
+      get[String]("p_content") ~
+      get[LocalDateTime]("p_posted_at") map {
+        case postId ~ content ~ postedAt =>
+          PostForUpdate(postId, content, postedAt)
+      }
+  }
 
   private[repositories] val withUser = {
     get[Option[Long]]("p_post_id") ~
@@ -77,7 +87,19 @@ class PostRepository @Inject() (
     }
   }
 
-  def findByPostId(postId: Long) = Future {
+  def findByPostId(postId: Long): Future[PostForUpdate] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""
+      SELECT
+      post_id p_post_id,
+      content p_content,
+      posted_at p_posted_at
+      FROM posts p
+      WHERE post_id = ${postId};""".as(forUpdate.single)
+    }
+  }
+
+  def findByPostIdWithCommentList(postId: Long): Future[Post] = Future {
     db.withConnection { implicit conn =>
       val sqlResult =
         SQL"""
@@ -118,10 +140,14 @@ class PostRepository @Inject() (
     }
   }
 
+  def update(post: Post) = Future {}
+
   def insert(postForInsert: PostForInsert): Future[Option[Long]] = Future {
     db.withConnection { implicit connection =>
       SQL("""
-      INSERT INTO posts (content, user_id, posted_at) VALUES ({content}, {userId}, {postedAt});
+          INSERT INTO posts
+                     (content, user_id, posted_at)
+          VALUES     ({content}, {userId}, {postedAt});
       """).bind(postForInsert).executeInsert()
     }
 
