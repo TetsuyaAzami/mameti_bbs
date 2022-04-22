@@ -10,11 +10,11 @@ INSERT INTO posts (content,user_id,posted_at) VALUES ('user1投稿2', 1, NOW());
 INSERT INTO posts (content,user_id,posted_at) VALUES ('user2投稿1', 2, NOW());
 INSERT INTO posts (content,user_id,posted_at) VALUES ('user2投稿2', 2, NOW());
 
-INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (1,1,'user1のpost1に対するコメント1',NOW());
-INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (1,1,'user1のpost1に対するコメント2',NOW());
-INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (1,1,'user1のpost1に対するコメント3',NOW());
-INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (1,1,'user1のpost1に対するコメント4',NOW());
-INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (1,1,'user1のpost1に対するコメント5',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (2,1,'user1のpost1に対するコメント1',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (2,1,'user1のpost1に対するコメント2',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (2,1,'user1のpost1に対するコメント3',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (3,1,'user1のpost1に対するコメント4',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (3,1,'user1のpost1に対するコメント5',NOW());
 
 INSERT INTO likes (user_id, post_id) VALUES(1,1);
 INSERT INTO likes (user_id, post_id) VALUES(1,2);
@@ -22,7 +22,12 @@ INSERT INTO likes (user_id, post_id) VALUES(2,1);
 
 --!Downs
 DELETE FROM likes;
+SELECT setval ('likes_like_id_seq', 1, false);
 DELETE FROM comments;
+SELECT setval ('comments_comment_id_seq', 1, false);
 DELETE FROM posts;
+SELECT setval ('posts_post_id_seq', 1, false);
 DELETE FROM users;
+SELECT setval ('users_user_id_seq', 1, false);
 DELETE FROM departments;
+SELECT setval ('departments_department_id_seq', 1, false);
