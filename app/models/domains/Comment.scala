@@ -14,6 +14,7 @@ final case class Comment(
 final case class OptionComment(
     commentId: Option[Long] = None,
     userId: Option[Long],
+    userWhoCommented: Option[UserWhoCommented],
     postId: Option[Long],
     content: Option[String],
     commentedAt: Option[LocalDateTime]
