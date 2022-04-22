@@ -22,8 +22,14 @@ class UserRepository @Inject() (dbApi: DBApi)(implicit
     Macro.namedParser[User](Macro.ColumnNaming.SnakeCase)
 
   // 投稿一覧取得の際に使用する
-  private[repositories] val userWhoPostedParser: RowParser[UserWhoPosted] =
-    Macro.namedParser[UserWhoPosted](Macro.ColumnNaming.SnakeCase)
+  private[repositories] val userWhoPostedParser = {
+    get[Long]("u_user_id") ~
+      get[String]("u_name") ~
+      get[Option[String]]("u_profile_img") map {
+        case userId ~ name ~ profileImg =>
+          UserWhoPosted(userId, name, profileImg)
+      }
+  }
 
   def findUserById(id: Long): Future[Option[User]] = Future {
     db.withConnection { implicit con =>

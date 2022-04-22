@@ -27,10 +27,10 @@ class PostRepository @Inject() (
   private val db = dbApi.database("default")
 
   private[repositories] val withUser = {
-    get[Option[Long]]("posts.post_id") ~
-      get[String]("posts.content") ~
+    get[Option[Long]]("p_post_id") ~
+      get[String]("p_content") ~
       userRepository.userWhoPostedParser ~
-      get[LocalDateTime]("posts.posted_at") map {
+      get[LocalDateTime]("p_posted_at") map {
         case postId ~ content ~ user ~ postedAt =>
           Post(postId, content, user, postedAt, Nil)
       }
@@ -40,17 +40,17 @@ class PostRepository @Inject() (
     db.withConnection { implicit con =>
       SQL"""
             SELECT
-              p.post_id,
-              p.content,
-              p.user_id,
-              p.posted_at,
-              user_id,
-              u.name,
-              u.profile_img
+              p.post_id p_post_id,
+              p.content p_content,
+              p.user_id p_user_id,
+              p.posted_at p_posted_at,
+              u.user_id u_user_id,
+              u.name u_name,
+              u.profile_img u_profile_img
             FROM posts p
             INNER JOIN users u
-            USING (user_id)
-            ORDER BY p.posted_at DESC;"""
+            ON p.user_id = u.user_id
+            ORDER BY p_posted_at DESC;"""
         .as(
           withUser.*
         )
@@ -61,18 +61,18 @@ class PostRepository @Inject() (
     db.withConnection { implicit conn =>
       SQL"""
       SELECT
-      p.post_id,
-      p.content,
-      p.user_id,
-      p.posted_at,
-      user_id,
-      u.name,
-      u.profile_img
+      p.post_id p_post_id,
+      p.content p_content,
+      p.user_id p_user_id,
+      p.posted_at p_posted_at,
+      u.user_id u_user_id,
+      u.name u_name,
+      u.profile_img u_profile_img
       FROM posts p
       INNER JOIN users u
-      USING (user_id)
-      WHERE user_id = ${userId}
-      ORDER BY p.posted_at DESC;
+      ON p.user_id = u.user_id
+      WHERE p.user_id = ${userId}
+      ORDER BY p_posted_at DESC;
       """.as(withUser.*)
     }
   }
@@ -80,21 +80,22 @@ class PostRepository @Inject() (
   def findByPostId(postId: Long) = Future {
     db.withConnection { implicit conn =>
       SQL"""SELECT
-            p.post_id,
-            p.content,
-            p.posted_at,
-            u.user_id,
-            u.name,
-            u.profile_img,
-            c.comment_id,
-            c.user_id,
-            c.post_id,
-            c.content,
-            c.commented_at
+            p.post_id p_post_id,
+            p.content p_content,
+            p.posted_at p_posted_at,
+            u.user_id u_user_id,
+            u.name u_name,
+            u.profile_img u_profile_img,
+            c.comment_id c_comment_id,
+            c.user_id c_user_id,
+            c.post_id c_post_id,
+            c.content c_content,
+            c.commented_at c_commented_at
             FROM posts p
-            INNER JOIN users u USING(user_id)
-            INNER JOIN comments c USING(post_id)
-            WHERE post_id = 1; """
+            LEFT OUTER JOIN users u ON p.user_id = u.user_id
+            LEFT OUTER JOIN comments c ON p.post_id = c.post_id
+            WHERE p.post_id = ${postId}
+            ORDER BY c_commented_at ASC; """
         .as((withUser ~ commentRepository.simple).*)
         .groupBy(_._1)
         .map { e =>
