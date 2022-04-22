@@ -10,7 +10,7 @@ final case class Post(
     content: String,
     user: UserWhoPosted,
     postedAt: LocalDateTime,
-    commentList: List[Comment]
+    commentList: List[OptionComment]
 )
 
 final case class PostForInsert(
