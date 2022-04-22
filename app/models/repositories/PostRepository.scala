@@ -60,50 +60,57 @@ class PostRepository @Inject() (
   def findByUserId(userId: Long): Future[List[Post]] = Future {
     db.withConnection { implicit conn =>
       SQL"""
-      SELECT
-      p.post_id p_post_id,
-      p.content p_content,
-      p.user_id p_user_id,
-      p.posted_at p_posted_at,
-      u.user_id u_user_id,
-      u.name u_name,
-      u.profile_img u_profile_img
-      FROM posts p
-      INNER JOIN users u
-      ON p.user_id = u.user_id
-      WHERE p.user_id = ${userId}
-      ORDER BY p_posted_at DESC;
-      """.as(withUser.*)
+        SELECT
+        p.post_id p_post_id,
+        p.content p_content,
+        p.user_id p_user_id,
+        p.posted_at p_posted_at,
+        u.user_id u_user_id,
+        u.name u_name,
+        u.profile_img u_profile_img
+        FROM posts p
+        INNER JOIN users u
+        ON p.user_id = u.user_id
+        WHERE p.user_id = ${userId}
+        ORDER BY p_posted_at DESC;
+        """.as(withUser.*)
     }
   }
 
   def findByPostId(postId: Long) = Future {
     db.withConnection { implicit conn =>
-      SQL"""SELECT
-            p.post_id p_post_id,
-            p.content p_content,
-            p.posted_at p_posted_at,
-            u.user_id u_user_id,
-            u.name u_name,
-            u.profile_img u_profile_img,
-            c.comment_id c_comment_id,
-            c.user_id c_user_id,
-            c.post_id c_post_id,
-            c.content c_content,
-            c.commented_at c_commented_at
-            FROM posts p
-            LEFT OUTER JOIN users u ON p.user_id = u.user_id
-            LEFT OUTER JOIN comments c ON p.post_id = c.post_id
-            WHERE p.post_id = ${postId}
-            ORDER BY c_commented_at ASC; """
-        .as((withUser ~ commentRepository.simple).*)
-        .groupBy(_._1)
-        .map { e =>
-          val post = e._1
-          val commentList = e._2.map(_._2)
-          post.copy(commentList = commentList)
-        }
-        .toList(0)
+      val sqlResult =
+        SQL"""
+          SELECT
+          p.post_id p_post_id,
+          p.content p_content,
+          p.posted_at p_posted_at,
+          u.user_id u_user_id,
+          u.name u_name,
+          u.profile_img u_profile_img,
+          c.comment_id c_comment_id,
+          c.user_id c_user_id,
+          c.post_id c_post_id,
+          c.content c_content,
+          c.commented_at c_commented_at
+          FROM posts p
+          LEFT OUTER JOIN users u ON p.user_id = u.user_id
+          LEFT OUTER JOIN comments c ON p.post_id = c.post_id
+          WHERE p.post_id = ${postId}
+          ORDER BY c_commented_at ASC; """
+          .as((withUser ~ commentRepository.optionCommentParser).*)
+
+      val post = sqlResult(0)._1
+
+      // 投稿に紐づくコメントがない場合、空のコメントリストを返します
+      val firstCommentId = sqlResult.map(_._2)(0).commentId
+      val commentList = firstCommentId match {
+        case None    => List()
+        case Some(i) => sqlResult.map(_._2)
+      }
+
+      val postWithCommentList = post.copy(commentList = commentList)
+      postWithCommentList
     }
   }
 
