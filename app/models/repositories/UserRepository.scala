@@ -12,6 +12,7 @@ import anorm.SqlParser._
 import play.api.db.DBApi
 
 import scala.concurrent.Future
+import models.domains.UserWhoCommented
 
 class UserRepository @Inject() (dbApi: DBApi)(implicit
     dec: DatabaseExecutionContext
@@ -21,13 +22,23 @@ class UserRepository @Inject() (dbApi: DBApi)(implicit
   private[repositories] val simple: RowParser[User] =
     Macro.namedParser[User](Macro.ColumnNaming.SnakeCase)
 
-  // 投稿一覧取得の際に使用する
+  // 投稿一覧取得の際に使用
   private[repositories] val userWhoPostedParser = {
     get[Long]("u_user_id") ~
       get[String]("u_name") ~
       get[Option[String]]("u_profile_img") map {
         case userId ~ name ~ profileImg =>
           UserWhoPosted(userId, name, profileImg)
+      }
+  }
+
+  // コメントリストを表示する際に使用
+  private[repositories] val userWhoCommentedParser = {
+    get[Option[Long]]("cu_user_id") ~
+      get[Option[String]]("cu_name") ~
+      get[Option[String]]("cu_profile_img") map {
+        case userId ~ name ~ profileImg =>
+          UserWhoCommented(userId, name, profileImg)
       }
   }
 

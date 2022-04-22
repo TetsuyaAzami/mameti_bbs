@@ -19,3 +19,10 @@ final case class UserWhoPosted(
     name: String,
     profileImg: Option[String]
 )
+
+// コメントしたユーザ
+final case class UserWhoCommented(
+    userId: Option[Long],
+    name: Option[String],
+    profileImg: Option[String]
+)
