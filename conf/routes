@@ -9,7 +9,9 @@ GET     /                           controllers.HomeController.index()
 # Post
 GET     /posts                      controllers.PostController.index()
 POST    /posts                      controllers.PostController.insert()
-GET     /posts/:id           controllers.PostController.detail(id: Long)
+GET     /posts/detail/:postId       controllers.PostController.detail(postId: Long)
+GET     /posts/edit/:postId         controllers.PostController.edit(postId: Long)
+POST    /posts/update               controllers.PostController.update()
 
 # User
 GET     /users/:id                  controllers.UserController.index(id:Long)

@@ -1,0 +1,27 @@
+@import helper._
+@import models.domains.Post
+@import forms.PostForm.PostUpdateFormData
+@(postForm: Form[PostUpdateFormData])(implicit request: MessagesRequestHeader,flash: Flash)
+@implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
+
+@main("投稿編集"){
+<div class="container main-contents">
+	<div class="page-title text-center mt-5">
+		<h1 class="fw-bold pt-3">
+			豆知識編集
+		</h1>
+	</div>
+	<div>
+		@form(routes.PostController.update()) {
+		@CSRF.formField
+		@inputText(postForm("postId"), Symbol("type") -> "hidden")
+		@textarea(postForm("content"),Symbol("class")->"form-control")
+		<div class="mt-1 text-end">
+			<span class="me-5">
+				<button class="btn btn-primary btn-sm" type="submit">更新する</button>
+			</span>
+		</div>
+		}
+	</div>
+</div>
+}
