@@ -19,8 +19,8 @@ MessagesRequestHeader,flash: Flash)
 			<div class="modal-body">
 				@form(routes.CommentController.insert()) {
 				@CSRF.formField
-				@inputText(commentForm("content"),Symbol("class") -> "form-control")
-				@inputText(commentForm("postId"), Symbol("type") -> "hidden")
+				@textarea(commentForm("content"),Symbol("class") -> "form-control")
+				@inputText(commentForm("postId"), Symbol("type") -> "hidden", Symbol("id") -> "modalHiddenInput")
 				<div class="mt-1 text-end">
 					<span class="me-5">
 						<button class="btn btn-primary btn-sm" type="submit">送信</button>
@@ -47,28 +47,33 @@ MessagesRequestHeader,flash: Flash)
 		</div>
 		}
 	</section>
-
-	@posts.map{post =>
-	<article class="border">
-		<a href="@routes.PostController.detail(post._1.postId.get)">
-			<section class="card-header bg-white">
-				<span class="fs-5 fw-bold">@post._1.user.name</span>
-				<span class="ps-3 text-secondary">
-					@post._1.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
-				</span>
+	<section id="postList">
+		@posts.map{post =>
+		<article class="border">
+			<a href="@routes.PostController.detail(post._1.postId.get)">
+				<section class="card-header bg-white">
+					<span class="fs-5 fw-bold">@post._1.user.name</span>
+					<span class="ps-3 text-secondary">
+						@post._1.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+					</span>
+				</section>
+				<section class="card-body">
+					<div class="card-text p-3">@post._1.content</div>
+				</section>
+			</a>
+			<section class="card-footer bg-white border-white">
+				<div class="px-3 w-25 d-flex justify-content-between align-items-center">
+					<span>
+						<i title="コメントする" class="far fa-comment commentButton" data-bs-toggle="modal"
+							data-bs-target="#commentPostModal" data-post-id="@post._1.postId"></i>
+						<span class="px-1">@post._2.getOrElse("")</span>
+					</span>
+					<i title="いいね!" class="far fa-heart"></i>
+				</div>
 			</section>
-			<section class="card-body">
-				<div class="card-text p-3">@post._1.content</div>
-			</section>
-		</a>
-		<section class="card-footer bg-white border-white">
-			<div class="px-3 w-25 d-flex justify-content-between align-items-center">
-				<i title="コメントする" class="far fa-comment" data-bs-toggle="modal" data-bs-target="#commentPostModal"></i>
-				<span class="px-1">@post._2.getOrElse("")</span>
-				<i title="いいね!" class="far fa-heart"></i>
-			</div>
-		</section>
-	</article>
-	}
+		</article>
+		}
+	</section>
 </div>
+<script src="@routes.Assets.versioned("javascripts/posts/index.js")"></script>
 }
