@@ -17,6 +17,8 @@ import java.time.LocalDateTime
 
 import scala.concurrent.Future
 import scala.language.postfixOps
+import models.domains.OptionComment
+import models.domains.UserWhoCommented
 
 class PostRepository @Inject() (
     dbApi: DBApi,
@@ -46,28 +48,39 @@ class PostRepository @Inject() (
       }
   }
 
-  def findAll(): Future[List[Post]] = Future {
+  def findAll(): Future[List[(Post, Option[Long])]] = Future {
     db.withConnection { implicit con =>
       SQL"""
             SELECT
-              p.post_id p_post_id,
-              p.content p_content,
-              p.user_id p_user_id,
-              p.posted_at p_posted_at,
-              u.user_id u_user_id,
-              u.name u_name,
-              u.profile_img u_profile_img
+            p.post_id p_post_id,
+            p.content p_content,
+            p.user_id p_user_id,
+            p.posted_at p_posted_at,
+            c.count c_count, -- コメント数の取得
+            u.user_id u_user_id, -- 投稿したユーザの取得
+            u.name u_name,
+            u.profile_img u_profile_img
             FROM posts p
+            LEFT OUTER JOIN (
+            SELECT
+            post_id,
+            count(*) count
+            FROM comments
+            GROUP BY post_id
+            ) c
+            ON p.post_id = c.post_id
             INNER JOIN users u
             ON p.user_id = u.user_id
             ORDER BY p_posted_at DESC;"""
         .as(
-          withUser.*
+          (withUser ~ long("c_count").?).map { case post ~ count =>
+            (post.copy(), count)
+          }.*
         )
     }
   }
 
-  def findByUserId(userId: Long): Future[List[Post]] = Future {
+  def findByUserId(userId: Long): Future[List[(Post, Option[Long])]] = Future {
     db.withConnection { implicit conn =>
       SQL"""
         SELECT
@@ -75,15 +88,27 @@ class PostRepository @Inject() (
         p.content p_content,
         p.user_id p_user_id,
         p.posted_at p_posted_at,
-        u.user_id u_user_id,
+        c.count c_count, -- コメント数の取得
+        u.user_id u_user_id, -- 投稿したユーザの取得
         u.name u_name,
         u.profile_img u_profile_img
         FROM posts p
+        LEFT OUTER JOIN (
+        SELECT
+        post_id,
+        count(*) count
+        FROM comments
+        GROUP BY post_id
+        ) c
+        ON p.post_id = c.post_id
         INNER JOIN users u
         ON p.user_id = u.user_id
         WHERE p.user_id = ${userId}
         ORDER BY p_posted_at DESC;
-        """.as(withUser.*)
+        """
+        .as((withUser ~ long("c_count").?).map { case post ~ count =>
+          (post.copy(), count)
+        }.*)
     }
   }
 
@@ -119,16 +144,20 @@ class PostRepository @Inject() (
           cu.name cu_name,
           cu.profile_img cu_profile_img
           FROM posts p
-          LEFT OUTER JOIN users u ON p.user_id = u.user_id
-          LEFT OUTER JOIN comments c ON p.post_id = c.post_id
-          LEFT OUTER JOIN users cu ON c.user_id = cu.user_id
+          LEFT OUTER JOIN users u
+          ON p.user_id = u.user_id
+          LEFT OUTER JOIN comments c
+          ON p.post_id = c.post_id
+          LEFT OUTER JOIN users cu
+          ON c.user_id = cu.user_id
           WHERE p.post_id = ${postId}
-          ORDER BY c_commented_at ASC; """
-          .as((withUser ~ commentRepository.optionCommentWithUserParser).*)
+          ORDER BY c_commented_at DESC; """
+          .as(
+            (withUser ~ commentRepository.optionCommentWithUserParser).*
+          )
 
       val post = sqlResult(0)._1
-
-      // 投稿に紐づくコメントがない場合、空のコメントリストを返します
+      // // 投稿に紐づくコメントがない場合、空のコメントリストを返します
       val firstCommentId = sqlResult.map(_._2)(0).commentId
       val commentList = firstCommentId match {
         case None    => List()
