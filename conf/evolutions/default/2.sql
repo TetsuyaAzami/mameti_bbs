@@ -10,11 +10,14 @@ INSERT INTO posts (content,user_id,posted_at) VALUES ('user1投稿2', 1, NOW());
 INSERT INTO posts (content,user_id,posted_at) VALUES ('user2投稿1', 2, NOW());
 INSERT INTO posts (content,user_id,posted_at) VALUES ('user2投稿2', 2, NOW());
 
-INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (2,1,'user1のpost1に対するコメント1',NOW());
-INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (2,1,'user1のpost1に対するコメント2',NOW());
-INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (2,1,'user1のpost1に対するコメント3',NOW());
-INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (3,1,'user1のpost1に対するコメント4',NOW());
-INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (3,1,'user1のpost1に対するコメント5',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (2,1,'post1に対するユーザ2のコメント1',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (2,1,'post1に対するユーザ2のコメント2',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (2,1,'post1に対するユーザ2のコメント3',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (3,1,'post1に対するユーザ3のコメント4',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (3,1,'post1に対するユーザ3のコメント5',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (3,2,'post2に対するユーザ3のコメント1',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (3,2,'post2に対するユーザ3のコメント2',NOW());
+INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (3,2,'post2に対するユーザ3のコメント3',NOW());
 
 INSERT INTO likes (user_id, post_id) VALUES(1,1);
 INSERT INTO likes (user_id, post_id) VALUES(1,2);
