@@ -1,5 +1,6 @@
 @import domains.Post
 @import java.time.format._
+@import helper._
 
 @(posts: List[Post])(implicit request: MessagesRequestHeader, flash: Flash)
 
@@ -33,7 +34,11 @@
 					<i title="コメントする" class="far fa-comment"></i>
 				</a>
 				<i title="いいね！" class="far fa-heart"></i>
-				<i title="削除する" class="far fa-trash-alt"></i>
+				@form(routes.PostController.delete(),Symbol("id") -> "deleteForm") {
+				@CSRF.formField
+				<input type="hidden" name="deletePostId" value=@post.postId>
+				<i id="deleteButton" title="削除する" class="far fa-trash-alt"></i>
+				}
 				<a href="@routes.PostController.edit(post.postId.get)">
 					<i title="編集する" class="far fa-edit"></i>
 				</a>
