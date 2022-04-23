@@ -12,6 +12,7 @@ POST    /posts                      controllers.PostController.insert()
 GET     /posts/detail/:postId       controllers.PostController.detail(postId: Long)
 GET     /posts/edit/:postId         controllers.PostController.edit(postId: Long)
 POST    /posts/update               controllers.PostController.update()
+POST    /posts/delete               controllers.PostController.delete()
 
 # User
 GET     /users/:id                  controllers.UserController.index(id:Long)
