@@ -1,25 +1,24 @@
 @import helper._
 @import java.time.format._
 @import models.domains.Post
-@import models.domains.User
 @import forms.PostForm.PostFormData
 @(postForm: Form[PostFormData],posts: List[Post])(implicit request: MessagesRequestHeader,flash: Flash)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 
 @main("投稿一覧"){
 <div class="container main-contents">
-		<h1 class="text-center mt-5 fw-bold  py-3">みんなの豆知識一覧</h1>
+	<h1 class="text-center mt-5 fw-bold  py-3">みんなの豆知識一覧</h1>
 	<div class="text-center text-success fw-bold my-3"><span>@flash.get("success").getOrElse("")</span></div>
 
 	<section class="mb-5">
 		@form(routes.PostController.insert()) {
-			@CSRF.formField
-			@textarea(postForm("content"),Symbol("class")->"form-control", Symbol("placeholder")->"今日の豆知識をつぶやこう!")
-			<div class="mt-1 text-end">
-				<span class="me-5">
-					<button class="btn btn-primary btn-sm" type="submit">投稿する</button>
-				</span>
-			</div>
+		@CSRF.formField
+		@textarea(postForm("content"),Symbol("class")->"form-control", Symbol("placeholder")->"今日の豆知識をつぶやこう!")
+		<div class="mt-1 text-end">
+			<span class="me-5">
+				<button class="btn btn-primary btn-sm" type="submit">投稿する</button>
+			</span>
+		</div>
 		}
 	</section>
 
@@ -34,12 +33,16 @@
 			</section>
 			<section class="card-body">
 				<div class="card-text p-3">@post.content</div>
-				<div class="px-3 w-25 d-flex justify-content-between">
-					<i title="コメントする" class="far fa-comment"></i>
-					<i title="いいね!" class="far fa-heart"></i>
-				</div>
 			</section>
 		</a>
+		<section class="card-footer bg-white border-white">
+			<div class="px-3 w-25 d-flex justify-content-between align-items-center">
+				<a href="@routes.PostController.detail(post.postId.get)">
+					<i title="コメントする" class="far fa-comment"></i>
+				</a>
+				<i title="いいね!" class="far fa-heart"></i>
+			</div>
+		</section>
 	</article>
 	}
 </div>
