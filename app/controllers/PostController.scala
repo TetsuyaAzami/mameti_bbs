@@ -37,6 +37,25 @@ class PostController @Inject() (
     }
   }
 
+  def insert() = Action.async { implicit request =>
+    val errorFunction = { formWithErrors: Form[PostForm.PostFormData] =>
+      postService.findAll().map { allPosts =>
+        BadRequest(views.html.posts.index(formWithErrors, allPosts))
+      }
+    }
+
+    val successFunction = { post: PostForm.PostFormData =>
+      val postForInsert = PostForInsert(post.content, 1, LocalDateTime.now())
+      postService.insert(postForInsert).flatMap { _ =>
+        postService.findAll().map { allPosts =>
+          Redirect(routes.PostController.index())
+            .flashing("success" -> "投稿完了しました")
+        }
+      }
+    }
+    postForm.bindFromRequest().fold(errorFunction, successFunction)
+  }
+
   def edit(postId: Long) = Action.async { implicit request =>
     // ここでeditするpostのuserIdとログインユーザのuserIdが一致するか確認
     // あとで実装
@@ -77,23 +96,16 @@ class PostController @Inject() (
     sentPostForm.fold(errorFunction, successFunction)
   }
 
-  def insert() = Action.async { implicit request =>
-    val errorFunction = { formWithErrors: Form[PostForm.PostFormData] =>
-      postService.findAll().map { allPosts =>
-        BadRequest(views.html.posts.index(formWithErrors, allPosts))
-      }
-    }
+  def delete() = Action.async { implicit request =>
+    // ここでeditするpostのuserIdとログインユーザのuserIdが一致するか確認
+    // あとで実装
 
-    val successFunction = { post: PostForm.PostFormData =>
-      val postForInsert = PostForInsert(post.content, 1, LocalDateTime.now())
-      postService.insert(postForInsert).flatMap { _ =>
-        postService.findAll().map { allPosts =>
-          Redirect(routes.PostController.index())
-            .flashing("success" -> "投稿完了しました")
-        }
-      }
+    val deletePostId =
+      request.body.asFormUrlEncoded.get("deletePostId")(0).toLong
+    postService.delete(deletePostId).map { deletedPostId =>
+      Redirect(routes.UserController.index(1))
+        .flashing("success" -> "削除に成功しました")
     }
-    postForm.bindFromRequest().fold(errorFunction, successFunction)
   }
 
 }

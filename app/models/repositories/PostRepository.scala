@@ -155,7 +155,7 @@ class PostRepository @Inject() (
   }
 
   def insert(postForInsert: PostForInsert): Future[Option[Long]] = Future {
-    db.withConnection { implicit connection =>
+    db.withConnection { implicit conn =>
       SQL("""
           INSERT INTO posts
                      (content, user_id, posted_at)
@@ -163,5 +163,13 @@ class PostRepository @Inject() (
       """).bind(postForInsert).executeInsert()
     }
 
+  }
+
+  def delete(postId: Long): Future[Long] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""
+      DELETE FROM posts
+      WHERE post_id = ${postId};""".executeUpdate()
+    }
   }
 }
