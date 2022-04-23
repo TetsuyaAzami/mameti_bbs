@@ -14,6 +14,8 @@ import play.api.data.Form
 import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
+import models.domains.PostForUpdate
+import scala.concurrent.Future
 
 class PostController @Inject() (
     mcc: MessagesControllerComponents,
@@ -54,26 +56,25 @@ class PostController @Inject() (
     // ここでeditするpostのuserIdとログインユーザのuserIdが一致するか確認
     // あとで実装
 
-    val sentPostForm = postForm.bindFromRequest()
-    println()
-    println()
-    println()
-    println()
-    println(sentPostForm)
-    // フォームバリデーション
-    // val errorFunction = { formWithErrors: Form[PostForm.PostUpdateFormData] =>
-    //   postService.findByPostId(sentPostForm.get.postId)
-    // }
+    val sentPostForm = postUpdateForm.bindFromRequest()
 
-    // 登録処理
+    val errorFunction = { formWithErrors: Form[PostForm.PostUpdateFormData] =>
+      Future { BadRequest(views.html.posts.edit(formWithErrors)) }
+    }
+    val successFunction = { post: PostForm.PostUpdateFormData =>
+      val savePostData =
+        PostForUpdate(post.postId, post.content, LocalDateTime.now())
 
-    // ユーザマイページへ遷移
-    postService
-      .findByUserId(1)
-      .map(post =>
-        Redirect(routes.UserController.index(1))
-          .flashing("success" -> "投稿完了しました")
-      )
+      postService.update(savePostData)
+      postService
+        .findByUserId(1)
+        .map(post =>
+          Redirect(routes.UserController.index(1))
+            .flashing("success" -> "投稿完了しました")
+        )
+    }
+
+    sentPostForm.fold(errorFunction, successFunction)
   }
 
   def insert() = Action.async { implicit request =>

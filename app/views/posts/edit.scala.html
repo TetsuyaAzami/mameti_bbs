@@ -10,11 +10,11 @@
 		<h1 class="fw-bold pt-3">
 			豆知識編集
 		</h1>
-		@postForm
 	</div>
 	<div>
 		@form(routes.PostController.update()) {
 		@CSRF.formField
+		@inputText(postForm("postId"), Symbol("type") -> "hidden")
 		@textarea(postForm("content"),Symbol("class")->"form-control")
 		<div class="mt-1 text-end">
 			<span class="me-5">
