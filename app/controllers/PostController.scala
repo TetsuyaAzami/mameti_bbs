@@ -27,6 +27,7 @@ class PostController @Inject() (
 
   def index() = Action.async { implicit request =>
     postService.findAll().map { allPosts =>
+      println(allPosts)
       Ok(views.html.posts.index(postForm, allPosts))
     }
   }
@@ -89,7 +90,7 @@ class PostController @Inject() (
         .findByUserId(1)
         .map(post =>
           Redirect(routes.UserController.index(1))
-            .flashing("success" -> "投稿完了しました")
+            .flashing("success" -> "編集完了しました")
         )
     }
 

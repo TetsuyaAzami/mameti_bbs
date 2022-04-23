@@ -9,41 +9,50 @@
 		</h1>
 	</div>
 	<article class="border border-2">
-			<section class="card-header bg-white">
-				<span class="fs-5 fw-bold">@post.user.name</span>
-				<span class="ps-3 text-secondary">
-					@post.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
-				</span>
-			</section>
-			<section class="card-body">
-				<div class="card-text p-3">@post.content</div>
-			</section>
-			<section class="card-footer bg-white">
-				<div class="card-text px-3">○ likes</div>
-			</section>
-			<section class="card-footer bg-white p-3">
-				<div class="px-3 w-25 d-flex justify-content-between">
+		<section class="card-header bg-white">
+			<span class="fs-5 fw-bold">@post.user.name</span>
+			<span class="ps-3 text-secondary">
+				@post.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+			</span>
+		</section>
+		<section class="card-body">
+			<div class="card-text p-3">@post.content</div>
+		</section>
+		<section class="card-footer bg-white">
+			<div class="card-text px-3">○ likes</div>
+		</section>
+		<section class="card-footer bg-white p-3">
+			<div class="px-3 w-25 d-flex justify-content-between">
+				<span>
 					<i title="コメントする" class="far fa-comment"></i>
-					<i title="いいね！" class="far fa-heart"></i>
-				</div>
-			</section>
+					<span class="px-1">
+						@post.commentList.size match {
+							case 0 => {}
+							case _ => {@post.commentList.size}
+						}
+
+					</span>
+				</span>
+				<i title="いいね！" class="far fa-heart"></i>
+			</div>
+		</section>
 	</article>
 
 	@post.commentList.filter(_.commentId != None).map{comment =>
-		<article class="border">
-			<section class="card-header bg-white">
-				<span class="fs-5 fw-bold">@comment.userWhoCommented.get.name.get</span>
-				<span class="ps-3 text-secondary">
-					@comment.commentedAt.get.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
-				</span>
-			</section>
-			<section class="card-body">
-				<div class="card-text p-3">@comment.content</div>
-				<div class="px-3 w-25 d-flex justify-content-between">
-					<i title="コメントする" class="far fa-comment"></i>
-					<i title="いいね！" class="far fa-heart"></i>
-				</div>
-			</section>
+	<article class="border">
+		<section class="card-header bg-white">
+			<span class="fs-5 fw-bold">@comment.userWhoCommented.get.name.get</span>
+			<span class="ps-3 text-secondary">
+				@comment.commentedAt.get.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+			</span>
+		</section>
+		<section class="card-body">
+			<div class="card-text p-3">@comment.content</div>
+			<div class="px-3 w-25 d-flex justify-content-between">
+				<i title="コメントする" class="far fa-comment"></i>
+				<i title="いいね！" class="far fa-heart"></i>
+			</div>
+		</section>
 	</article>
 	}
 </div>
