@@ -1,5 +1,9 @@
 package controllers
 
+import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.MessagesAbstractController
+import play.api.data.Form
+
 import models.repositories._
 import models.domains.Post
 import models.domains.PostForInsert
@@ -8,10 +12,6 @@ import views.html.helper.form
 import views.html.defaultpages.error
 import controllers.forms.PostForm
 import controllers.forms.CommentForm
-
-import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.MessagesAbstractController
-import play.api.data.Form
 
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -29,7 +29,6 @@ class PostController @Inject() (
 
   def index() = Action.async { implicit request =>
     postService.findAll().map { allPosts =>
-      println(allPosts)
       Ok(views.html.posts.index(postForm, commentForm, allPosts))
     }
   }
@@ -84,7 +83,7 @@ class PostController @Inject() (
     val sentPostForm = postUpdateForm.bindFromRequest()
 
     val errorFunction = { formWithErrors: Form[PostForm.PostUpdateFormData] =>
-      Future { BadRequest(views.html.posts.edit(formWithErrors)) }
+      Future.successful(BadRequest(views.html.posts.edit(formWithErrors)))
     }
     val successFunction = { post: PostForm.PostUpdateFormData =>
       val savePostData =

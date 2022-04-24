@@ -10,6 +10,7 @@ import play.api.db.DBApi
 import javax.inject.Inject
 import java.time.LocalDateTime
 import models.domains.OptionComment
+import scala.concurrent.Future
 
 class CommentRepository @Inject() (
     dbApi: DBApi,
@@ -36,5 +37,13 @@ class CommentRepository @Inject() (
             commentedAt
           )
       }
+  }
+
+  def insert(): Future[Long] = Future {
+    db.withConnection { implicit conn =>
+      {
+        1
+      }
+    }
   }
 }

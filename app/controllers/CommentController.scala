@@ -2,31 +2,48 @@ package controllers
 
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.MessagesAbstractController
+import play.api.data.Form
+
 import models.DatabaseExecutionContext
+import models.domains.Comment
+import models.repositories.CommentRepository
+import models.repositories.PostRepository
+import views.html.defaultpages.error
+import controllers.forms.CommentForm
+import controllers.forms.CommentForm.CommentFormData
+import controllers.forms.PostForm
+
+import play.api.libs.json._
+import play.api.libs.json.Reads._
+import play.api.libs.functional.syntax._
+
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
-import models.repositories.PostRepository
-import controllers.forms.CommentForm
-import controllers.forms.PostForm
 import scala.concurrent.Future
 
 class CommentController @Inject() (
     mcc: MessagesControllerComponents,
+    commentService: CommentRepository,
     postService: PostRepository
 )(implicit
     ec: ExecutionContext
 ) extends MessagesAbstractController(mcc) {
-  def insert() = Action.async { implicit request =>
-    val commentForm = CommentForm.commentForm
-    val postForm = PostForm.postForm
+  val commentForm = CommentForm.commentForm
+  val postForm = PostForm.postForm
 
-    println()
-    println()
-    println()
-    println("insertを通りました")
-    Future { // とりあえずFutureにした。あとで直す。
-      Redirect(routes.PostController.index())
-        .flashing("success" -> "コメントを投稿しました")
+  def insert() = Action(parse.json).async { implicit request =>
+    val sentCommentForm = commentForm.bindFromRequest()
+
+    val errorFunction = { formWithErrors: Form[CommentFormData] =>
+      Future.successful(BadRequest(formWithErrors.errorsAsJson))
     }
+    val successFunction = { comment: CommentForm.CommentFormData =>
+      println()
+      println("成功")
+      commentService.insert().map { commentId =>
+        Created(Json.toJson("コメントを投稿しました"))
+      }
+    }
+    sentCommentForm.fold(errorFunction, successFunction)
   }
 }

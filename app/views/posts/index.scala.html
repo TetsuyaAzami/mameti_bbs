@@ -16,14 +16,14 @@ MessagesRequestHeader,flash: Flash)
 				<h5 class="modal-title">コメントを投稿する</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
-			<div class="modal-body">
+			<div id="modalBody" class="modal-body">
 				@form(routes.CommentController.insert()) {
 				@CSRF.formField
+				<span id="commentErrorMessage" class="text-danger"></span>
 				@textarea(commentForm("content"),Symbol("class") -> "form-control")
-				@inputText(commentForm("postId"), Symbol("type") -> "hidden", Symbol("id") -> "modalHiddenInput")
 				<div class="mt-1 text-end">
 					<span class="me-5">
-						<button class="btn btn-primary btn-sm" type="submit">送信</button>
+						<button id="commentInsertButton" class="btn btn-primary btn-sm" type="button">送信</button>
 						}
 					</span>
 				</div>
@@ -34,7 +34,7 @@ MessagesRequestHeader,flash: Flash)
 
 <div class="container main-contents">
 	<h1 class="text-center mt-5 fw-bold  py-3">みんなの豆知識一覧</h1>
-	<div class="text-center text-success fw-bold my-3"><span>@flash.get("success").getOrElse("")</span></div>
+	<div id="flashSuccessMessage" class="text-center text-success fw-bold my-3"><span>@flash.get("success").getOrElse("")</span></div>
 
 	<section class="mb-5">
 		@form(routes.PostController.insert()) {
@@ -64,7 +64,7 @@ MessagesRequestHeader,flash: Flash)
 			<section class="card-footer bg-white border-white">
 				<div class="px-3 w-25 d-flex justify-content-between align-items-center">
 					<span>
-						<i title="コメントする" class="far fa-comment commentButton" data-bs-toggle="modal"
+						<i title="コメントする" class="far fa-comment" data-bs-toggle="modal"
 							data-bs-target="#commentPostModal" data-post-id="@post._1.postId"></i>
 						<span class="px-1">@post._2.getOrElse("")</span>
 					</span>
