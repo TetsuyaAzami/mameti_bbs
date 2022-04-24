@@ -20,6 +20,7 @@ import play.api.libs.functional.syntax._
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import java.time.LocalDateTime
 
 class CommentController @Inject() (
     mcc: MessagesControllerComponents,
@@ -37,10 +38,14 @@ class CommentController @Inject() (
     val errorFunction = { formWithErrors: Form[CommentFormData] =>
       Future.successful(BadRequest(formWithErrors.errorsAsJson))
     }
-    val successFunction = { comment: CommentForm.CommentFormData =>
-      println()
-      println("成功")
-      commentService.insert().map { commentId =>
+    val successFunction = { commentData: CommentForm.CommentFormData =>
+      val comment = Comment(
+        userId = 1,
+        postId = commentData.postId,
+        content = commentData.content,
+        commentedAt = LocalDateTime.now()
+      )
+      commentService.insert(comment).map { commentId =>
         Created(Json.toJson("コメントを投稿しました"))
       }
     }

@@ -31,7 +31,7 @@
 
   $commentInsertButton.addEventListener("click", (e) => {
     const content = $contentInput.value;
-    axios
+    instance
       .post(
         "/comment",
         {

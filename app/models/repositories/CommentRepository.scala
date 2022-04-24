@@ -39,10 +39,12 @@ class CommentRepository @Inject() (
       }
   }
 
-  def insert(): Future[Long] = Future {
+  def insert(comment: Comment): Future[Long] = Future {
     db.withConnection { implicit conn =>
       {
-        1
+        SQL(
+          "INSERT INTO comments (user_id, post_id, content, commented_at) VALUES ({userId},{postId},{content},{commentedAt});"
+        ).bind(comment).executeUpdate()
       }
     }
   }
