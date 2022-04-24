@@ -10,6 +10,7 @@ import play.api.db.DBApi
 import javax.inject.Inject
 import java.time.LocalDateTime
 import models.domains.OptionComment
+import scala.concurrent.Future
 
 class CommentRepository @Inject() (
     dbApi: DBApi,
@@ -36,5 +37,15 @@ class CommentRepository @Inject() (
             commentedAt
           )
       }
+  }
+
+  def insert(comment: Comment): Future[Long] = Future {
+    db.withConnection { implicit conn =>
+      {
+        SQL(
+          "INSERT INTO comments (user_id, post_id, content, commented_at) VALUES ({userId},{postId},{content},{commentedAt});"
+        ).bind(comment).executeUpdate()
+      }
+    }
   }
 }

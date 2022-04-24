@@ -1,20 +1,21 @@
 package controllers
 
-import models.repositories._
-import models.domains.Post
-import models.domains.PostForInsert
-import views.html.helper.form
-import views.html.defaultpages.error
-import controllers.forms.PostForm
-
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.MessagesAbstractController
 import play.api.data.Form
 
+import models.repositories._
+import models.domains.Post
+import models.domains.PostForInsert
+import models.domains.PostForUpdate
+import views.html.helper.form
+import views.html.defaultpages.error
+import controllers.forms.PostForm
+import controllers.forms.CommentForm
+
 import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
-import models.domains.PostForUpdate
 import scala.concurrent.Future
 
 class PostController @Inject() (
@@ -23,12 +24,12 @@ class PostController @Inject() (
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
   val postForm = PostForm.postForm
+  val commentForm = CommentForm.commentForm
   val postUpdateForm = PostForm.postUpdateForm
 
   def index() = Action.async { implicit request =>
     postService.findAll().map { allPosts =>
-      println(allPosts)
-      Ok(views.html.posts.index(postForm, allPosts))
+      Ok(views.html.posts.index(postForm, commentForm, allPosts))
     }
   }
 
@@ -41,7 +42,9 @@ class PostController @Inject() (
   def insert() = Action.async { implicit request =>
     val errorFunction = { formWithErrors: Form[PostForm.PostFormData] =>
       postService.findAll().map { allPosts =>
-        BadRequest(views.html.posts.index(formWithErrors, allPosts))
+        BadRequest(
+          views.html.posts.index(formWithErrors, commentForm, allPosts)
+        )
       }
     }
 
@@ -62,6 +65,7 @@ class PostController @Inject() (
     // あとで実装
 
     postService.findByPostId(postId).map { post =>
+      // DBから取得したデータをformに詰めてviewに渡す
       val postUpdateData =
         Map(
           "postId" -> post.postId.toString(),
@@ -79,7 +83,7 @@ class PostController @Inject() (
     val sentPostForm = postUpdateForm.bindFromRequest()
 
     val errorFunction = { formWithErrors: Form[PostForm.PostUpdateFormData] =>
-      Future { BadRequest(views.html.posts.edit(formWithErrors)) }
+      Future.successful(BadRequest(views.html.posts.edit(formWithErrors)))
     }
     val successFunction = { post: PostForm.PostUpdateFormData =>
       val savePostData =
