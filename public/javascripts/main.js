@@ -1,9 +1,5 @@
-(function () {
-  const $deletebutton = document.getElementById("deleteButton");
-  const $deleteForm = document.getElementById("deleteForm");
-  $deletebutton.addEventListener("click", () => {
-    if (confirm("本当に削除してよろしいですか？")) {
-      $deleteForm.submit();
-    }
-  });
-})();
+const instance = axios.create({
+  baseURL: "/",
+  timeout: 1000,
+  headers: { "Content-Type": "application/json" },
+});

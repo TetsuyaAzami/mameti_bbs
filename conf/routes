@@ -14,6 +14,9 @@ GET     /posts/edit/:postId         controllers.PostController.edit(postId: Long
 POST    /posts/update               controllers.PostController.update()
 POST    /posts/delete               controllers.PostController.delete()
 
+# Comment
+POST    /comment                    controllers.CommentController.insert()
+
 # User
 GET     /users/:id                  controllers.UserController.index(id:Long)
 
