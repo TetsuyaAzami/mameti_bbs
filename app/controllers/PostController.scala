@@ -35,7 +35,7 @@ class PostController @Inject() (
 
   def detail(postId: Long) = Action.async { implicit request =>
     postService.findByPostIdWithCommentList(postId).map { postWithComments =>
-      Ok(views.html.posts.detail(postWithComments))
+      Ok(views.html.posts.detail(postWithComments, commentForm))
     }
   }
 

@@ -1,6 +1,9 @@
+@import helper._
 @import domains.Post
 @import java.time.format._
-@(post: Post)
+@import forms.CommentForm.CommentFormData
+@(post: Post, commentForm:Form[CommentFormData])(implicit request: MessagesRequestHeader)
+@implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 @main("投稿詳細"){
 <div class="container main-contents">
 	<div class="page-title text-center mt-5">
@@ -8,7 +11,7 @@
 			投稿詳細ページ
 		</h1>
 	</div>
-	<article class="border border-2">
+	<article id="postArticle" class="border border-2">
 		<section class="card-header bg-white">
 			<span class="fs-5 fw-bold">@post.user.name</span>
 			<span class="ps-3 text-secondary">
@@ -22,38 +25,53 @@
 			<div class="card-text px-3">○ likes</div>
 		</section>
 		<section class="card-footer bg-white p-3">
-			<div class="px-3 w-25 d-flex justify-content-between">
+			<div class="px-3 w-25 d-flex justify-content-between align-items-center">
 				<span>
 					<i title="コメントする" class="far fa-comment"></i>
 					<span class="px-1">
 						@post.commentList.size match {
-							case 0 => {}
-							case _ => {@post.commentList.size}
+						case 0 => {}
+						case _ => {@post.commentList.size}
 						}
-
 					</span>
 				</span>
 				<i title="いいね！" class="far fa-heart"></i>
 			</div>
 		</section>
-	</article>
-
-	@post.commentList.filter(_.commentId != None).map{comment =>
-	<article class="border">
-		<section class="card-header bg-white">
-			<span class="fs-5 fw-bold">@comment.userWhoCommented.get.name.get</span>
-			<span class="ps-3 text-secondary">
-				@comment.commentedAt.get.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
-			</span>
-		</section>
-		<section class="card-body">
-			<div class="card-text p-3">@comment.content</div>
-			<div class="px-3 w-25 d-flex justify-content-between">
-				<i title="コメントする" class="far fa-comment"></i>
-				<i title="いいね！" class="far fa-heart"></i>
+		<hr class="m-0">
+		<section>
+			@form(routes.CommentController.insert(), Symbol("id") -> "commentInsertForm") {
+			@CSRF.formField
+			@textarea(commentForm("content"),Symbol("style") ->"width:100%; border:none; outline:none; resize:none;padding:16px;",
+			Symbol("placeholder") -> "コメントを入力")
+			<input type="hidden" id="postId" name="postId" value="@post.postId">
+			<div class="mt-1 text-end">
+				<span class="me-5">
+					<button id="commentInsertButton" class="btn btn-primary btn-sm" type="button">投稿する</button>
+				</span>
 			</div>
+			}
 		</section>
 	</article>
-	}
+	<section id="commentList">
+		@post.commentList.filter(_.commentId != None).map{comment =>
+		<article class="border">
+			<section class="card-header bg-white">
+				<span class="fs-5 fw-bold">@comment.userWhoCommented.get.name.get</span>
+				<span class="ps-3 text-secondary">
+					@comment.commentedAt.get.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+				</span>
+			</section>
+			<section class="card-body">
+				<div class="card-text p-3">@comment.content</div>
+				<div class="px-3 w-25 d-flex justify-content-between">
+					<i title="コメントする" class="far fa-comment"></i>
+					<i title="いいね！" class="far fa-heart"></i>
+				</div>
+			</section>
+		</article>
+		}
+	</section>
 </div>
+<script src="@routes.Assets.versioned("javascripts/posts/detail.js")"></script>
 }
