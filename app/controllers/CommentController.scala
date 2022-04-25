@@ -39,6 +39,7 @@ class CommentController @Inject() (
       Future.successful(BadRequest(formWithErrors.errorsAsJson))
     }
     val successFunction = { commentData: CommentForm.CommentFormData =>
+      // formのデータをdomainに詰め直す
       val comment = Comment(
         userId = 1,
         postId = commentData.postId,
@@ -46,6 +47,7 @@ class CommentController @Inject() (
         commentedAt = LocalDateTime.now()
       )
       commentService.insert(comment).map { commentId =>
+        // commentService.findByIdWithUser()
         Created(Json.toJson("コメントを投稿しました"))
       }
     }
