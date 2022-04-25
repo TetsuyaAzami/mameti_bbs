@@ -1,3 +1,4 @@
+// axiosインスタンス
 const instance = axios.create({
   baseURL: "/",
   timeout: 1000,
@@ -26,6 +27,14 @@ const removeErrorMessage = (errorMessageNode) => {
   }
 };
 
+const formatDateUtil = (commentDate) => {
+  const month = commentDate.substring(5, 7);
+  const date = commentDate.substring(8, 10);
+  const hour = commentDate.substring(11, 13);
+  const minute = commentDate.substring(14, 16);
+  return `${month}/${date} ${hour}:${minute}`;
+};
+
 // コメントヘッダーの作成
 const createCommentCardHeader = (commentData) => {
   const sectionHeader = document.createElement("section");
@@ -42,7 +51,7 @@ const createCommentCardHeader = (commentData) => {
   const spanTime = document.createElement("span");
   spanTime.classList.add("ps-3");
   spanTime.classList.add("text-secondary");
-  spanTime.innerText = commentData.commentedAt;
+  spanTime.innerText = formatDateUtil(commentData.commentedAt);
 
   //spanをsectionHeaderに追加
   sectionHeader.append(spanUserName);
