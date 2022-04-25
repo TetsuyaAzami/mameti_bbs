@@ -11,7 +11,7 @@
 			投稿詳細ページ
 		</h1>
 	</div>
-	<article class="border border-2">
+	<article id="postArticle" class="border border-2">
 		<section class="card-header bg-white">
 			<span class="fs-5 fw-bold">@post.user.name</span>
 			<span class="ps-3 text-secondary">
@@ -42,7 +42,8 @@
 		<section>
 			@form(routes.CommentController.insert(), Symbol("id") -> "commentInsertForm") {
 			@CSRF.formField
-			@textarea(commentForm("content"),Symbol("style") -> "width:100%; border:none; outline:none; resize:none; padding:16px;",Symbol("placeholder") -> "コメントを入力")
+			@textarea(commentForm("content"),Symbol("style") ->"width:100%; border:none; outline:none; resize:none;padding:16px;",
+			Symbol("placeholder") -> "コメントを入力")
 			<input type="hidden" id="postId" name="postId" value="@post.postId">
 			<div class="mt-1 text-end">
 				<span class="me-5">
@@ -52,24 +53,25 @@
 			}
 		</section>
 	</article>
-
-	@post.commentList.filter(_.commentId != None).map{comment =>
-	<article class="border">
-		<section class="card-header bg-white">
-			<span class="fs-5 fw-bold">@comment.userWhoCommented.get.name.get</span>
-			<span class="ps-3 text-secondary">
-				@comment.commentedAt.get.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
-			</span>
-		</section>
-		<section class="card-body">
-			<div class="card-text p-3">@comment.content</div>
-			<div class="px-3 w-25 d-flex justify-content-between">
-				<i title="コメントする" class="far fa-comment"></i>
-				<i title="いいね！" class="far fa-heart"></i>
-			</div>
-		</section>
-	</article>
-	}
+	<section id="commentList">
+		@post.commentList.filter(_.commentId != None).map{comment =>
+		<article class="border">
+			<section class="card-header bg-white">
+				<span class="fs-5 fw-bold">@comment.userWhoCommented.get.name.get</span>
+				<span class="ps-3 text-secondary">
+					@comment.commentedAt.get.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+				</span>
+			</section>
+			<section class="card-body">
+				<div class="card-text p-3">@comment.content</div>
+				<div class="px-3 w-25 d-flex justify-content-between">
+					<i title="コメントする" class="far fa-comment"></i>
+					<i title="いいね！" class="far fa-heart"></i>
+				</div>
+			</section>
+		</article>
+		}
+	</section>
 </div>
 <script src="@routes.Assets.versioned("javascripts/posts/detail.js")"></script>
 }

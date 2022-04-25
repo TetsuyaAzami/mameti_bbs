@@ -1,6 +1,9 @@
 package models.domains
 
 import java.time.LocalDate
+import play.api.libs.json.Writes
+import play.api.libs.json.JsPath
+import play.api.libs.functional.syntax._
 
 final case class User(
     userId: Option[Long] = None,
@@ -26,3 +29,13 @@ final case class UserWhoCommented(
     name: Option[String],
     profileImg: Option[String]
 )
+
+object UserWhoCommented {
+  implicit val userWhoCommentedWrites: Writes[UserWhoCommented] =
+    (JsPath \ "userId")
+      .write[Option[Long]]
+      .and((JsPath \ "name").write[Option[String]])
+      .and((JsPath \ "profileImg").write[Option[String]])(
+        unlift(UserWhoCommented.unapply)
+      )
+}

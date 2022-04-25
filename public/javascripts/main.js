@@ -25,3 +25,87 @@ const removeErrorMessage = (errorMessageNode) => {
     errorMessageNode.previousElementSibling.remove();
   }
 };
+
+// コメントヘッダーの作成
+const createCommentCardHeader = (commentData) => {
+  const sectionHeader = document.createElement("section");
+  sectionHeader.classList.add("card-header");
+  sectionHeader.classList.add("bg-white");
+
+  //ユーザ名span
+  const spanUserName = document.createElement("span");
+  spanUserName.classList.add("fs-5");
+  spanUserName.classList.add("fw-bold");
+  spanUserName.innerText = commentData.userWhoCommented.name;
+
+  //時刻span
+  const spanTime = document.createElement("span");
+  spanTime.classList.add("ps-3");
+  spanTime.classList.add("text-secondary");
+  spanTime.innerText = commentData.commentedAt;
+
+  //spanをsectionHeaderに追加
+  sectionHeader.append(spanUserName);
+  sectionHeader.append(spanTime);
+  return sectionHeader;
+};
+
+//コメント いいね アイコンDivを作成
+const createIconsDiv = () => {
+  const iconsDiv = document.createElement("div");
+  iconsDiv.classList.add("px-3");
+  iconsDiv.classList.add("w-25");
+  iconsDiv.classList.add("d-flex");
+  iconsDiv.classList.add("justify-content-between");
+
+  //コメント
+  const comment = document.createElement("i");
+  comment.title = "コメントする";
+  comment.classList.add("far");
+  comment.classList.add("fa-comment");
+
+  //いいね
+  const like = document.createElement("i");
+  like.title = "いいね！";
+  like.classList.add("far");
+  like.classList.add("fa-heart");
+
+  //divにコメントといいねを追加
+  iconsDiv.append(comment);
+  iconsDiv.append(like);
+  return iconsDiv;
+};
+
+const createCommentCardBody = (commentData) => {
+  // カード内ボディ
+  const sectionBody = document.createElement("section");
+  sectionBody.classList.add("card-body");
+
+  // コメントコンテンツ
+  const contentDiv = document.createElement("div");
+  contentDiv.classList.add("card-text");
+  contentDiv.classList.add("p-3");
+  contentDiv.innerText = commentData.content;
+
+  const iconsDiv = createIconsDiv();
+
+  //sectionBodyにコンテンツとアイコンDivを追加
+  sectionBody.append(contentDiv);
+  sectionBody.append(iconsDiv);
+
+  return sectionBody;
+};
+
+//作成されたコメントをコメントリストに追加
+const appendCommentArticle = (parentNode, commentData) => {
+  const article = document.createElement("article");
+  article.classList.add("border");
+
+  const commentCardHeader = createCommentCardHeader(commentData);
+  const commentCardBody = createCommentCardBody(commentData);
+
+  article.appendChild(commentCardHeader);
+  article.appendChild(commentCardBody);
+
+  parentNode.prepend(article);
+};

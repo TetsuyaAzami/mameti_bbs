@@ -46,9 +46,10 @@ class CommentController @Inject() (
         content = commentData.content,
         commentedAt = LocalDateTime.now()
       )
-      commentService.insert(comment).map { commentId =>
-        // commentService.findByIdWithUser()
-        Created(Json.toJson("コメントを投稿しました"))
+      commentService.insert(comment).flatMap { commentId =>
+        commentService.findByIdWithUser(commentId.get).map { commentWithUser =>
+          Created(Json.toJson(commentWithUser))
+        }
       }
     }
     sentCommentForm.fold(errorFunction, successFunction)
