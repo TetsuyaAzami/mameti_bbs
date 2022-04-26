@@ -1,0 +1,28 @@
+@import helper._
+@import play.api.data.Form
+@import controllers.forms.SignInData
+
+@(signInForm: Form[SignInData])(implicit request: MessagesRequestHeader)
+@implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
+@main("ログイン"){
+
+<div class="container main-contents">
+	<h1 class="text-center mt-5 fw-bold  py-3">ログイン</h1>
+	@form(routes.UserController.signIn()) {
+	@CSRF.formField
+	@signInForm.error("userNotFound") match {
+		case None =>{}
+		case Some(error) => {
+		<div class="text-danger mb-1">@error.format</div>
+		}
+	}
+	<label for="email">メールアドレス: </label>
+	@inputText(signInForm("email"),Symbol("class") -> "form-control mb-3")
+	<label for="password">パスワード: </label>
+	@inputPassword(signInForm("password"),Symbol("class") -> "form-control mb-3")
+	<div class="m-auto">
+		<button class="btn btn-primary btn-sm d-block m-auto" type="submit">ログイン</button>
+	</div>
+	}
+</div>
+}

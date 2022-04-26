@@ -1,3 +1,4 @@
 # https://www.playframework.com/documentation/latest/ScalaI18N
 error.maxLength={0}文字以内にしてください
 error.minLength={0}文字以上にしてください
+error.email=正しいメールアドレスを入力してください

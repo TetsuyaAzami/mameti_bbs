@@ -16,6 +16,12 @@ final case class User(
     departmentId: Int
 )
 
+final case class SignInUser(
+    userId: Long,
+    name: String,
+    profileImg: String
+)
+
 // 投稿したユーザ
 final case class UserWhoPosted(
     userId: Long,
