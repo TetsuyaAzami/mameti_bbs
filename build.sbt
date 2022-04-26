@@ -9,6 +9,7 @@ lazy val root = (project in file("."))
       guice,
       jdbc,
       evolutions,
+      caffeine,
       "org.postgresql" % "postgresql" % "42.3.3",
       "org.playframework.anorm" %% "anorm" % "2.6.5",
       "org.webjars" % "bootstrap" % "5.0.0",
