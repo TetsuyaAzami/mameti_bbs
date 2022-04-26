@@ -13,6 +13,7 @@ import play.api.db.DBApi
 
 import scala.concurrent.Future
 import models.domains.UserWhoCommented
+import models.domains.SignInUser
 
 class UserRepository @Inject() (dbApi: DBApi)(implicit
     dec: DatabaseExecutionContext
@@ -42,6 +43,15 @@ class UserRepository @Inject() (dbApi: DBApi)(implicit
       }
   }
 
+  // サインイン時に使用
+  private[repositories] val signInUserParser = {
+    get[Long]("u_user_id") ~
+      get[String]("u_name") ~
+      get[String]("u_profile_img") map { case userId ~ name ~ profileImg =>
+        SignInUser(userId, name, profileImg)
+      }
+  }
+
   def findUserById(id: Long): Future[Option[User]] = Future {
     db.withConnection { implicit con =>
       SQL"""
@@ -57,6 +67,23 @@ class UserRepository @Inject() (dbApi: DBApi)(implicit
       FROM users
       WHERE user_id = $id;"""
         .as(simple.singleOpt)
+    }
+  }
+
+  def findUserByEmailAndPassword(
+      email: String,
+      password: String
+  ): Future[Option[SignInUser]] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""
+        SELECT
+        u.user_id u_user_id,
+        u.name u_name,
+        u.profile_img u_profile_img
+        FROM users u
+        WHERE email = ${email} AND password = ${password}
+        ;
+        """.as(signInUserParser.singleOpt)
     }
   }
 }

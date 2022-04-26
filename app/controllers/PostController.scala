@@ -17,9 +17,12 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import play.api.cache.SyncCacheApi
+import common.CacheUtil
 
 class PostController @Inject() (
     mcc: MessagesControllerComponents,
+    cache: SyncCacheApi,
     postService: PostRepository
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
