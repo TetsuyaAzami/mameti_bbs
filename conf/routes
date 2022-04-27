@@ -19,6 +19,7 @@ GET     /users/sign-in              controllers.UserController.toSignIn()
 POST    /users/sign-in              controllers.UserController.signIn()
 GET     /users/sign-up              controllers.UserController.toSignUp()
 POST    /users/sign-up              controllers.UserController.signUp()
+POST    /users/sign-out             controllers.UserController.signOut()
 GET     /users/:id                  controllers.UserController.index(id:Long)
 
 # Map static resources from the /public folder to the /assets URL path

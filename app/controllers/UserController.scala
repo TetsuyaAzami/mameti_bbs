@@ -92,6 +92,10 @@ class UserController @Inject() (
     sentSignInForm.fold(errorFunction, successFunction)
   }
 
+  def signOut() = Action {
+    Redirect(routes.UserController.signIn()).withNewSession
+  }
+
   /** ユーザ登録ページ遷移
     *
     * @return
