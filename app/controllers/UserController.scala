@@ -16,11 +16,12 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import java.util.UUID
 import javax.inject.Inject
-import common.CacheUtil
+import common._
 
 class UserController @Inject() (
     mcc: MessagesControllerComponents,
     cache: SyncCacheApi,
+    userAction: UserAction,
     userService: UserRepository,
     postService: PostRepository
 )(implicit ec: ExecutionContext)
@@ -34,7 +35,7 @@ class UserController @Inject() (
     * @return
     *   マイページ
     */
-  def index(userId: Long) = Action.async { implicit request =>
+  def index(userId: Long) = userAction.async { implicit request =>
     // ログインユーザのidと一致しているかのチェック あとで実装
     postService.findByUserId(userId).map { posts =>
       Ok(views.html.users.index(posts))
@@ -46,7 +47,7 @@ class UserController @Inject() (
     * @return
     *   ログインページ
     */
-  def toSignIn() = Action { implicit request =>
+  def toSignIn() = userAction { implicit request =>
     Ok(views.html.users.sign_in(signInForm))
   }
 
@@ -55,7 +56,7 @@ class UserController @Inject() (
     * @return
     *   成功時: 豆知識一覧ページ 失敗時: ログインページ
     */
-  def signIn() = Action.async { implicit request =>
+  def signIn() = userAction.async { implicit request =>
     val sentSignInForm = signInForm.bindFromRequest()
     val errorFunction = { formWithErrors: Form[SignInData] =>
       Future.successful(BadRequest(views.html.users.sign_in(formWithErrors)))
@@ -96,7 +97,7 @@ class UserController @Inject() (
     * @return
     *   ユーザ登録ページ
     */
-  def toSignUp() = Action { implicit request =>
+  def toSignUp() = userAction { implicit request =>
     Ok(views.html.users.register_user())
   }
 
@@ -105,7 +106,7 @@ class UserController @Inject() (
     * @return
     *   成功時: ログインページ 失敗時: ユーザ登録処理
     */
-  def signUp() = Action { implicit request =>
+  def signUp() = userAction { implicit request =>
     Ok(views.html.users.register_user())
   }
 }

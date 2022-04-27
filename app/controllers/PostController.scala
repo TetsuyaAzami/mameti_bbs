@@ -2,14 +2,15 @@ package controllers
 
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.MessagesAbstractController
+import play.api.cache.SyncCacheApi
 import play.api.data.Form
 
 import models.repositories._
 import models.domains.Post
 import models.domains.PostForInsert
 import models.domains.PostForUpdate
-import views.html.helper.form
 import views.html.defaultpages.error
+import views.html.helper.form
 import controllers.forms.PostForm
 import controllers.forms.CommentForm
 
@@ -17,12 +18,12 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import play.api.cache.SyncCacheApi
-import common.CacheUtil
+import common._
 
 class PostController @Inject() (
     mcc: MessagesControllerComponents,
     cache: SyncCacheApi,
+    userAction: UserAction,
     postService: PostRepository
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
@@ -30,23 +31,27 @@ class PostController @Inject() (
   val commentForm = CommentForm.commentForm
   val postUpdateForm = PostForm.postUpdateForm
 
-  def index() = Action.async { implicit request =>
+  def index() = userAction.async { implicit request =>
     postService.findAll().map { allPosts =>
       Ok(views.html.posts.index(postForm, commentForm, allPosts))
     }
   }
 
-  def detail(postId: Long) = Action.async { implicit request =>
+  def detail(postId: Long) = userAction.async { implicit request =>
     postService.findByPostIdWithCommentList(postId).map { postWithComments =>
       Ok(views.html.posts.detail(postWithComments, commentForm))
     }
   }
 
-  def insert() = Action.async { implicit request =>
+  def insert() = userAction.async { implicit request =>
     val errorFunction = { formWithErrors: Form[PostForm.PostFormData] =>
       postService.findAll().map { allPosts =>
+        // ログインユーザ情報の取得
+        val sessionId = request.session.get("sessionId")
+        val signInUser = CacheUtil.getSessionUser(cache, sessionId)
         BadRequest(
-          views.html.posts.index(formWithErrors, commentForm, allPosts)
+          views.html.posts
+            .index(formWithErrors, commentForm, allPosts)
         )
       }
     }
@@ -63,7 +68,7 @@ class PostController @Inject() (
     postForm.bindFromRequest().fold(errorFunction, successFunction)
   }
 
-  def edit(postId: Long) = Action.async { implicit request =>
+  def edit(postId: Long) = userAction.async { implicit request =>
     // ここでeditするpostのuserIdとログインユーザのuserIdが一致するか確認
     // あとで実装
 
@@ -79,7 +84,7 @@ class PostController @Inject() (
     }
   }
 
-  def update() = Action.async { implicit request =>
+  def update() = userAction.async { implicit request =>
     // ここでeditするpostのuserIdとログインユーザのuserIdが一致するか確認
     // あとで実装
 

@@ -1,10 +1,11 @@
 @import helper._
 @import play.api.data.Form
 @import controllers.forms.SignInData
+@import common.UserRequestHeader
 
-@(signInForm: Form[SignInData])(implicit request: MessagesRequestHeader)
+@(signInForm: Form[SignInData])(implicit request: UserRequestHeader)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
-@main("ログイン"){
+@main("サインイン"){
 
 <div class="container main-contents">
 	<h1 class="text-center mt-5 fw-bold  py-3">ログイン</h1>
