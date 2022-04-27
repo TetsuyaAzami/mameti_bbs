@@ -18,7 +18,8 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import play.api.cache.SyncCacheApi
-import common.CacheUtil
+import common._
+import play.api.mvc
 
 class PostController @Inject() (
     mcc: MessagesControllerComponents,
@@ -31,8 +32,12 @@ class PostController @Inject() (
   val postUpdateForm = PostForm.postUpdateForm
 
   def index() = Action.async { implicit request =>
+    // ログインユーザ情報の取得
+    val sessionId = request.session.get("sessionId")
+    val signInUser = CacheUtil.getSessionUser(cache, sessionId)
+
     postService.findAll().map { allPosts =>
-      Ok(views.html.posts.index(postForm, commentForm, allPosts))
+      Ok(views.html.posts.index(postForm, commentForm, allPosts, signInUser))
     }
   }
 
@@ -45,8 +50,12 @@ class PostController @Inject() (
   def insert() = Action.async { implicit request =>
     val errorFunction = { formWithErrors: Form[PostForm.PostFormData] =>
       postService.findAll().map { allPosts =>
+        // ログインユーザ情報の取得
+        val sessionId = request.session.get("sessionId")
+        val signInUser = CacheUtil.getSessionUser(cache, sessionId)
         BadRequest(
-          views.html.posts.index(formWithErrors, commentForm, allPosts)
+          views.html.posts
+            .index(formWithErrors, commentForm, allPosts, signInUser)
         )
       }
     }
