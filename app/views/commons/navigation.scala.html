@@ -1,3 +1,4 @@
+@import helper._
 @import common.UserRequestHeader
 @()(implicit request: UserRequestHeader)
 
@@ -43,9 +44,10 @@
 			case None =>{}
 			case Some(signInUser)=>{
 				<li class="list-group-item">
-					<a href="@routes.PostController.index()">
-						<i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i><span class="fw-bold">ログアウト</span>
-					</a>
+					@form(routes.UserController.signOut(), Symbol("name") -> "signOutForm") {
+					@CSRF.formField
+					<i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i><a href="javascript:document.signOutForm.submit()" class="fw-bold" >ログアウト</a>
+				}
 				</li>
 			}
 
