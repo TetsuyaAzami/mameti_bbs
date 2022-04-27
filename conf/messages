@@ -2,3 +2,6 @@
 error.maxLength={0}文字以内にしてください
 error.minLength={0}文字以上にしてください
 error.email=正しいメールアドレスを入力してください
+error.min=最小{0}です
+error.max=最大{0}です
+email.dupulicate=既に使用されているメールアドレスです

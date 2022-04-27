@@ -1,5 +1,5 @@
 --!Ups
-INSERT INTO departments (name)VALUES('frontend'),('backend'),('cloud'),('devOps');
+INSERT INTO departments (name)VALUES('frontend'),('backend'),('cloud');
 
 INSERT INTO users (name, email, password, birthday, introduce, profile_img, department_id) VALUES('user1','email1@example.com', 'password1', '2000-11-11','user1です', 'img1',1);
 INSERT INTO users (name, email, password, birthday, introduce, profile_img, department_id) VALUES('user2','email2@example.com', 'password2', '2000-11-12','user2です', 'img2',2);
