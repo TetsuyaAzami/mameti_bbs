@@ -1,22 +1,29 @@
 package controllers
 
-import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.MessagesAbstractController
-import play.api.mvc.Action
+import play.mvc
+import play.api.mvc.{
+  MessagesControllerComponents,
+  MessagesAbstractController,
+  Action
+}
 import play.api.data.Form
 import play.api.cache._
-import play.mvc
 
-import models.repositories.UserRepository
-import models.repositories.PostRepository
-import controllers.forms.SignInForm
-import controllers.forms.SignInData
+import models.repositories.{UserRepository, PostRepository}
+import controllers.forms.{
+  SignInForm,
+  SignInFormData,
+  SignUpForm,
+  SignUpFormData
+}
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import java.util.UUID
 import javax.inject.Inject
 import common._
+import models.domains.User
+import views.html.defaultpages.error
+import play.api.i18n.Lang
 
 class UserController @Inject() (
     mcc: MessagesControllerComponents,
@@ -27,6 +34,7 @@ class UserController @Inject() (
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
   val signInForm = SignInForm.signInForm
+  val signUpForm = SignUpForm.signUpForm
 
   /** ユーザマイページ
     *
@@ -58,19 +66,19 @@ class UserController @Inject() (
     */
   def signIn() = userAction.async { implicit request =>
     val sentSignInForm = signInForm.bindFromRequest()
-    val errorFunction = { formWithErrors: Form[SignInData] =>
+    val errorFunction = { formWithErrors: Form[SignInFormData] =>
       Future.successful(BadRequest(views.html.users.sign_in(formWithErrors)))
     }
-    val successFunction = { userData: SignInData =>
+    val successFunction = { userData: SignInFormData =>
       // email, パスワードのチェック
       userService
         .findUserByEmailAndPassword(userData.email, userData.password)
         .map { user =>
           user match {
             case None => {
-              val formFilledWithUserData = signInForm.fill(userData)
+              val formToReturn = signInForm.fill(userData)
               // エラー情報を注入
-              val formWithErrors = formFilledWithUserData.withError(
+              val formWithErrors = formToReturn.withError(
                 "userNotFound",
                 "メールアドレスかパスワードが間違っています"
               )
@@ -102,7 +110,8 @@ class UserController @Inject() (
     *   ユーザ登録ページ
     */
   def toSignUp() = userAction { implicit request =>
-    Ok(views.html.users.register_user())
+    // userService.selectDepartments().map { departments => }
+    Ok(views.html.users.register_user(signUpForm))
   }
 
   /** ユーザ登録処理
@@ -110,7 +119,47 @@ class UserController @Inject() (
     * @return
     *   成功時: ログインページ 失敗時: ユーザ登録処理
     */
-  def signUp() = userAction { implicit request =>
-    Ok(views.html.users.register_user())
+  def signUp() = userAction.async { implicit request =>
+    val sentSignUpForm = signUpForm.bindFromRequest()
+
+    val errorFunction = { formWithErrors: Form[SignUpFormData] =>
+      Future.successful(
+        BadRequest(views.html.users.register_user(formWithErrors))
+      )
+    }
+    val successFunction = { signUpData: SignUpFormData =>
+      userService.findUserByEmail(signUpData.email).flatMap { userId =>
+        userId match {
+          // Email重複エラー
+          case Some(email) => {
+            val formToReturn = signUpForm.fill(signUpData)
+            val formWithErrors =
+              formToReturn
+                .withError(
+                  "emailDupulicate",
+                  messagesApi("email.dupulicate")(Lang.defaultLang)
+                )
+            Future.successful(
+              BadRequest(views.html.users.register_user(formWithErrors))
+            )
+          }
+          // 成功ケース
+          case None => {
+            val signUpUser = User(
+              name = signUpData.name,
+              email = signUpData.email,
+              password = signUpData.password,
+              departmentId = signUpData.departmentId
+            )
+            userService.insert(signUpUser).map { userId =>
+              Redirect(routes.UserController.toSignIn())
+                .flashing("success" -> "ユーザ登録成功しました")
+            }
+          }
+        }
+      }
+    }
+
+    sentSignUpForm.fold(errorFunction, successFunction)
   }
 }

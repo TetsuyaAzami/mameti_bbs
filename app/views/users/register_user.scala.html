@@ -1,5 +1,33 @@
+@import helper._
 @import common.UserRequestHeader
-@()(implicit request: UserRequestHeader)
+@import forms.SignUpFormData
+@import play.api.data._
+@(signUpForm: Form[SignUpFormData])(implicit request: UserRequestHeader)
+@implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
+
 @main("ユーザ登録"){
-	<h1>ユーザ登録</h1>
+	<div class="container main-contents">
+		<h1 class="text-center mt-5 fw-bold  py-3">会員登録</h1>
+		@form(routes.UserController.signUp()) {
+		@CSRF.formField
+		<label for="email">名前: </label>
+		@inputText(signUpForm("name"),Symbol("class") -> "form-control mb-3")
+		@signUpForm.error("emailDupulicate") match {
+			case None => {}
+			case Some(error) => {
+				<div class="text-danger mb-1">@error.format</div>
+			}
+		}
+		<label for="email">メールアドレス: </label>
+		@inputText(signUpForm("email"),Symbol("class") -> "form-control mb-3")
+		<label for="password">パスワード: </label>
+		@inputPassword(signUpForm("password"),Symbol("class") -> "form-control mb-3")
+		<div class="m-auto">
+		<label for="departmentId">部署名: </label>
+		@select(signUpForm("departmentId"), options = Seq("1"->"フロントエンド","2" -> "バックエンド","3"->"クラウド"))
+		<div class="m-auto">
+			<button class="btn btn-primary btn-sm d-block m-auto" type="submit">登録</button>
+		</div>
+		}
+	</div>
 }

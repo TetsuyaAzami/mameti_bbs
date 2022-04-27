@@ -10,16 +10,16 @@ final case class User(
     name: String,
     email: String,
     password: String,
-    birthday: Option[LocalDate],
-    introduce: Option[String],
-    profileImg: Option[String],
-    departmentId: Int
+    birthday: Option[LocalDate] = None,
+    introduce: Option[String] = None,
+    profileImg: Option[String] = None,
+    departmentId: Long
 )
 
 final case class SignInUser(
     userId: Long,
     name: String,
-    profileImg: String
+    profileImg: Option[String]
 )
 
 // 投稿したユーザ

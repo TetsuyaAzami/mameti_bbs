@@ -1,14 +1,15 @@
 @import helper._
 @import play.api.data.Form
-@import controllers.forms.SignInData
+@import controllers.forms.SignInFormData
 @import common.UserRequestHeader
 
-@(signInForm: Form[SignInData])(implicit request: UserRequestHeader)
+@(signInForm: Form[SignInFormData])(implicit request: UserRequestHeader, flash: Flash)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 @main("サインイン"){
 
 <div class="container main-contents">
 	<h1 class="text-center mt-5 fw-bold  py-3">ログイン</h1>
+	<div id="flashSuccessMessage" class="text-center text-success fw-bold my-3"><span>@flash.get("success").getOrElse("")</span></div>
 	@form(routes.UserController.signIn()) {
 	@CSRF.formField
 	@signInForm.error("userNotFound") match {

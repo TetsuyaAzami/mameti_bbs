@@ -14,6 +14,16 @@
 			}
 			case Some(signInUser) => {}
 		}
+        @request.signInUserOpt match{
+			case None => {
+				<li class="list-group-item">
+					<a href="@routes.UserController.toSignUp()">
+						<i class="fas fa-user-plus" style="margin-right: 4px;"></i><span class="fw-bold">会員登録</span>
+					</a>
+				</li>
+			}
+			case Some(signInUser) => {}
+		}
 		<li class="list-group-item">
 			<a href="@routes.PostController.index()">
 				<i class="fas fa-list" style="margin-right: 4px;"></i><span class="fw-bold">豆知識一覧</span>
