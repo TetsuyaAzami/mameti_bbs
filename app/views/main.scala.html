@@ -1,10 +1,11 @@
 @*
- * This template is called from the `index` template. This template
- * handles the rendering of the page header and body tags. It takes
- * two arguments, a `String` for the title of the page and an `Html`
- * object to insert into the body of the page.
- *@
- @(title: String)(content: Html)
+* This template is called from the `index` template. This template
+* handles the rendering of the page header and body tags. It takes
+* two arguments, a `String` for the title of the page and an `Html`
+* object to insert into the body of the page.
+*@
+@import common.UserRequestHeader
+@(title: String)(content: Html)(implicit request: UserRequestHeader)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -23,7 +24,7 @@
         * the page content. *@
         <div class="d-flex flex-row mb-5">
             <!-- ナビゲーションバー -->
-            <section style="width: 300px;">@commons.navigation()</section>
+            <section style="width: 300px;">@commons.navigation()(request)</section>
             <script src="@routes.Assets.versioned("lib/bootstrap/js/bootstrap.min.js")"></script>
             <!-- メインコンテンツ -->
             <section class="flex-grow-1">

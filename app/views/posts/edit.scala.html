@@ -1,7 +1,8 @@
 @import helper._
 @import models.domains.Post
 @import forms.PostForm.PostUpdateFormData
-@(postForm: Form[PostUpdateFormData])(implicit request: MessagesRequestHeader,flash: Flash)
+@import common.UserRequestHeader
+@(postForm: Form[PostUpdateFormData])(implicit request: UserRequestHeader,flash: Flash)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 
 @main("投稿編集"){
