@@ -47,8 +47,9 @@ class UserRepository @Inject() (dbApi: DBApi)(implicit
   private[repositories] val signInUserParser = {
     get[Long]("u_user_id") ~
       get[String]("u_name") ~
-      get[String]("u_profile_img") map { case userId ~ name ~ profileImg =>
-        SignInUser(userId, name, profileImg)
+      get[Option[String]]("u_profile_img") map {
+        case userId ~ name ~ profileImg =>
+          SignInUser(userId, name, profileImg)
       }
   }
 
@@ -70,6 +71,19 @@ class UserRepository @Inject() (dbApi: DBApi)(implicit
     }
   }
 
+  def findUserByEmail(email: String): Future[Option[Long]] = Future {
+    db.withConnection { implicit conn =>
+      val userId =
+        SQL"""
+        SELECT
+        user_id
+        FROM users
+        WHERE email = ${email};
+        """.as(long("user_id").singleOpt)
+      userId
+    }
+  }
+
   def findUserByEmailAndPassword(
       email: String,
       password: String
@@ -84,6 +98,25 @@ class UserRepository @Inject() (dbApi: DBApi)(implicit
         WHERE email = ${email} AND password = ${password}
         ;
         """.as(signInUserParser.singleOpt)
+    }
+  }
+
+  // def selectDepartments()
+
+  def insert(user: User): Future[Option[Long]] = Future {
+    db.withConnection { implicit conn =>
+      val userId = SQL("""
+      INSERT INTO users
+      (name, email, password, department_id)
+      VALUES({name},{email},{password},{departmentId});""")
+        .on(
+          "name" -> user.name,
+          "email" -> user.email,
+          "password" -> user.password,
+          "departmentId" -> user.departmentId
+        )
+        .executeInsert()
+      userId
     }
   }
 }
