@@ -3,9 +3,6 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-# Home
-GET     /                           controllers.HomeController.index()
-
 # Post
 GET     /posts                      controllers.PostController.index()
 POST    /posts                      controllers.PostController.insert()

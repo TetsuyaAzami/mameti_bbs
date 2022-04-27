@@ -5,8 +5,9 @@
 @import forms.PostForm.PostFormData
 @import forms.CommentForm.CommentFormData
 @import java.time.format._
+@import common.UserRequestHeader
 
-@(postForm: Form[PostFormData],commentForm: Form[CommentFormData],posts: List[(Post,Option[Long])],signInUser: Option[SignInUser])(implicit request: MessagesRequestHeader,flash: Flash)
+@(postForm: Form[PostFormData],commentForm: Form[CommentFormData],posts: List[(Post,Option[Long])])(implicit request: UserRequestHeader,flash: Flash)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 
 @main("投稿一覧"){
@@ -37,12 +38,10 @@
 	<h1 class="text-center mt-5 fw-bold  py-3">みんなの豆知識一覧</h1>
 	<div id="flashSuccessMessage" class="text-center text-success fw-bold my-3"><span>@flash.get("success").getOrElse("")</span></div>
 	<div>
-		@*
-			@signInUser match {
+			@request.signInUserOpt match {
 				case None => {}
 				case Some(signInUser) => { <span class="fw-bold">@(signInUser.name):</span> }
 			}
-			*@
 	</div>
 	<section class="mb-5">
 		@form(routes.PostController.insert()) {

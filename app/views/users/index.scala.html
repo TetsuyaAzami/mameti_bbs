@@ -1,8 +1,9 @@
-@import domains.Post
-@import java.time.format._
 @import helper._
+@import domains.Post
+@import common.UserRequestHeader
+@import java.time.format._
 
-@(posts: List[(Post,Option[Long])])(implicit request: MessagesRequestHeader, flash: Flash)
+@(posts: List[(Post,Option[Long])])(implicit request: UserRequestHeader, flash: Flash)
 
 @main("マイページ"){
 <div class="container main-contents">
@@ -10,7 +11,12 @@
 		<h1 class="fw-bold pt-3">
 			豆知識履歴
 		</h1>
-		<span class="text-secondary">({ログインユーザ}さん)</span>
+		@request.signInUserOpt match {
+			case None => {}
+			case Some(signInUser) => {
+				<span class="text-secondary">@(signInUser.name)さんの過去の投稿</span>
+			}
+		}
 	</div>
 
 	<div class="text-center text-success fw-bold my-3"><span>@flash.get("success").getOrElse("")</span></div>

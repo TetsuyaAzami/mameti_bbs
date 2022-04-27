@@ -2,7 +2,8 @@
 @import domains.Post
 @import java.time.format._
 @import forms.CommentForm.CommentFormData
-@(post: Post, commentForm:Form[CommentFormData])(implicit request: MessagesRequestHeader)
+@import common.UserRequestHeader
+@(post: Post, commentForm:Form[CommentFormData])(implicit request: UserRequestHeader)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 @main("投稿詳細"){
 <div class="container main-contents">
