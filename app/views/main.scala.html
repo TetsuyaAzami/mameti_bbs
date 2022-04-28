@@ -25,7 +25,8 @@
         <div class="d-flex flex-row mb-5">
             <!-- ナビゲーションバー -->
             <section style="width: 300px;">@commons.navigation()(request)</section>
-            <script src="@routes.Assets.versioned("lib/bootstrap/js/bootstrap.min.js")"></script>
+            @*ここでbootstrap.min.jsを読まないとModalのインスタンスが使えない*@
+            <script src="@routes.Assets.versioned("lib/bootstrap/js/bootstrap.bundle.js")"></script>
             <!-- メインコンテンツ -->
             <section class="flex-grow-1">
                 @content

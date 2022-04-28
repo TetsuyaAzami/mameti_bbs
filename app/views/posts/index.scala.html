@@ -56,7 +56,7 @@
 	</section>
 	<section id="postList">
 		@posts.map{post =>
-		<article class="border">
+		<article class="border rounded">
 			<a href="@routes.PostController.detail(post._1.postId.get)">
 				<section class="card-header bg-white">
 					<span class="fs-5 fw-bold">@post._1.user.name</span>
