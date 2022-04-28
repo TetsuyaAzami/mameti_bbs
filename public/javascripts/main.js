@@ -109,6 +109,7 @@ const createCommentCardBody = (commentData) => {
 const appendCommentArticle = (parentNode, commentData) => {
   const article = document.createElement("article");
   article.classList.add("border");
+  article.classList.add("rounded");
 
   const commentCardHeader = createCommentCardHeader(commentData);
   const commentCardBody = createCommentCardBody(commentData);

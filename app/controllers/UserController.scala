@@ -7,36 +7,41 @@ import play.api.mvc.{
   Action
 }
 import play.api.data.Form
+import play.api.i18n.Lang
 import play.api.cache._
 
+import models.domains.User
+import models.services.{UserService, DepartmentService}
 import models.repositories.{PostRepository}
-import models.services.UserService
+import views.html.defaultpages.error
+import controllers.forms.UpdateUserProfileForm
 import controllers.forms.{
   SignInForm,
   SignInFormData,
   SignUpForm,
-  SignUpFormData
+  SignUpFormData,
+  UpdateUserProfileForm,
+  UpdateUserProfileFormData
 }
 
-import scala.concurrent.{ExecutionContext, Future}
 import java.util.UUID
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 import common._
-import models.domains.User
-import views.html.defaultpages.error
-import play.api.i18n.Lang
 
 class UserController @Inject() (
     mcc: MessagesControllerComponents,
     cache: SyncCacheApi,
     userAction: UserAction,
     userService: UserService,
+    departmentService: DepartmentService,
     postService: PostRepository
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
   implicit val lang = Lang.defaultLang
   val signInForm = SignInForm.signInForm
   val signUpForm = SignUpForm.signUpForm
+  val updateUserProfileForm = UpdateUserProfileForm.updateUserProfileForm
 
   /** ユーザマイページ
     *
@@ -50,6 +55,18 @@ class UserController @Inject() (
     postService.findByUserId(userId).map { posts =>
       Ok(views.html.users.index(posts))
     }
+  }
+
+  def edit(id: Long) = userAction.async { implicit request =>
+    departmentService.selectDepartmentList().map { departmentList =>
+      Ok(views.html.users.edit(updateUserProfileForm, departmentList))
+    }
+  }
+  def update(id: Long) = userAction.async { implicit request =>
+    Future.successful(
+      Redirect(routes.UserController.index(1))
+        .flashing("success" -> "プロフィールを更新しました。")
+    )
   }
 
   /** ログインページ遷移
@@ -112,7 +129,7 @@ class UserController @Inject() (
     *   ユーザ登録ページ
     */
   def toSignUp() = userAction.async { implicit request =>
-    userService.selectDepartmentList().map { departmentList =>
+    departmentService.selectDepartmentList().map { departmentList =>
       Ok(views.html.users.register_user(signUpForm, departmentList))
     }
   }
@@ -125,7 +142,7 @@ class UserController @Inject() (
   def signUp() = userAction.async { implicit request =>
     val sentSignUpForm = signUpForm.bindFromRequest()
     val errorFunction = { formWithErrors: Form[SignUpFormData] =>
-      userService.selectDepartmentList().map { departmentList =>
+      departmentService.selectDepartmentList().map { departmentList =>
         BadRequest(
           views.html.users.register_user(formWithErrors, departmentList)
         )
@@ -144,7 +161,7 @@ class UserController @Inject() (
                   "emailDupulicate",
                   messagesApi("email.dupulicate")
                 )
-            userService.selectDepartmentList().map { departmentList =>
+            departmentService.selectDepartmentList().map { departmentList =>
               BadRequest(
                 views.html.users.register_user(formWithErrors, departmentList)
               )

@@ -23,11 +23,5 @@ class UserService @Inject() (userRepository: UserRepository)(implicit
   ): Future[Option[SignInUser]] =
     userRepository.findUserByEmailAndPassword(email, password)
 
-  // フォーム表示の都合上(Long, String)を(String, Stringに変換)
-  def selectDepartmentList(): Future[List[(String, String)]] =
-    userRepository
-      .selectDepartmentList()
-      .map(departmentList => departmentList.map(e => (e._1.toString(), e._2)))
-
   def insert(user: User): Future[Option[Long]] = userRepository.insert(user)
 }

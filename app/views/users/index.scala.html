@@ -7,22 +7,36 @@
 
 @main("マイページ"){
 <div class="container main-contents">
-	<div class="page-title text-center mt-5">
-		<h1 class="fw-bold pt-3">
-			豆知識履歴
-		</h1>
-		@request.signInUserOpt match {
-			case None => {}
-			case Some(signInUser) => {
-				<span class="text-secondary">@(signInUser.name)さんの過去の投稿</span>
-			}
-		}
-	</div>
+	<section class="user-profile">
+		<div class="card my-3">
+			<div class="row g-0">
+				<div class="col-md-4 d-flex justify-content-center align-items-center">
+					<img src="@routes.Assets.versioned("images/Noimg.jpg")" class="profile-img-lg" alt="プロフィール画像">
+				</div>
+				<div class="col-md-8 d-flex justify-content-around">
+					<section class="display-profile">
+						<div class="card-body">
+							<h5 class="card-title">ユーザ名</h5>
+							<p class="card-text">メールアドレス</p>
+							<p class="card-text">誕生日</p>
+							<p class="card-text">部署名</p>
+							<p class="card-text">ユーザ自己紹介</p>
+						</div>
+					</section>
+					<div>
+						<a href="@routes.UserController.edit(1)">
+							<button class="btn btn-primary btn-sm mt-5">プロフィールを編集する</button>
+						</a>
+						</div>
+				</div>
+			</div>
+		</div>
+	</section>
 
 	<div class="text-center text-success fw-bold my-3"><span>@flash.get("success").getOrElse("")</span></div>
 
 	@posts.map{post =>
-	<article class="border">
+	<article class="border rounded">
 		<a href="@routes.PostController.detail(post._1.postId.get)">
 			<section class="card-header bg-white">
 				<span class="fs-5 fw-bold">@post._1.user.name</span>
