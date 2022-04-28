@@ -2,7 +2,6 @@ package controllers.forms
 
 import play.api.data._
 import play.api.data.Forms._
-import models.domains.Post
 
 object PostForm {
   case class PostFormData(content: String)

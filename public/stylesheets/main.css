@@ -1,15 +1,25 @@
-a{
-	text-decoration: none;
-	color: inherit;
+a {
+  text-decoration: none;
+  color: inherit;
 }
-.main-contents{
-	width: 80%;
+ul {
+  list-style: none;
+}
+.main-contents {
+  width: 80%;
 }
 
 /* font-awesome サイズ微調整 */
-.fa-user{
-	font-size: 18px;
+.fa-user {
+  font-size: 18px;
 }
-.fa-crown{
-	font-size: 13px;
+.fa-crown {
+  font-size: 13px;
+}
+
+.profile-img-lg {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 50%;
 }
