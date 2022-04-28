@@ -101,7 +101,23 @@ class UserRepository @Inject() (dbApi: DBApi)(implicit
     }
   }
 
-  // def selectDepartments()
+  def selectDepartmentList(): Future[List[(String, String)]] = Future {
+    db.withConnection { implicit conn =>
+      val departmentList = SQL"""
+      SELECT
+      department_id,
+      name
+      FROM departments;
+      """.as((long("department_id") ~ str("name")).map {
+        case departmentId ~ name => (departmentId, name)
+      }.*)
+
+      val castedDepartmentList = departmentList.map { e =>
+        (e._1.toString(), e._2)
+      }
+      castedDepartmentList
+    }
+  }
 
   def insert(user: User): Future[Option[Long]] = Future {
     db.withConnection { implicit conn =>

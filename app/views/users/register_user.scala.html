@@ -2,7 +2,7 @@
 @import common.UserRequestHeader
 @import forms.SignUpFormData
 @import play.api.data._
-@(signUpForm: Form[SignUpFormData])(implicit request: UserRequestHeader)
+@(signUpForm: Form[SignUpFormData],departmentList: List[(String,String)])(implicit request: UserRequestHeader)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 
 @main("ユーザ登録"){
@@ -24,7 +24,7 @@
 		@inputPassword(signUpForm("password"),Symbol("class") -> "form-control mb-3")
 		<div class="m-auto">
 		<label for="departmentId">部署名: </label>
-		@select(signUpForm("departmentId"), options = Seq("1"->"フロントエンド","2" -> "バックエンド","3"->"クラウド"))
+		@select(signUpForm("departmentId"), options = departmentList)
 		<div class="m-auto">
 			<button class="btn btn-primary btn-sm d-block m-auto" type="submit">登録</button>
 		</div>
