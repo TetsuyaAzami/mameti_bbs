@@ -74,13 +74,13 @@ class PostController @Inject() (
 
     postService.findByPostId(postId).map { post =>
       // DBから取得したデータをformに詰めてviewに渡す
-      val postUpdateData =
+      val postDataFromDB =
         Map(
           "postId" -> post.postId.toString(),
           "content" -> post.content.toString()
         )
-      val updateDataFromDB = postUpdateForm.bind(postUpdateData)
-      Ok(views.html.posts.edit(updateDataFromDB))
+      val formWithPostData = postUpdateForm.bind(postDataFromDB)
+      Ok(views.html.posts.edit(formWithPostData))
     }
   }
 

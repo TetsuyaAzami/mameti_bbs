@@ -10,7 +10,7 @@ import play.api.data.Form
 import play.api.i18n.Lang
 import play.api.cache._
 
-import models.domains.User
+import models.domains.{User, UpdateUserProfileFormData}
 import models.services.{UserService, DepartmentService}
 import models.repositories.{PostRepository}
 import views.html.defaultpages.error
@@ -20,8 +20,7 @@ import controllers.forms.{
   SignInFormData,
   SignUpForm,
   SignUpFormData,
-  UpdateUserProfileForm,
-  UpdateUserProfileFormData
+  UpdateUserProfileForm
 }
 
 import java.util.UUID
@@ -58,11 +57,26 @@ class UserController @Inject() (
   }
 
   def edit(id: Long) = userAction.async { implicit request =>
-    departmentService.selectDepartmentList().map { departmentList =>
-      Ok(views.html.users.edit(updateUserProfileForm, departmentList))
+    userService.findUserById(1).flatMap { user =>
+      user match {
+        case None => {
+          Future.successful(Redirect(routes.UserController.toSignIn()))
+        }
+        case Some(user) => {
+          val formWithUserData = updateUserProfileForm.fill(user)
+          departmentService.selectDepartmentList().map { departmentList =>
+            Ok(views.html.users.edit(formWithUserData, departmentList))
+          }
+        }
+      }
     }
   }
+
   def update(id: Long) = userAction.async { implicit request =>
+    println()
+    println()
+    println()
+    println(updateUserProfileForm.bindFromRequest())
     Future.successful(
       Redirect(routes.UserController.index(1))
         .flashing("success" -> "プロフィールを更新しました。")
@@ -147,7 +161,6 @@ class UserController @Inject() (
           views.html.users.register_user(formWithErrors, departmentList)
         )
       }
-
     }
     val successFunction = { signUpData: SignUpFormData =>
       userService.findUserByEmail(signUpData.email).flatMap { userId =>
