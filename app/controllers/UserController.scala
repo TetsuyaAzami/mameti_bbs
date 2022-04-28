@@ -9,7 +9,8 @@ import play.api.mvc.{
 import play.api.data.Form
 import play.api.cache._
 
-import models.repositories.{UserRepository, PostRepository}
+import models.repositories.{PostRepository}
+import models.services.UserService
 import controllers.forms.{
   SignInForm,
   SignInFormData,
@@ -29,10 +30,11 @@ class UserController @Inject() (
     mcc: MessagesControllerComponents,
     cache: SyncCacheApi,
     userAction: UserAction,
-    userService: UserRepository,
+    userService: UserService,
     postService: PostRepository
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
+  implicit val lang = Lang.defaultLang
   val signInForm = SignInForm.signInForm
   val signUpForm = SignUpForm.signUpForm
 
@@ -80,7 +82,7 @@ class UserController @Inject() (
               // エラー情報を注入
               val formWithErrors = formToReturn.withError(
                 "userNotFound",
-                "メールアドレスかパスワードが間違っています"
+                "user.notFound"
               )
               BadRequest(views.html.users.sign_in(formWithErrors))
             }
@@ -109,9 +111,10 @@ class UserController @Inject() (
     * @return
     *   ユーザ登録ページ
     */
-  def toSignUp() = userAction { implicit request =>
-    // userService.selectDepartments().map { departments => }
-    Ok(views.html.users.register_user(signUpForm))
+  def toSignUp() = userAction.async { implicit request =>
+    userService.selectDepartmentList().map { departmentList =>
+      Ok(views.html.users.register_user(signUpForm, departmentList))
+    }
   }
 
   /** ユーザ登録処理
@@ -121,11 +124,13 @@ class UserController @Inject() (
     */
   def signUp() = userAction.async { implicit request =>
     val sentSignUpForm = signUpForm.bindFromRequest()
-
     val errorFunction = { formWithErrors: Form[SignUpFormData] =>
-      Future.successful(
-        BadRequest(views.html.users.register_user(formWithErrors))
-      )
+      userService.selectDepartmentList().map { departmentList =>
+        BadRequest(
+          views.html.users.register_user(formWithErrors, departmentList)
+        )
+      }
+
     }
     val successFunction = { signUpData: SignUpFormData =>
       userService.findUserByEmail(signUpData.email).flatMap { userId =>
@@ -137,11 +142,14 @@ class UserController @Inject() (
               formToReturn
                 .withError(
                   "emailDupulicate",
-                  messagesApi("email.dupulicate")(Lang.defaultLang)
+                  messagesApi("email.dupulicate")
                 )
-            Future.successful(
-              BadRequest(views.html.users.register_user(formWithErrors))
-            )
+            userService.selectDepartmentList().map { departmentList =>
+              BadRequest(
+                views.html.users.register_user(formWithErrors, departmentList)
+              )
+            }
+
           }
           // 成功ケース
           case None => {
