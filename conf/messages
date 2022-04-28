@@ -5,3 +5,4 @@ error.email=正しいメールアドレスを入力してください
 error.min=最小{0}です
 error.max=最大{0}です
 email.dupulicate=既に使用されているメールアドレスです
+user.notFound=メールアドレスかパスワードが間違っています
