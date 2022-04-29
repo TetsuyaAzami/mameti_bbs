@@ -14,7 +14,7 @@
 	</div>
 	<article id="postArticle" class="border border-2 rounded">
 		<section class="card-header bg-white">
-			<span class="fs-5 fw-bold">@post.user.name</span>
+			<span class="fs-5 fw-bold">@post.user.get.name</span>
 			<span class="ps-3 text-secondary">
 				@post.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
 			</span>
@@ -60,7 +60,7 @@
 			<section class="card-header bg-white">
 				<span class="fs-5 fw-bold">@comment.userWhoCommented.get.name.get</span>
 				<span class="ps-3 text-secondary">
-					@comment.commentedAt.get.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+					@comment.commentedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
 				</span>
 			</section>
 			<section class="card-body">

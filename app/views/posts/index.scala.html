@@ -2,7 +2,7 @@
 @import models.domains.Post
 @import models.domains.Comment
 @import models.domains.SignInUser
-@import forms.PostForm.PostFormData
+@import models.domains.PostFormData
 @import forms.CommentForm.CommentFormData
 @import java.time.format._
 @import common.UserRequestHeader
@@ -59,7 +59,7 @@
 		<article class="border rounded">
 			<a href="@routes.PostController.detail(post._1.postId.get)">
 				<section class="card-header bg-white">
-					<span class="fs-5 fw-bold">@post._1.user.name</span>
+					<span class="fs-5 fw-bold">@post._1.user.get.name</span>
 					<span class="ps-3 text-secondary">
 						@post._1.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
 					</span>
