@@ -11,8 +11,7 @@ import play.api.i18n.Lang
 import play.api.cache._
 
 import models.domains.{User, UpdateUserProfileFormData}
-import models.services.{UserService, DepartmentService}
-import models.repositories.{PostRepository}
+import models.services.{UserService, PostService, DepartmentService}
 import views.html.defaultpages.error
 import controllers.forms.UpdateUserProfileForm
 import controllers.forms.{
@@ -34,7 +33,7 @@ class UserController @Inject() (
     userAction: UserAction,
     userService: UserService,
     departmentService: DepartmentService,
-    postService: PostRepository
+    postService: PostService
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
   implicit val lang = Lang.defaultLang
