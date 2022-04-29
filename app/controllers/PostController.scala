@@ -59,9 +59,6 @@ class PostController @Inject() (
   def insert() = userAction.async { implicit request =>
     val errorFunction = { formWithErrors: Form[PostFormData] =>
       postService.findAll().map { allPosts =>
-        // ログインユーザ情報の取得
-        val sessionId = request.session.get("sessionId")
-        val signInUser = CacheUtil.getSessionUser(cache, sessionId)
         BadRequest(
           views.html.posts
             .index(formWithErrors, commentForm, allPosts)
@@ -70,7 +67,15 @@ class PostController @Inject() (
     }
 
     val successFunction = { post: PostFormData =>
-      val postForInsert = PostForInsert(post.content, 1, LocalDateTime.now())
+      val postForInsert =
+        Post(
+          None,
+          post.content,
+          1, // ログインユーザIdに変更
+          None,
+          LocalDateTime.now(),
+          List()
+        )
       postService.insert(postForInsert).flatMap { _ =>
         postService.findAll().map { allPosts =>
           Redirect(routes.PostController.index())

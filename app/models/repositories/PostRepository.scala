@@ -183,13 +183,19 @@ class PostRepository @Inject() (
     }
   }
 
-  def insert(postForInsert: PostForInsert): Future[Option[Long]] = Future {
+  def insert(post: Post): Future[Option[Long]] = Future {
     db.withConnection { implicit conn =>
       SQL("""
           INSERT INTO posts
                      (content, user_id, posted_at)
           VALUES     ({content}, {userId}, {postedAt});
-      """).bind(postForInsert).executeInsert()
+      """)
+        .on(
+          "content" -> post.content,
+          "userId" -> post.userId,
+          "postedAt" -> post.postedAt
+        )
+        .executeInsert()
     }
   }
 
