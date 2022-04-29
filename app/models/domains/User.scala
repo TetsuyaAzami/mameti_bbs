@@ -17,6 +17,7 @@ final case class User(
     department: Option[Department] = None
 )
 
+//updateの際に使用。パスワードリマインダーをつけるため、passwordがない。
 final case class UpdateUserProfileFormData(
     userId: Long,
     name: String,

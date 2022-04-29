@@ -2,10 +2,9 @@ package controllers.forms
 
 import play.api.data.Form
 import play.api.data.Forms._
+import models.domains.CommentFormData
 
 object CommentForm {
-  case class CommentFormData(postId: Long, content: String)
-
   val commentForm = Form {
     mapping(
       "postId" -> longNumber,

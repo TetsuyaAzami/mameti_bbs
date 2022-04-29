@@ -1,7 +1,6 @@
 @import helper._
-@import domains.Post
+@import domains.{Post,CommentFormData}
 @import java.time.format._
-@import forms.CommentForm.CommentFormData
 @import common.UserRequestHeader
 @(post: Post, commentForm:Form[CommentFormData])(implicit request: UserRequestHeader)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}

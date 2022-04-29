@@ -5,12 +5,10 @@ import play.api.mvc.MessagesAbstractController
 import play.api.data.Form
 
 import models.DatabaseExecutionContext
-import models.domains.Comment
+import models.domains.{Comment, CommentFormData}
 import models.services.{CommentService, PostService}
 import views.html.defaultpages.error
-import controllers.forms.CommentForm
-import controllers.forms.CommentForm.CommentFormData
-import controllers.forms.PostForm
+import controllers.forms.{CommentForm, PostForm}
 
 import play.api.libs.json._
 import play.api.libs.json.Reads._
@@ -37,7 +35,7 @@ class CommentController @Inject() (
     val errorFunction = { formWithErrors: Form[CommentFormData] =>
       Future.successful(BadRequest(formWithErrors.errorsAsJson))
     }
-    val successFunction = { commentData: CommentForm.CommentFormData =>
+    val successFunction = { commentData: CommentFormData =>
       // formのデータをdomainに詰め直す
       val comment = Comment(
         userId = 1,

@@ -1,7 +1,6 @@
 package models.domains
 
-import anorm.Macro
-import anorm.ToParameterList
+import anorm.{Macro, ToParameterList}
 import java.time.LocalDateTime
 import play.api.libs.json.JsPath
 import play.api.libs.json.Writes
@@ -29,3 +28,6 @@ object Comment {
       )
   )
 }
+
+// insertの際に使用
+case class CommentFormData(postId: Long, content: String)
