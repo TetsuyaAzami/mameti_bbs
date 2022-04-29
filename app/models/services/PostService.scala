@@ -22,8 +22,8 @@ class PostService @Inject() (postRepository: PostRepository)(
 
   def update(post: Post) = postRepository.update(post)
 
-  def insert(postForInsert: PostForInsert): Future[Option[Long]] =
-    postRepository.insert(postForInsert)
+  def insert(post: Post): Future[Option[Long]] =
+    postRepository.insert(post)
 
   def delete(postId: Long): Future[Long] = postRepository.delete(postId)
 }
