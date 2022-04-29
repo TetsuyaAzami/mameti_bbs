@@ -1,24 +1,21 @@
 @import common.UserRequestHeader
 @import helper._
 @import forms._
-@(updateUserProfileForm: Form[UpdateUserProfileFormData],departmentList: List[(String,String)])(implicit request: UserRequestHeader)
+@import models.domains.UpdateUserProfileFormData
+@(updateUserProfileForm: Form[UpdateUserProfileFormData],departmentList: List[(String,String)])(implicit request: UserRequestHeader,flash: Flash)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 
 @main("ユーザプロフィール編集"){
-	<div class="container main-contents">
+	<div class="container w-75 main-contents">
 		<h1 class="text-center mt-5 fw-bold  py-3">プロフィール編集</h1>
-		@*
-		あとで確認してリクエストパラメータに記述
-		*@
-		@updateUserProfileForm.data
-		@form(routes.UserController.update(1)) {
+		@flash.get("failure").getOrElse("flashなし")
+		@form(routes.UserController.update()) {
 		@CSRF.formField
+		@inputText(updateUserProfileForm("userId"), Symbol("type") -> "hidden")
 		<label for="email">名前: </label>
 		@inputText(updateUserProfileForm("name"),Symbol("class") -> "form-control mb-3")
 		<label for="email">メールアドレス: </label>
 		@inputText(updateUserProfileForm("email"),Symbol("class") -> "form-control mb-3")
-		<label for="password">パスワード: </label>
-		@inputPassword(updateUserProfileForm("password"),Symbol("class") -> "form-control mb-3")
 		<label for="password">誕生日: </label>
 		@inputDate(updateUserProfileForm("birthday"),Symbol("class") -> "form-control mb-3")
 		<label for="password">自己紹介: </label>
@@ -27,7 +24,7 @@
 		@select(updateUserProfileForm("departmentId"),departmentList,Symbol("class") -> "mb-3")
 
 		<div class="m-auto">
-			<button class="btn btn-primary btn-sm d-block m-auto" type="submit">更新</button>
+			<button class="btn btn-primary btn-sm d-block m-auto">更新する</button>
 		</div>
 		}
 	</div>

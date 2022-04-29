@@ -1,4 +1,9 @@
 # https://www.playframework.com/documentation/latest/ScalaI18N
+# 正常系
+update.success=更新に成功しました
+delete.success=削除に成功しました
+
+# 異常系
 error.maxLength={0}文字以内にしてください
 error.minLength={0}文字以上にしてください
 error.email=正しいメールアドレスを入力してください
@@ -6,3 +11,4 @@ error.min=最小{0}です
 error.max=最大{0}です
 email.dupulicate=既に使用されているメールアドレスです
 user.notFound=メールアドレスかパスワードが間違っています
+update.error=更新中に何らかのエラーが発生しました
