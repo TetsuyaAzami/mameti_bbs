@@ -12,20 +12,9 @@ final case class Post(
     postedAt: LocalDateTime,
     commentList: List[Comment]
 )
-
-// Postをinsertする際に使用
-final case class PostForInsert(
-    content: String,
-    userId: Int,
-    postedAt: LocalDateTime
-)
-
-object PostForInsert {
-  implicit def toParameters: ToParameterList[PostForInsert] =
-    Macro.toParameters[PostForInsert]
-}
-
+// insertの際に使用
 case class PostFormData(content: String)
+// updateの際に使用
 case class PostUpdateFormData(
     postId: Long,
     content: String
