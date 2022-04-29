@@ -1,8 +1,6 @@
 package models.services
 
-import models.domains.Post
-import models.domains.PostForInsert
-import models.domains.PostForUpdate
+import models.domains._
 import models.repositories.PostRepository
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -16,13 +14,13 @@ class PostService @Inject() (postRepository: PostRepository)(
   def findByUserId(userId: Long): Future[List[(Post, Option[Long])]] =
     postRepository.findByUserId(userId)
 
-  def findByPostId(postId: Long): Future[PostForUpdate] =
+  def findByPostId(postId: Long): Future[PostUpdateFormData] =
     postRepository.findByPostId(postId)
 
-  def findByPostIdWithCommentList(postId: Long): Future[Post] =
+  def findByPostIdWithCommentList(postId: Long): Future[Option[Post]] =
     postRepository.findByPostIdWithCommentList(postId)
 
-  def update(post: PostForUpdate) = postRepository.update(post)
+  def update(post: Post) = postRepository.update(post)
 
   def insert(postForInsert: PostForInsert): Future[Option[Long]] =
     postRepository.insert(postForInsert)

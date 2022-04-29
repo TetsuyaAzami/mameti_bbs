@@ -6,9 +6,7 @@ import play.api.cache.SyncCacheApi
 import play.api.data.Form
 import play.api.i18n.Lang
 
-import models.domains.Post
-import models.domains.PostForInsert
-import models.domains.PostForUpdate
+import models.domains._
 import models.services.PostService
 import views.html.defaultpages.error
 import views.html.helper.form
@@ -40,13 +38,26 @@ class PostController @Inject() (
   }
 
   def detail(postId: Long) = userAction.async { implicit request =>
-    postService.findByPostIdWithCommentList(postId).map { postWithComments =>
-      Ok(views.html.posts.detail(postWithComments, commentForm))
+    postService.findByPostIdWithCommentList(postId).flatMap {
+      postWithCommentList =>
+        postWithCommentList match {
+          case None => {
+            // 404 NotFoundを返す。あとで変更
+            postService.findAll().map { allPosts =>
+              Ok(views.html.posts.index(postForm, commentForm, allPosts))
+            }
+          }
+          case Some(postWithCommentList) => {
+            Future.successful(
+              Ok(views.html.posts.detail(postWithCommentList, commentForm))
+            )
+          }
+        }
     }
   }
 
   def insert() = userAction.async { implicit request =>
-    val errorFunction = { formWithErrors: Form[PostForm.PostFormData] =>
+    val errorFunction = { formWithErrors: Form[PostFormData] =>
       postService.findAll().map { allPosts =>
         // ログインユーザ情報の取得
         val sessionId = request.session.get("sessionId")
@@ -58,7 +69,7 @@ class PostController @Inject() (
       }
     }
 
-    val successFunction = { post: PostForm.PostFormData =>
+    val successFunction = { post: PostFormData =>
       val postForInsert = PostForInsert(post.content, 1, LocalDateTime.now())
       postService.insert(postForInsert).flatMap { _ =>
         postService.findAll().map { allPosts =>
@@ -76,12 +87,7 @@ class PostController @Inject() (
 
     postService.findByPostId(postId).map { post =>
       // DBから取得したデータをformに詰めてviewに渡す
-      val postDataFromDB =
-        Map(
-          "postId" -> post.postId.toString(),
-          "content" -> post.content.toString()
-        )
-      val formWithPostData = postUpdateForm.bind(postDataFromDB)
+      val formWithPostData = postUpdateForm.fill(post)
       Ok(views.html.posts.edit(formWithPostData))
     }
   }
@@ -92,13 +98,19 @@ class PostController @Inject() (
 
     val sentPostForm = postUpdateForm.bindFromRequest()
 
-    val errorFunction = { formWithErrors: Form[PostForm.PostUpdateFormData] =>
+    val errorFunction = { formWithErrors: Form[PostUpdateFormData] =>
       Future.successful(BadRequest(views.html.posts.edit(formWithErrors)))
     }
-    val successFunction = { post: PostForm.PostUpdateFormData =>
+    val successFunction = { post: PostUpdateFormData =>
       val savePostData =
-        PostForUpdate(post.postId, post.content, LocalDateTime.now())
-
+        Post(
+          Option(post.postId),
+          post.content,
+          1, // ログインユーザのIdに変更
+          None,
+          LocalDateTime.now(),
+          List()
+        )
       postService.update(savePostData)
       postService
         .findByUserId(1)

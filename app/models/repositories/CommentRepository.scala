@@ -9,7 +9,6 @@ import play.api.db.DBApi
 
 import javax.inject.Inject
 import java.time.LocalDateTime
-import models.domains.OptionComment
 import scala.concurrent.Future
 
 class CommentRepository @Inject() (
@@ -20,26 +19,7 @@ class CommentRepository @Inject() (
 ) {
   private val db = dbApi.database("default")
 
-  private[repositories] val optionCommentWithUserParser = {
-    get[Option[Long]]("c_comment_id") ~
-      get[Option[Long]]("c_user_id") ~
-      userService.userWhoCommentedParser.? ~
-      get[Option[Long]]("c_post_id") ~
-      get[Option[String]]("c_content") ~
-      get[Option[LocalDateTime]]("c_commented_at") map {
-        case commentId ~ userId ~ userWhoCommented ~ postId ~ content ~ commentedAt =>
-          OptionComment(
-            commentId,
-            userId,
-            userWhoCommented,
-            postId,
-            content,
-            commentedAt
-          )
-      }
-  }
-
-  private[repositories] val commentParserWithUser = {
+  private[repositories] val commentWithUserParser = {
     get[Option[Long]]("c_comment_id") ~
       get[Long]("c_user_id") ~
       userService.userWhoCommentedParser.? ~
@@ -56,7 +36,6 @@ class CommentRepository @Inject() (
             commentedAt
           )
       }
-
   }
 
   def insert(comment: Comment): Future[Option[Long]] = Future {
@@ -93,7 +72,7 @@ class CommentRepository @Inject() (
           INNER JOIN users cu
           ON c.user_id = cu.user_id
           WHERE c.comment_id = ${commentId}
-          ;""".as(commentParserWithUser.single)
+          ;""".as(commentWithUserParser.single)
       }
     }
   }

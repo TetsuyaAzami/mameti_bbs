@@ -1,11 +1,6 @@
 package models.repositories
 
-import models.domains.Post
-import models.domains.PostForInsert
-import models.domains.PostForUpdate
-import models.domains.User
-import models.domains.UserWhoPosted
-import models.domains.Comment
+import models.domains._
 import models.DatabaseExecutionContext
 
 import anorm._
@@ -17,8 +12,7 @@ import java.time.LocalDateTime
 
 import scala.concurrent.Future
 import scala.language.postfixOps
-import models.domains.OptionComment
-import models.domains.UserWhoCommented
+import java.time.LocalDate
 
 class PostRepository @Inject() (
     dbApi: DBApi,
@@ -31,20 +25,19 @@ class PostRepository @Inject() (
 
   private[repositories] val forUpdate = {
     get[Long]("p_post_id") ~
-      get[String]("p_content") ~
-      get[LocalDateTime]("p_posted_at") map {
-        case postId ~ content ~ postedAt =>
-          PostForUpdate(postId, content, postedAt)
+      get[String]("p_content") map { case postId ~ content =>
+        PostUpdateFormData(postId, content)
       }
   }
 
   private[repositories] val withUser = {
     get[Option[Long]]("p_post_id") ~
       get[String]("p_content") ~
-      userRepository.userWhoPostedParser ~
+      get[Long]("p_user_id") ~
+      userRepository.userWhoPostedParser.? ~
       get[LocalDateTime]("p_posted_at") map {
-        case postId ~ content ~ user ~ postedAt =>
-          Post(postId, content, user, postedAt, Nil)
+        case postId ~ content ~ userId ~ user ~ postedAt =>
+          Post(postId, content, userId, user, postedAt, List())
       }
   }
 
@@ -112,25 +105,25 @@ class PostRepository @Inject() (
     }
   }
 
-  def findByPostId(postId: Long): Future[PostForUpdate] = Future {
+  def findByPostId(postId: Long): Future[PostUpdateFormData] = Future {
     db.withConnection { implicit conn =>
       SQL"""
       SELECT
-      post_id p_post_id,
-      content p_content,
-      posted_at p_posted_at
+      p.post_id p_post_id,
+      p.content p_content
       FROM posts p
-      WHERE post_id = ${postId};""".as(forUpdate.single)
+      WHERE p.post_id = ${postId};""".as(forUpdate.single)
     }
   }
 
-  def findByPostIdWithCommentList(postId: Long): Future[Post] = Future {
+  def findByPostIdWithCommentList(postId: Long): Future[Option[Post]] = Future {
     db.withConnection { implicit conn =>
       val sqlResult =
         SQL"""
           SELECT
           p.post_id p_post_id,
           p.content p_content,
+          p.user_id p_user_id,
           p.posted_at p_posted_at,
           u.user_id u_user_id,
           u.name u_name,
@@ -153,23 +146,27 @@ class PostRepository @Inject() (
           WHERE p.post_id = ${postId}
           ORDER BY c_commented_at DESC; """
           .as(
-            (withUser ~ commentRepository.optionCommentWithUserParser).*
+            (withUser ~ commentRepository.commentWithUserParser.?).*
           )
 
-      val post = sqlResult(0)._1
-      // // 投稿に紐づくコメントがない場合、空のコメントリストを返します
-      val firstCommentId = sqlResult.map(_._2)(0).commentId
-      val commentList = firstCommentId match {
-        case None    => List()
-        case Some(i) => sqlResult.map(_._2)
-      }
+      sqlResult match {
+        case Nil => None
+        case head :: next => {
+          val post = sqlResult(0)._1
+          val isCommentListNil = sqlResult(0)._2
+          val commentList = isCommentListNil match {
+            case None              => Nil
+            case Some(commentList) => sqlResult.map(e => e._2.get)
+          }
 
-      val postWithCommentList = post.copy(commentList = commentList)
-      postWithCommentList
+          val postWithCommentList = post.copy(commentList = commentList)
+          Option(postWithCommentList)
+        }
+      }
     }
   }
 
-  def update(post: PostForUpdate) = Future {
+  def update(post: Post) = Future {
     db.withConnection { implicit conn =>
       SQL(
         """UPDATE posts SET
@@ -194,7 +191,6 @@ class PostRepository @Inject() (
           VALUES     ({content}, {userId}, {postedAt});
       """).bind(postForInsert).executeInsert()
     }
-
   }
 
   def delete(postId: Long): Future[Long] = Future {

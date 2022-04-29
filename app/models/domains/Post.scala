@@ -2,22 +2,15 @@ package models.domains
 
 import anorm._
 
-import java.time.LocalDateTime
-import java.time.LocalDate
+import java.time.{LocalDateTime, LocalDate}
 
 final case class Post(
     postId: Option[Long] = None,
     content: String,
-    user: UserWhoPosted,
+    userId: Long,
+    user: Option[UserWhoPosted],
     postedAt: LocalDateTime,
-    commentList: List[OptionComment]
-)
-
-// Postの編集のためのSELECT, UPDATEの際に使用
-final case class PostForUpdate(
-    postId: Long,
-    content: String,
-    postedAt: LocalDateTime
+    commentList: List[Comment]
 )
 
 // Postをinsertする際に使用
@@ -31,3 +24,9 @@ object PostForInsert {
   implicit def toParameters: ToParameterList[PostForInsert] =
     Macro.toParameters[PostForInsert]
 }
+
+case class PostFormData(content: String)
+case class PostUpdateFormData(
+    postId: Long,
+    content: String
+)
