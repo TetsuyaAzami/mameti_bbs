@@ -23,4 +23,7 @@ class UserService @Inject() (userRepository: UserRepository)(implicit
     userRepository.findUserByEmailAndPassword(email, password)
 
   def insert(user: User): Future[Option[Long]] = userRepository.insert(user)
+
+  def update(user: UpdateUserProfileFormData): Future[Boolean] =
+    userRepository.update(user)
 }

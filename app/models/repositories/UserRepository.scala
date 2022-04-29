@@ -126,18 +126,44 @@ class UserRepository @Inject() (
 
   def insert(user: User): Future[Option[Long]] = Future {
     db.withConnection { implicit conn =>
-      val userId = SQL("""
-      INSERT INTO users
-      (name, email, password, department_id)
-      VALUES({name},{email},{password},{departmentId});""")
+      val userId =
+        SQL("""
+            INSERT INTO users
+            (name, email, password, department_id)
+            VALUES({name},{email},{password},{departmentId});""")
+          .on(
+            "name" -> user.name,
+            "email" -> user.email,
+            "password" -> user.password,
+            "departmentId" -> user.departmentId
+          )
+          .executeInsert()
+      userId
+    }
+  }
+
+  def update(user: UpdateUserProfileFormData): Future[Boolean] = Future {
+    db.withConnection { implicit conn =>
+      SQL("""
+          UPDATE users SET
+          name = {name},
+          email = {email},
+          birthday = {birthday},
+          introduce = {introduce},
+          profile_img = {profileImg},
+          department_id = {departmentId}
+          WHERE user_id = {userId};
+      """)
         .on(
           "name" -> user.name,
           "email" -> user.email,
-          "password" -> user.password,
-          "departmentId" -> user.departmentId
+          "birthday" -> user.birthday,
+          "introduce" -> user.introduce,
+          "profileImg" -> user.profileImg,
+          "departmentId" -> user.departementId,
+          "userId" -> user.userId
         )
-        .executeInsert()
-      userId
+        .execute()
     }
   }
 }

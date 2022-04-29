@@ -34,6 +34,7 @@
 	</section>
 
 	<div class="text-center text-success fw-bold my-3"><span>@flash.get("success").getOrElse("")</span></div>
+	<div class="text-center text-danger fw-bold my-3"><span>@flash.get("failure").getOrElse("")</span></div>
 
 	@posts.map{post =>
 	<article class="border rounded">

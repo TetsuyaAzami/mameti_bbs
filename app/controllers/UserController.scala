@@ -49,15 +49,17 @@ class UserController @Inject() (
     * @return
     *   マイページ
     */
-  def index(userId: Long) = userAction.async { implicit request =>
+  def detail(userId: Long) = userAction.async { implicit request =>
     // ログインユーザのidと一致しているかのチェック あとで実装
     postService.findByUserId(userId).map { posts =>
-      Ok(views.html.users.index(posts))
+      Ok(views.html.users.detail(posts))
     }
   }
 
-  def edit(id: Long) = userAction.async { implicit request =>
-    userService.findUserById(1).flatMap { user =>
+  def edit(userId: Long) = userAction.async { implicit request =>
+    // ログインユーザのuserIdと送られてきたuserIdが一致することを確認
+    // 一致しない場合、403Forbiddenエラーを返す
+    userService.findUserById(userId).flatMap { user =>
       user match {
         case None => {
           Future.successful(Redirect(routes.UserController.toSignIn()))
@@ -72,15 +74,31 @@ class UserController @Inject() (
     }
   }
 
-  def update(id: Long) = userAction.async { implicit request =>
-    println()
-    println()
-    println()
-    println(updateUserProfileForm.bindFromRequest())
-    Future.successful(
-      Redirect(routes.UserController.index(1))
-        .flashing("success" -> "プロフィールを更新しました。")
-    )
+  def update() = userAction.async { implicit request =>
+    val sentUserForm = updateUserProfileForm.bindFromRequest()
+    // where userId = ログインユーザのid
+    // バリデーション
+    val errorFunction = { formWithErrors: Form[UpdateUserProfileFormData] =>
+      // userDataのuserIdがログインユーザのIdと一致すること
+      // 一致しない場合に403Forbiddenエラーを返す
+      departmentService.selectDepartmentList().map { departmentList =>
+        BadRequest(views.html.users.edit(formWithErrors, departmentList))
+      }
+    }
+    val successFunction = { userData: UpdateUserProfileFormData =>
+      userService.update(userData).map { isUpdateFailure =>
+        isUpdateFailure match {
+          case false =>
+            Redirect(routes.UserController.detail(1)) // ログインユーザIdに差し替え
+              .flashing("success" -> messagesApi("update.success"))
+          case true =>
+            Redirect(routes.UserController.detail(1)) // ログインユーザIdに差し替え
+              .flashing("failure" -> "update.error")
+        }
+
+      }
+    }
+    sentUserForm.fold(errorFunction, successFunction)
   }
 
   /** ログインページ遷移
@@ -122,7 +140,7 @@ class UserController @Inject() (
               val sessionId = UUID.randomUUID().toString()
               CacheUtil.setSessionUser(cache, sessionId, signInUser)
 
-              Redirect(routes.PostController.index())
+              Redirect(routes.PostController.detail(signInUser.userId))
                 .withSession(
                   "sessionId" -> sessionId
                 )

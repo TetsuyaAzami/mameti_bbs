@@ -172,7 +172,10 @@ class PostRepository @Inject() (
   def update(post: PostForUpdate) = Future {
     db.withConnection { implicit conn =>
       SQL(
-        "UPDATE posts SET content = {content}, posted_at = {postedAt} WHERE post_id = {postId};"
+        """UPDATE posts SET
+           content = {content},
+           posted_at = {postedAt}
+           WHERE post_id = {postId};"""
       )
         .on(
           "content" -> post.content,
