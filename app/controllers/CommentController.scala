@@ -6,8 +6,7 @@ import play.api.data.Form
 
 import models.DatabaseExecutionContext
 import models.domains.Comment
-import models.repositories.CommentRepository
-import models.repositories.PostRepository
+import models.services.{CommentService, PostService}
 import views.html.defaultpages.error
 import controllers.forms.CommentForm
 import controllers.forms.CommentForm.CommentFormData
@@ -18,14 +17,14 @@ import play.api.libs.json.Reads._
 import play.api.libs.functional.syntax._
 
 import javax.inject.Inject
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import java.time.LocalDateTime
 
 class CommentController @Inject() (
     mcc: MessagesControllerComponents,
-    commentService: CommentRepository,
-    postService: PostRepository
+    commentService: CommentService,
+    postService: PostService
 )(implicit
     ec: ExecutionContext
 ) extends MessagesAbstractController(mcc) {

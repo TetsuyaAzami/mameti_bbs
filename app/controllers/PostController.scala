@@ -4,11 +4,12 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.MessagesAbstractController
 import play.api.cache.SyncCacheApi
 import play.api.data.Form
+import play.api.i18n.Lang
 
-import models.repositories._
 import models.domains.Post
 import models.domains.PostForInsert
 import models.domains.PostForUpdate
+import models.services.PostService
 import views.html.defaultpages.error
 import views.html.helper.form
 import controllers.forms.PostForm
@@ -19,13 +20,12 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import common._
-import play.api.i18n.Lang
 
 class PostController @Inject() (
     mcc: MessagesControllerComponents,
     cache: SyncCacheApi,
     userAction: UserAction,
-    postService: PostRepository
+    postService: PostService
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
   implicit val lang = Lang.defaultLang
