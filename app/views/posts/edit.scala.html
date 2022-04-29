@@ -1,6 +1,5 @@
 @import helper._
-@import models.domains.Post
-@import forms.PostForm.PostUpdateFormData
+@import models.domains.{Post,PostUpdateFormData}
 @import common.UserRequestHeader
 @(postForm: Form[PostUpdateFormData])(implicit request: UserRequestHeader,flash: Flash)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}

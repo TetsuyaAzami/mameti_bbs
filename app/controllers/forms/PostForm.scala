@@ -2,10 +2,10 @@ package controllers.forms
 
 import play.api.data._
 import play.api.data.Forms._
+import models.domains.PostFormData
+import models.domains.PostUpdateFormData
 
 object PostForm {
-  case class PostFormData(content: String)
-  case class PostUpdateFormData(postId: Long, content: String)
 
   val postForm = Form {
     mapping(
