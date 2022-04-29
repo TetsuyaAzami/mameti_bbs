@@ -43,16 +43,16 @@ final case class UserWhoPosted(
 
 // コメントしたユーザ
 final case class UserWhoCommented(
-    userId: Option[Long],
-    name: Option[String],
+    userId: Long,
+    name: String,
     profileImg: Option[String]
 )
 
 object UserWhoCommented {
   implicit val userWhoCommentedWrites: Writes[UserWhoCommented] =
     (JsPath \ "userId")
-      .write[Option[Long]]
-      .and((JsPath \ "name").write[Option[String]])
+      .write[Long]
+      .and((JsPath \ "name").write[String])
       .and((JsPath \ "profileImg").write[Option[String]])(
         unlift(UserWhoCommented.unapply)
       )

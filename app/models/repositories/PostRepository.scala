@@ -7,12 +7,11 @@ import anorm._
 import anorm.SqlParser._
 import play.api.db.DBApi
 
-import javax.inject.Inject
-import java.time.LocalDateTime
-
 import scala.concurrent.Future
 import scala.language.postfixOps
+import javax.inject.Inject
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class PostRepository @Inject() (
     dbApi: DBApi,
@@ -160,7 +159,7 @@ class PostRepository @Inject() (
           }
 
           val postWithCommentList = post.copy(commentList = commentList)
-          Option(postWithCommentList)
+          Some(postWithCommentList)
         }
       }
     }

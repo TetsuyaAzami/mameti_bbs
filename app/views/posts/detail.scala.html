@@ -57,7 +57,7 @@
 		@post.commentList.filter(_.commentId != None).map{comment =>
 		<article class="border rounded">
 			<section class="card-header bg-white">
-				<span class="fs-5 fw-bold">@comment.userWhoCommented.get.name.get</span>
+				<span class="fs-5 fw-bold">@comment.userWhoCommented.get.name</span>
 				<span class="ps-3 text-secondary">
 					@comment.commentedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
 				</span>

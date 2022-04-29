@@ -1,19 +1,14 @@
 package models.repositories
 
-import models.domains.User
-import models.domains.UpdateUserProfileFormData
-import models.domains.UserWhoPosted
-import models.domains.UserWhoCommented
-import models.domains.SignInUser
 import models.DatabaseExecutionContext
-
-import java.time.LocalDate
-import javax.inject.Inject
+import models.domains._
 
 import anorm._
 import anorm.SqlParser._
 import play.api.db.DBApi
 
+import java.time.LocalDate
+import javax.inject.Inject
 import scala.concurrent.Future
 
 class UserRepository @Inject() (
@@ -57,8 +52,8 @@ class UserRepository @Inject() (
 
   // コメントリストを表示する際に使用
   private[repositories] val userWhoCommentedParser = {
-    get[Option[Long]]("cu_user_id") ~
-      get[Option[String]]("cu_name") ~
+    get[Long]("cu_user_id") ~
+      get[String]("cu_name") ~
       get[Option[String]]("cu_profile_img") map {
         case userId ~ name ~ profileImg =>
           UserWhoCommented(userId, name, profileImg)
