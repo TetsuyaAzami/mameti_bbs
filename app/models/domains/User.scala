@@ -13,7 +13,18 @@ final case class User(
     birthday: Option[LocalDate] = None,
     introduce: Option[String] = None,
     profileImg: Option[String] = None,
-    departmentId: Long
+    departmentId: Long,
+    department: Option[Department] = None
+)
+
+final case class UpdateUserProfileFormData(
+    userId: Long,
+    name: String,
+    email: String,
+    birthday: Option[LocalDate],
+    introduce: Option[String],
+    profileImg: Option[String],
+    departementId: Long
 )
 
 final case class SignInUser(

@@ -19,6 +19,7 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import common._
+import play.api.i18n.Lang
 
 class PostController @Inject() (
     mcc: MessagesControllerComponents,
@@ -27,6 +28,7 @@ class PostController @Inject() (
     postService: PostRepository
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
+  implicit val lang = Lang.defaultLang
   val postForm = PostForm.postForm
   val commentForm = CommentForm.commentForm
   val postUpdateForm = PostForm.postUpdateForm
@@ -74,13 +76,13 @@ class PostController @Inject() (
 
     postService.findByPostId(postId).map { post =>
       // DBから取得したデータをformに詰めてviewに渡す
-      val postUpdateData =
+      val postDataFromDB =
         Map(
           "postId" -> post.postId.toString(),
           "content" -> post.content.toString()
         )
-      val updateDataFromDB = postUpdateForm.bind(postUpdateData)
-      Ok(views.html.posts.edit(updateDataFromDB))
+      val formWithPostData = postUpdateForm.bind(postDataFromDB)
+      Ok(views.html.posts.edit(formWithPostData))
     }
   }
 
@@ -101,8 +103,8 @@ class PostController @Inject() (
       postService
         .findByUserId(1)
         .map(post =>
-          Redirect(routes.UserController.index(1))
-            .flashing("success" -> "編集完了しました")
+          Redirect(routes.UserController.detail(1))
+            .flashing("success" -> messagesApi("update.success"))
         )
     }
 
@@ -116,8 +118,8 @@ class PostController @Inject() (
     val deletePostId =
       request.body.asFormUrlEncoded.get("deletePostId")(0).toLong
     postService.delete(deletePostId).map { deletedPostId =>
-      Redirect(routes.UserController.index(1))
-        .flashing("success" -> "削除に成功しました")
+      Redirect(routes.UserController.detail(1))
+        .flashing("success" -> "delete.success")
     }
   }
 

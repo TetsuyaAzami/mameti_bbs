@@ -4,10 +4,11 @@
 # ~~~~
 
 # Post
+GET     /                           controllers.PostController.index()
 GET     /posts                      controllers.PostController.index()
 POST    /posts                      controllers.PostController.insert()
-GET     /posts/detail/:postId       controllers.PostController.detail(postId: Long)
-GET     /posts/edit/:postId         controllers.PostController.edit(postId: Long)
+GET     /posts/:postId/detail       controllers.PostController.detail(postId: Long)
+GET     /posts/:postId/edit         controllers.PostController.edit(postId: Long)
 POST    /posts/update               controllers.PostController.update()
 POST    /posts/delete               controllers.PostController.delete()
 
@@ -21,10 +22,11 @@ POST    /users/sign-in              controllers.UserController.signIn()
 GET     /users/sign-up              controllers.UserController.toSignUp()
 POST    /users/sign-up              controllers.UserController.signUp()
 POST    /users/sign-out             controllers.UserController.signOut()
+
 ## ユーザページ
-GET     /users/:id/edit            controllers.UserController.edit(id:Long)
-GET     /users/:id/update          controllers.UserController.update(id:Long)
-GET     /users/:id                  controllers.UserController.index(id:Long)
+GET     /users/:userId/detail              controllers.UserController.detail(userId:Long)
+GET     /users/:userId/edit         controllers.UserController.edit(userId:Long)
+POST    /users/update               controllers.UserController.update()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
