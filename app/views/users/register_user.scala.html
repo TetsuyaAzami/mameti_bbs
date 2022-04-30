@@ -11,7 +11,7 @@
 	@commons.navigation()
 	<section class="container main-contents">
 		<h1 class="text-center mt-5 fw-bold  py-3">会員登録</h1>
-		@form(routes.UserController.signUp()) {
+		@form(routes.SignInController.signUp()) {
 		@CSRF.formField
 		<label for="email">名前: </label>
 		@inputText(signUpForm("name"),Symbol("class") -> "form-control mb-3")

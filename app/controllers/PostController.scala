@@ -129,8 +129,7 @@ class PostController @Inject() (
       request.body.asFormUrlEncoded.get("deletePostId")(0).toLong
     postService.delete(deletePostId).map { deletedPostId =>
       Redirect(routes.UserController.detail(1))
-        .flashing("success" -> "delete.success")
+        .flashing("success" -> messagesApi("delete.success"))
     }
   }
-
 }

@@ -17,11 +17,11 @@ POST    /comment                    controllers.CommentController.insert()
 
 # User
 ## 認証系
-GET     /users/sign-in              controllers.UserController.toSignIn()
-POST    /users/sign-in              controllers.UserController.signIn()
-GET     /users/sign-up              controllers.UserController.toSignUp()
-POST    /users/sign-up              controllers.UserController.signUp()
-POST    /users/sign-out             controllers.UserController.signOut()
+GET     /users/sign-in              controllers.SignInController.toSignIn()
+POST    /users/sign-in              controllers.SignInController.signIn()
+GET     /users/sign-up              controllers.SignInController.toSignUp()
+POST    /users/sign-up              controllers.SignInController.signUp()
+POST    /users/sign-out             controllers.SignInController.signOut()
 
 ## ユーザページ
 GET     /users/:userId/detail              controllers.UserController.detail(userId:Long)
