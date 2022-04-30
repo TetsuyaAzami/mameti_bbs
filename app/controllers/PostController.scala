@@ -7,9 +7,8 @@ import play.api.i18n.Lang
 
 import models.domains._
 import models.services.PostService
-import views.html.defaultpages.error
-import views.html.helper.form
-import controllers.forms.{PostForm, CommentForm}
+import controllers.forms.PostForm._
+import controllers.forms.CommentForm._
 
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -24,9 +23,6 @@ class PostController @Inject() (
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
   implicit val lang = Lang.defaultLang
-  val postForm = PostForm.postForm
-  val commentForm = CommentForm.commentForm
-  val postUpdateForm = PostForm.postUpdateForm
 
   def index() = userAction.async { implicit request =>
     postService.findAll().map { allPosts =>

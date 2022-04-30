@@ -137,7 +137,7 @@ class UserRepository @Inject() (
     }
   }
 
-  def update(user: UpdateUserProfileFormData): Future[Boolean] = Future {
+  def update(user: UpdateUserProfileFormData): Future[Long] = Future {
     db.withConnection { implicit conn =>
       SQL("""
           UPDATE users SET
@@ -158,7 +158,7 @@ class UserRepository @Inject() (
           "departmentId" -> user.departementId,
           "userId" -> user.userId
         )
-        .execute()
+        .executeUpdate()
     }
   }
 }

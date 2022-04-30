@@ -3,80 +3,87 @@
 @import java.time.format._
 @import common.UserRequestHeader
 
-@(postForm: Form[PostFormData],commentForm: Form[CommentFormData],posts: List[(Post,Option[Long])])(implicit request: UserRequestHeader,flash: Flash)
+@(postForm: Form[PostFormData],commentForm: Form[CommentFormData],posts: List[(Post,Option[Long])])(implicit request:
+UserRequestHeader,flash: Flash)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
-
 @main("投稿一覧"){
-<div id="commentPostModal" class="modal" tabindex="-1">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title">コメントを投稿する</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div id="modalBody" class="modal-body">
-				@form(routes.CommentController.insert()) {
-				@CSRF.formField
-				<span id="commentErrorMessage" class="text-danger"></span>
-				@textarea(commentForm("content"),Symbol("class") -> "form-control")
-				<div class="mt-1 text-end">
-					<span class="me-5">
-						<button id="commentInsertButton" class="btn btn-primary btn-sm" type="button">送信</button>
-						}
-					</span>
+	<div class="d-flex flex-grow-1">
+		@*ナビゲーションバー*@
+		@commons.navigation()
+		<section id="commentPostModal" class="modal" tabindex="-1">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">コメントを投稿する</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div id="modalBody" class="modal-body">
+						@form(routes.CommentController.insert()) {
+						@CSRF.formField
+						<span id="commentErrorMessage" class="text-danger"></span>
+						@textarea(commentForm("content"),Symbol("class") -> "form-control")
+						<div class="mt-1 text-end">
+							<span class="me-5">
+								<button id="commentInsertButton" class="btn btn-primary btn-sm"
+									type="button">送信</button>
+								}
+							</span>
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
-	</div>
-</div>
+		</section>
 
-<div class="container main-contents">
-	<h1 class="text-center mt-5 fw-bold  py-3">みんなの豆知識一覧</h1>
-	<div id="flashSuccessMessage" class="text-center text-success fw-bold my-3"><span>@flash.get("success").getOrElse("")</span></div>
-	<div>
-			@request.signInUserOpt match {
+		<section class="container main-contents">
+			<h1 class="text-center mt-5 fw-bold  py-3">みんなの豆知識一覧</h1>
+			<div id="flashSuccessMessage" class="text-center text-success fw-bold my-3">
+				<span>@flash.get("success").getOrElse("")</span>
+			</div>
+			<div>
+				@request.signInUserOpt match {
 				case None => {}
 				case Some(signInUser) => { <span class="fw-bold">@(signInUser.name):</span> }
-			}
-	</div>
-	<section class="mb-5">
-		@form(routes.PostController.insert()) {
-		@CSRF.formField
-		@textarea(postForm("content"),Symbol("class")->"form-control", Symbol("placeholder")->"今日の豆知識をつぶやこう!")
-		<div class="mt-1 text-end">
-			<span class="me-5">
-				<button class="btn btn-primary btn-sm" type="submit">投稿する</button>
-			</span>
-		</div>
-		}
-	</section>
-	<section id="postList">
-		@posts.map{post =>
-		<article class="border rounded">
-			<a href="@routes.PostController.detail(post._1.postId.get)">
-				<section class="card-header bg-white">
-					<span class="fs-5 fw-bold">@post._1.user.get.name</span>
-					<span class="ps-3 text-secondary">
-						@post._1.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+				}
+			</div>
+			<section class="mb-5">
+				@form(routes.PostController.insert()) {
+				@CSRF.formField
+				@textarea(postForm("content"),Symbol("class")->"form-control", Symbol("placeholder")->"今日の豆知識をつぶやこう!")
+				<div class="mt-1 text-end">
+					<span class="me-5">
+						<button class="btn btn-primary btn-sm" type="submit">投稿する</button>
 					</span>
-				</section>
-				<section class="card-body">
-					<div class="card-text p-3">@post._1.content</div>
-				</section>
-			</a>
-			<section class="card-footer bg-white border-white">
-				<div class="px-3 w-25 d-flex justify-content-between align-items-center">
-					<span>
-						<i title="コメントする" class="far fa-comment" data-bs-toggle="modal"
-							data-bs-target="#commentPostModal" data-post-id="@post._1.postId"></i>
-						<span class="px-1">@post._2.getOrElse("")</span>
-					</span>
-					<i title="いいね!" class="far fa-heart"></i>
 				</div>
+				}
 			</section>
-		</article>
-		}
-	</section>
-</div>
-<script src="@routes.Assets.versioned("javascripts/posts/index.js")"></script>
-}
+			<section id="postList">
+				@posts.map{post =>
+				<article class="border rounded">
+					<a href="@routes.PostController.detail(post._1.postId.get)">
+						<section class="card-header bg-white">
+							<span class="fs-5 fw-bold">@post._1.user.get.name</span>
+							<span class="ps-3 text-secondary">
+								@post._1.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+							</span>
+						</section>
+						<section class="card-body">
+							<div class="card-text p-3">@post._1.content</div>
+						</section>
+					</a>
+					<section class="card-footer bg-white border-white">
+						<div class="px-3 w-25 d-flex justify-content-between align-items-center">
+							<span>
+								<i title="コメントする" class="far fa-comment" data-bs-toggle="modal"
+									data-bs-target="#commentPostModal" data-post-id="@post._1.postId"></i>
+								<span class="px-1">@post._2.getOrElse("")</span>
+							</span>
+							<i title="いいね!" class="far fa-heart"></i>
+						</div>
+					</section>
+				</article>
+				}
+			</section>
+		</section>
+		<script src="@routes.Assets.versioned("javascripts/posts/index.js")"></script>
+	</div>
+	}

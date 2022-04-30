@@ -5,73 +5,77 @@
 @(post: Post, commentForm:Form[CommentFormData])(implicit request: UserRequestHeader)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 @main("投稿詳細"){
-<div class="container main-contents">
-	<div class="page-title text-center mt-5">
-		<h1 class="fw-bold py-3">
-			投稿詳細ページ
-		</h1>
-	</div>
-	<article id="postArticle" class="border border-2 rounded">
-		<section class="card-header bg-white">
-			<span class="fs-5 fw-bold">@post.user.get.name</span>
-			<span class="ps-3 text-secondary">
-				@post.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
-			</span>
-		</section>
-		<section class="card-body">
-			<div class="card-text p-3">@post.content</div>
-		</section>
-		<section class="card-footer bg-white">
-			<div class="card-text px-3">○ likes</div>
-		</section>
-		<section class="card-footer bg-white p-3">
-			<div class="px-3 w-25 d-flex justify-content-between align-items-center">
-				<span>
-					<i title="コメントする" class="far fa-comment"></i>
-					<span class="px-1">
-						@post.commentList.size match {
-						case 0 => {}
-						case _ => {@post.commentList.size}
-						}
-					</span>
-				</span>
-				<i title="いいね！" class="far fa-heart"></i>
-			</div>
-		</section>
-		<hr class="m-0">
-		<section>
-			@form(routes.CommentController.insert(), Symbol("id") -> "commentInsertForm") {
-			@CSRF.formField
-			@textarea(commentForm("content"),Symbol("style") ->"width:100%; border:none; outline:none; resize:none;padding:16px;",
-			Symbol("placeholder") -> "コメントを入力")
-			<input type="hidden" id="postId" name="postId" value="@post.postId">
-			<div class="mt-1 text-end">
-				<span class="me-5">
-					<button id="commentInsertButton" class="btn btn-primary btn-sm" type="button">投稿する</button>
-				</span>
-			</div>
-			}
-		</section>
-	</article>
-	<section id="commentList">
-		@post.commentList.filter(_.commentId != None).map{comment =>
-		<article class="border rounded">
+<div class="d-flex flex-grow-1">
+	@*ナビゲーションバー*@
+	@commons.navigation()
+	<section class="container main-contents">
+		<div class="page-title text-center mt-5">
+			<h1 class="fw-bold py-3">
+				投稿詳細ページ
+			</h1>
+		</div>
+		<article id="postArticle" class="border border-2 rounded">
 			<section class="card-header bg-white">
-				<span class="fs-5 fw-bold">@comment.userWhoCommented.get.name</span>
+				<span class="fs-5 fw-bold">@post.user.get.name</span>
 				<span class="ps-3 text-secondary">
-					@comment.commentedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+					@post.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
 				</span>
 			</section>
 			<section class="card-body">
-				<div class="card-text p-3">@comment.content</div>
-				<div class="px-3 w-25 d-flex justify-content-between">
-					<i title="コメントする" class="far fa-comment"></i>
+				<div class="card-text p-3">@post.content</div>
+			</section>
+			<section class="card-footer bg-white">
+				<div class="card-text px-3">○ likes</div>
+			</section>
+			<section class="card-footer bg-white p-3">
+				<div class="px-3 w-25 d-flex justify-content-between align-items-center">
+					<span>
+						<i title="コメントする" class="far fa-comment"></i>
+						<span class="px-1">
+							@post.commentList.size match {
+							case 0 => {}
+							case _ => {@post.commentList.size}
+							}
+						</span>
+					</span>
 					<i title="いいね！" class="far fa-heart"></i>
 				</div>
 			</section>
+			<hr class="m-0">
+			<section>
+				@form(routes.CommentController.insert(), Symbol("id") -> "commentInsertForm") {
+				@CSRF.formField
+				@textarea(commentForm("content"),Symbol("style") ->"width:100%; border:none; outline:none;resize:none;padding:16px",
+				Symbol("placeholder") -> "コメントを入力")
+				<input type="hidden" id="postId" name="postId" value="@post.postId">
+				<div class="mt-1 text-end">
+					<span class="me-5">
+						<button id="commentInsertButton" class="btn btn-primary btn-sm" type="button">投稿する</button>
+					</span>
+				</div>
+				}
+			</section>
 		</article>
-		}
+		<section id="commentList">
+			@post.commentList.filter(_.commentId != None).map{comment =>
+			<article class="border rounded">
+				<section class="card-header bg-white">
+					<span class="fs-5 fw-bold">@comment.userWhoCommented.get.name</span>
+					<span class="ps-3 text-secondary">
+						@comment.commentedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+					</span>
+				</section>
+				<section class="card-body">
+					<div class="card-text p-3">@comment.content</div>
+					<div class="px-3 w-25 d-flex justify-content-between">
+						<i title="コメントする" class="far fa-comment"></i>
+						<i title="いいね！" class="far fa-heart"></i>
+					</div>
+				</section>
+			</article>
+			}
+		</section>
 	</section>
+	<script src="@routes.Assets.versioned("javascripts/posts/detail.js")"></script>
 </div>
-<script src="@routes.Assets.versioned("javascripts/posts/detail.js")"></script>
 }

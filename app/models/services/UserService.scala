@@ -24,6 +24,6 @@ class UserService @Inject() (userRepository: UserRepository)(implicit
 
   def insert(user: User): Future[Option[Long]] = userRepository.insert(user)
 
-  def update(user: UpdateUserProfileFormData): Future[Boolean] =
+  def update(user: UpdateUserProfileFormData): Future[Long] =
     userRepository.update(user)
 }

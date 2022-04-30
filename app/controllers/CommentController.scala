@@ -7,8 +7,8 @@ import play.api.data.Form
 import models.DatabaseExecutionContext
 import models.domains.{Comment, CommentFormData}
 import models.services.{CommentService, PostService}
-import views.html.defaultpages.error
-import controllers.forms.{CommentForm, PostForm}
+import controllers.forms.CommentForm._
+import controllers.forms.PostForm._
 
 import play.api.libs.json._
 import play.api.libs.json.Reads._
@@ -26,9 +26,6 @@ class CommentController @Inject() (
 )(implicit
     ec: ExecutionContext
 ) extends MessagesAbstractController(mcc) {
-  val commentForm = CommentForm.commentForm
-  val postForm = PostForm.postForm
-
   def insert() = Action(parse.json).async { implicit request =>
     val sentCommentForm = commentForm.bindFromRequest()
 
