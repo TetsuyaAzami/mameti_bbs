@@ -6,25 +6,29 @@
 @(signInForm: Form[SignInFormData])(implicit request: UserRequestHeader, flash: Flash)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 @main("サインイン"){
-
-<div class="container main-contents">
-	<h1 class="text-center mt-5 fw-bold  py-3">ログイン</h1>
-	<div id="flashSuccessMessage" class="text-center text-success fw-bold my-3"><span>@flash.get("success").getOrElse("")</span></div>
-	@form(routes.UserController.signIn()) {
-	@CSRF.formField
-	@signInForm.error("userNotFound") match {
+<div class="d-flex flex-grow-1">
+	@*ナビゲーションバー*@
+	@commons.navigation()
+	<section class="container main-contents">
+		<h1 class="text-center mt-5 fw-bold  py-3">ログイン</h1>
+		<div id="flashSuccessMessage" class="text-center text-success fw-bold my-3">
+			<span>@flash.get("success").getOrElse("")</span></div>
+		@form(routes.UserController.signIn()) {
+		@CSRF.formField
+		@signInForm.error("userNotFound") match {
 		case None =>{}
 		case Some(error) => {
 		<div class="text-danger mb-1">@error.format</div>
 		}
-	}
-	<label for="email">メールアドレス: </label>
-	@inputText(signInForm("email"),Symbol("class") -> "form-control mb-3")
-	<label for="password">パスワード: </label>
-	@inputPassword(signInForm("password"),Symbol("class") -> "form-control mb-3")
-	<div class="m-auto">
-		<button class="btn btn-primary btn-sm d-block m-auto" type="submit">ログイン</button>
-	</div>
-	}
+		}
+		<label for="email">メールアドレス: </label>
+		@inputText(signInForm("email"),Symbol("class") -> "form-control mb-3")
+		<label for="password">パスワード: </label>
+		@inputPassword(signInForm("password"),Symbol("class") -> "form-control mb-3")
+		<div class="m-auto">
+			<button class="btn btn-primary btn-sm d-block m-auto" type="submit">ログイン</button>
+		</div>
+		}
+	</section>
 </div>
 }
