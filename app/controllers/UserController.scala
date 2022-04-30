@@ -12,15 +12,10 @@ import play.api.cache._
 
 import models.domains.{User, UpdateUserProfileFormData}
 import models.services.{UserService, PostService, DepartmentService}
-import views.html.defaultpages.error
-import controllers.forms.UpdateUserProfileForm
-import controllers.forms.{
-  SignInForm,
-  SignInFormData,
-  SignUpForm,
-  SignUpFormData,
-  UpdateUserProfileForm
-}
+import controllers.forms.{SignInFormData, SignUpFormData}
+import controllers.forms.UpdateUserProfileForm._
+import controllers.forms.SignInForm._
+import controllers.forms.SignUpForm._
 
 import java.util.UUID
 import javax.inject.Inject
@@ -37,9 +32,6 @@ class UserController @Inject() (
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
   implicit val lang = Lang.defaultLang
-  val signInForm = SignInForm.signInForm
-  val signUpForm = SignUpForm.signUpForm
-  val updateUserProfileForm = UpdateUserProfileForm.updateUserProfileForm
 
   /** ユーザマイページ
     *
@@ -61,6 +53,7 @@ class UserController @Inject() (
     userService.findUserById(userId).flatMap { user =>
       user match {
         case None => {
+          // ユーザがログインしていない場合はサインイン画面にリダイレクト
           Future.successful(Redirect(routes.UserController.toSignIn()))
         }
         case Some(user) => {
@@ -85,16 +78,9 @@ class UserController @Inject() (
       }
     }
     val successFunction = { userData: UpdateUserProfileFormData =>
-      userService.update(userData).map { isUpdateFailure =>
-        isUpdateFailure match {
-          case false =>
-            Redirect(routes.UserController.detail(1)) // ログインユーザIdに差し替え
-              .flashing("success" -> messagesApi("update.success"))
-          case true =>
-            Redirect(routes.UserController.detail(1)) // ログインユーザIdに差し替え
-              .flashing("failure" -> "update.error")
-        }
-
+      userService.update(userData).map { numberOfRowsUpdated =>
+        Redirect(routes.UserController.detail(1)) // ログインユーザIdに差し替え
+          .flashing("success" -> messagesApi("update.success"))
       }
     }
     sentUserForm.fold(errorFunction, successFunction)
@@ -139,7 +125,7 @@ class UserController @Inject() (
               val sessionId = UUID.randomUUID().toString()
               CacheUtil.setSessionUser(cache, sessionId, signInUser)
 
-              Redirect(routes.PostController.detail(signInUser.userId))
+              Redirect(routes.PostController.index())
                 .withSession(
                   "sessionId" -> sessionId
                 )

@@ -2,65 +2,66 @@
 @import common.UserRequestHeader
 @()(implicit request: UserRequestHeader)
 
-<aside class="mt-5">
-	<ul class="list-group list-group-flush ps-3">
-        @request.signInUserOpt match{
+	<aside class="mt-5" style="width: 300px;">
+		<ul class="list-group list-group-flush ps-5">
+			@request.signInUserOpt match{
 			case None => {
-				<li class="list-group-item">
-					<a href="@routes.UserController.toSignIn()">
-						<i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i><span class="fw-bold">ログイン</span>
-					</a>
-				</li>
+			<li class="list-group-item">
+				<a href="@routes.UserController.toSignIn()">
+					<i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i><span class="fw-bold">ログイン</span>
+				</a>
+			</li>
 			}
 			case Some(signInUser) => {}
-		}
-        @request.signInUserOpt match{
+			}
+			@request.signInUserOpt match{
 			case None => {
-				<li class="list-group-item">
-					<a href="@routes.UserController.toSignUp()">
-						<i class="fas fa-user-plus" style="margin-right: 4px;"></i><span class="fw-bold">会員登録</span>
-					</a>
-				</li>
+			<li class="list-group-item">
+				<a href="@routes.UserController.toSignUp()">
+					<i class="fas fa-user-plus" style="margin-right: 4px;"></i><span class="fw-bold">会員登録</span>
+				</a>
+			</li>
 			}
 			case Some(signInUser) => {}
-		}
-		<li class="list-group-item">
-			<a href="@routes.PostController.index()">
-				<i class="fas fa-list" style="margin-right: 4px;"></i><span class="fw-bold">豆知識一覧</span>
-			</a>
-		</li>
-		@request.signInUserOpt match{
+			}
+			<li class="list-group-item">
+				<a href="@routes.PostController.index()">
+					<i class="fas fa-list" style="margin-right: 4px;"></i><span class="fw-bold">豆知識一覧</span>
+				</a>
+			</li>
+			@request.signInUserOpt match{
 			case None => {
 			}
 			case Some(signInUser) =>{
-				<li class="list-group-item">
-					<a href="@routes.UserController.detail(signInUser.userId)">
-						<i class="fas fa-user" style="margin-right: 4px;"></i><span class="fw-bold">マイページ</span>
-					</a>
-				</li>
+			<li class="list-group-item">
+				<a href="@routes.UserController.detail(signInUser.userId)">
+					<i class="fas fa-user" style="margin-right: 4px;"></i><span class="fw-bold">マイページ</span>
+				</a>
+			</li>
 			}
-		}
-		@request.signInUserOpt match{
+			}
+			@request.signInUserOpt match{
 			case None =>{}
 			case Some(signInUser) => {
-				<li class="list-group-item">
-					<a href="@routes.UserController.detail(1)">
-						<i class="fas fa-crown" style="margin-right: 4px;"></i><span class="fw-bold">ランキング</span>
-					</a>
-				</li>
+			<li class="list-group-item">
+				<a href="@routes.UserController.detail(1)">
+					<i class="fas fa-crown" style="margin-right: 4px;"></i><span class="fw-bold">ランキング</span>
+				</a>
+			</li>
 			}
-		}
-		@request.signInUserOpt match{
+			}
+			@request.signInUserOpt match{
 			case None =>{}
 			case Some(signInUser)=>{
-				<li class="list-group-item">
-					@form(routes.UserController.signOut(), Symbol("name") -> "signOutForm") {
-					@CSRF.formField
-					<i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i><a href="javascript:document.signOutForm.submit()" class="fw-bold" >ログアウト</a>
+			<li class="list-group-item">
+				@form(routes.UserController.signOut(), Symbol("name") -> "signOutForm") {
+				@CSRF.formField
+				<i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i><a
+					href="javascript:document.signOutForm.submit()" class="fw-bold">ログアウト</a>
 				}
-				</li>
+			</li>
 			}
 
-		}
-	</ul>
-</aside>
+			}
+		</ul>
+	</aside>

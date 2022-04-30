@@ -2,11 +2,15 @@
 @import helper._
 @import forms._
 @import models.domains.UpdateUserProfileFormData
-@(updateUserProfileForm: Form[UpdateUserProfileFormData],departmentList: List[(String,String)])(implicit request: UserRequestHeader,flash: Flash)
+@(updateUserProfileForm: Form[UpdateUserProfileFormData],departmentList: List[(String,String)])(implicit request:
+UserRequestHeader,flash: Flash)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 
 @main("ユーザプロフィール編集"){
-	<div class="container w-75 main-contents">
+<div class="d-flex flex-grow-1">
+	@*ナビゲーションバー*@
+	@commons.navigation()
+	<section class="container main-contents">
 		<h1 class="text-center mt-5 fw-bold  py-3">プロフィール編集</h1>
 		@flash.get("failure").getOrElse("flashなし")
 		@form(routes.UserController.update()) {
@@ -27,5 +31,6 @@
 			<button class="btn btn-primary btn-sm d-block m-auto">更新する</button>
 		</div>
 		}
-	</div>
+	</section>
+</div>
 }
