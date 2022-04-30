@@ -7,7 +7,7 @@
 			@request.signInUserOpt match{
 			case None => {
 			<li class="list-group-item">
-				<a href="@routes.UserController.toSignIn()">
+				<a href="@routes.SignInController.toSignIn()">
 					<i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i><span class="fw-bold">ログイン</span>
 				</a>
 			</li>
@@ -17,7 +17,7 @@
 			@request.signInUserOpt match{
 			case None => {
 			<li class="list-group-item">
-				<a href="@routes.UserController.toSignUp()">
+				<a href="@routes.SignInController.toSignUp()">
 					<i class="fas fa-user-plus" style="margin-right: 4px;"></i><span class="fw-bold">会員登録</span>
 				</a>
 			</li>
@@ -54,7 +54,7 @@
 			case None =>{}
 			case Some(signInUser)=>{
 			<li class="list-group-item">
-				@form(routes.UserController.signOut(), Symbol("name") -> "signOutForm") {
+				@form(routes.SignInController.signOut(), Symbol("name") -> "signOutForm") {
 				@CSRF.formField
 				<i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i><a
 					href="javascript:document.signOutForm.submit()" class="fw-bold">ログアウト</a>
