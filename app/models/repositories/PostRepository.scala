@@ -201,8 +201,13 @@ class PostRepository @Inject() (
   def delete(postId: Long): Future[Long] = Future {
     db.withConnection { implicit conn =>
       SQL"""
-      WITH delete_comment AS( -- 投稿に紐づいているコメントも削除
+      WITH
+      delete_comment AS( -- 投稿に紐づいているコメントも削除
       DELETE FROM comments
+      WHERE post_id = ${postId}
+      ),
+      delete_likes AS( -- 投稿に紐づいているいいねも削除
+      DELETE FROM likes
       WHERE post_id = ${postId}
       )
       DELETE FROM posts
