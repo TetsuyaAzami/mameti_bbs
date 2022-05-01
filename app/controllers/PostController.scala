@@ -121,13 +121,11 @@ class PostController @Inject() (
     sentPostForm.fold(errorFunction, successFunction)
   }
 
-  def delete() = Action.async { implicit request =>
+  def delete(postId: Long) = Action.async { implicit request =>
     // ここでeditするpostのuserIdとログインユーザのuserIdが一致するか確認
     // あとで実装
 
-    val deletePostId =
-      request.body.asFormUrlEncoded.get("deletePostId")(0).toLong
-    postService.delete(deletePostId).map { deletedPostId =>
+    postService.delete(postId).map { deletedPostId =>
       Redirect(routes.UserController.detail(1))
         .flashing("success" -> messagesApi("delete.success"))
     }

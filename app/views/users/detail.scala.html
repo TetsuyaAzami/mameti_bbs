@@ -38,40 +38,42 @@
 
 		<div class="text-center text-success fw-bold my-3"><span>@flash.get("success").getOrElse("")</span></div>
 		<div class="text-center text-danger fw-bold my-3"><span>@flash.get("failure").getOrElse("")</span></div>
-
-		@posts.map{post =>
-		<article class="border rounded">
-			<a href="@routes.PostController.detail(post._1.postId.get)">
+		<section>
+			@posts.map{post =>
+			<article class="border rounded">
 				<section class="card-header bg-white">
-					<span class="fs-5 fw-bold">@post._1.user.get.name</span>
-					<span class="ps-3 text-secondary">
-						@post._1.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
-					</span>
+					<a href="@routes.PostController.detail(post._1.postId.get)">
+						<span class="fs-5 fw-bold">@post._1.user.get.name</span>
+						<span class="ps-3 text-secondary">
+							@post._1.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+						</span>
+					</a>
 				</section>
-				<section class="card-body">
-					<div class="card-text p-3">@post._1.content</div>
-			</a>
-	</section>
-	<section class="card-footer bg-white border-white">
-		<div class="px-3 w-50 d-flex justify-content-between align-items-center">
-			<a href="@routes.PostController.detail(post._1.postId.get)">
-				<i title="コメントする" class="far fa-comment"></i>
-				<span>@post._2.getOrElse("")</span>
-			</a>
-			<i title="いいね！" class="far fa-heart"></i>
-			@form(routes.PostController.delete(),Symbol("id") -> "deleteForm") {
-			@CSRF.formField
-			<input type="hidden" name="deletePostId" value=@post._1.postId>
-			<i id="deleteButton" title="削除する" class="far fa-trash-alt"></i>
+				<a href="@routes.PostController.detail(post._1.postId.get)">
+					<section class="card-body">
+						<div class="card-text p-3">@post._1.content</div>
+					</section>
+				</a>
+				<section class="card-footer bg-white border-white">
+					<div class="px-3 w-50 d-flex justify-content-between align-items-center">
+						<a href="@routes.PostController.detail(post._1.postId.get)">
+							<i title="コメントする" class="far fa-comment"></i>
+							<span>@post._2.getOrElse("")</span>
+						</a>
+						<i title="いいね！" class="far fa-heart"></i>
+						@form(routes.PostController.delete(post._1.postId.get),Symbol("class") -> "deleteForm") {
+						@CSRF.formField
+							<i title="削除する" name="deleteButton" class="far fa-trash-alt"></i>
+						}
+						<a href="@routes.PostController.edit(post._1.postId.get)">
+							<i title="編集する" class="far fa-edit"></i>
+						</a>
+					</div>
+				</section>
+			</article>
 			}
-			<a href="@routes.PostController.edit(post._1.postId.get)">
-				<i title="編集する" class="far fa-edit"></i>
-			</a>
-		</div>
-	</section>
-	</article>
-	}
+		</section>
 </div>
-<script src="@routes.Assets.versioned("javascripts/users/index.js")" type="text/javascript"></script>
+<script src="@routes.Assets.versioned("javascripts/users/detail.js")" type="text/javascript"></script>
 </div>
 }
