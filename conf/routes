@@ -10,7 +10,7 @@ POST    /posts                      controllers.PostController.insert()
 GET     /posts/:postId/detail       controllers.PostController.detail(postId: Long)
 GET     /posts/:postId/edit         controllers.PostController.edit(postId: Long)
 POST    /posts/update               controllers.PostController.update()
-POST    /posts/delete               controllers.PostController.delete()
+POST    /posts/delete               controllers.PostController.delete(postId: Long)
 
 # Comment
 POST    /comment                    controllers.CommentController.insert()
