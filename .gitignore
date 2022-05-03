@@ -15,3 +15,6 @@ target
 # metals
 project/metals.sbt
 .metals
+
+# uploadedImages
+/public/images/profileImages/*

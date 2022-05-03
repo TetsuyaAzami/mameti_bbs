@@ -9,10 +9,11 @@ import play.api.db.DBApi
 
 import scala.concurrent.Future
 import scala.language.postfixOps
-import javax.inject.Inject
+import javax.inject._
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+@Singleton
 class PostRepository @Inject() (
     dbApi: DBApi,
     userRepository: UserRepository,

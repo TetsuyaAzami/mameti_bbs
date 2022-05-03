@@ -7,9 +7,10 @@ import play.api.db.DBApi
 import models.DatabaseExecutionContext
 import models.domains.Department
 
+import javax.inject._
 import scala.concurrent.Future
-import javax.inject.Inject
 
+@Singleton
 class DepartmentRepository @Inject() (dbApi: DBApi)(implicit
     dec: DatabaseExecutionContext
 ) {

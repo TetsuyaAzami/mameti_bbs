@@ -1,10 +1,11 @@
 package models.services
 
 import models.repositories.DepartmentRepository
-import javax.inject.Inject
+import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 
+@Singleton
 class DepartmentService @Inject() (departmentRepository: DepartmentRepository)(
     implicit ec: ExecutionContext
 ) {
