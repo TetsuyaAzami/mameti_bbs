@@ -2,10 +2,11 @@ package models.services
 
 import models.domains._
 import models.repositories.PostRepository
-import javax.inject.Inject
+import javax.inject._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
+@Singleton
 class PostService @Inject() (postRepository: PostRepository)(
     ec: ExecutionContext
 ) {

@@ -18,7 +18,9 @@ import javax.inject.Inject
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import javax.inject._
 
+@Singleton
 class CommentController @Inject() (
     mcc: MessagesControllerComponents,
     commentService: CommentService,

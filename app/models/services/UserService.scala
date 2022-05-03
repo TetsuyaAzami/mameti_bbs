@@ -2,10 +2,11 @@ package models.services
 
 import models.domains.{User, SignInUser, UpdateUserProfileFormData}
 import models.repositories.UserRepository
+import javax.inject._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import javax.inject.Inject
 
+@Singleton
 class UserService @Inject() (userRepository: UserRepository)(implicit
     ec: ExecutionContext
 ) {

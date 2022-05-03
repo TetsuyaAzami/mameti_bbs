@@ -11,8 +11,10 @@
 	@commons.navigation()
 	<section class="container main-contents">
 		<h1 class="text-center mt-5 fw-bold  py-3">ログイン</h1>
-		<div id="flashSuccessMessage" class="text-center text-success fw-bold my-3">
-			<span>@flash.get("success").getOrElse("")</span></div>
+		<div class="text-center fw-bold my-3">
+			<span class="text-success">@flash.get("successRegister").getOrElse("")</span>
+			<span class="text-danger">@flash.get("errorNeedSignIn").getOrElse("")</span>
+		</div>
 		@form(routes.SignInController.signIn()) {
 		@CSRF.formField
 		@signInForm.error("userNotFound") match {

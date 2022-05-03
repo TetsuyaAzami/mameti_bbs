@@ -14,7 +14,9 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import common._
+import javax.inject._
 
+@Singleton
 class PostController @Inject() (
     mcc: MessagesControllerComponents,
     cache: SyncCacheApi,
@@ -72,7 +74,7 @@ class PostController @Inject() (
       postService.insert(postForInsert).flatMap { _ =>
         postService.findAll().map { allPosts =>
           Redirect(routes.PostController.index())
-            .flashing("success" -> "投稿完了しました")
+            .flashing("successInsert" -> messagesApi("success.insert"))
         }
       }
     }
@@ -114,7 +116,7 @@ class PostController @Inject() (
         .findByUserId(1)
         .map(post =>
           Redirect(routes.UserController.detail(1))
-            .flashing("success" -> messagesApi("update.success"))
+            .flashing("successUpdate" -> messagesApi("success.update"))
         )
     }
 
@@ -127,7 +129,7 @@ class PostController @Inject() (
 
     postService.delete(postId).map { deletedPostId =>
       Redirect(routes.UserController.detail(1))
-        .flashing("success" -> messagesApi("delete.success"))
+        .flashing("successDelete" -> messagesApi("success.delete"))
     }
   }
 }

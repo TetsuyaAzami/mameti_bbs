@@ -2,10 +2,11 @@ package models.services
 
 import models.repositories.CommentRepository
 import models.domains.Comment
+import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
-import javax.inject.Inject
 
+@Singleton
 class CommentService @Inject() (commentRepository: CommentRepository)(
     ec: ExecutionContext
 ) {

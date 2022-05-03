@@ -37,7 +37,7 @@ UserRequestHeader,flash: Flash)
 		<section class="container main-contents">
 			<h1 class="text-center mt-5 fw-bold  py-3">みんなの豆知識一覧</h1>
 			<div id="flashSuccessMessage" class="text-center text-success fw-bold my-3">
-				<span>@flash.get("success").getOrElse("")</span>
+				<span>@flash.get("successInsert").getOrElse("")</span>
 			</div>
 			<div>
 				@request.signInUserOpt match {

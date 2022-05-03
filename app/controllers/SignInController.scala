@@ -20,7 +20,9 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import common.UserAction
 import common.CacheUtil
+import javax.inject._
 
+@Singleton
 class SignInController @Inject() (
     mcc: MessagesControllerComponents,
     cache: SyncCacheApi,
@@ -123,7 +125,7 @@ class SignInController @Inject() (
             )
             userService.insert(signUpUser).map { userId =>
               Redirect(routes.SignInController.toSignIn())
-                .flashing("success" -> "ユーザ登録成功しました")
+                .flashing("successRegister" -> messagesApi("success.register"))
             }
           }
         }

@@ -12,8 +12,7 @@ UserRequestHeader,flash: Flash)
 	@commons.navigation()
 	<section class="container main-contents">
 		<h1 class="text-center mt-5 fw-bold  py-3">プロフィール編集</h1>
-		@flash.get("failure").getOrElse("flashなし")
-		@form(routes.UserController.update()) {
+		@form(routes.UserController.update(), Symbol("enctype") -> "multipart/form-data") {
 		@CSRF.formField
 		@inputText(updateUserProfileForm("userId"), Symbol("type") -> "hidden")
 		<label for="email">名前: </label>
@@ -24,6 +23,8 @@ UserRequestHeader,flash: Flash)
 		@inputDate(updateUserProfileForm("birthday"),Symbol("class") -> "form-control mb-3")
 		<label for="password">自己紹介: </label>
 		@textarea(updateUserProfileForm("introduce"),Symbol("class") -> "form-control mb-3")
+		<label for="profileImg">プロフィール画像: </label>
+		@inputFile(updateUserProfileForm("profileImg"),Symbol("type") -> "file",Symbol("class") -> "mb-3")
 		<label for="password">部署名: </label>
 		@select(updateUserProfileForm("departmentId"),departmentList,Symbol("class") -> "mb-3")
 
