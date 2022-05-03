@@ -49,21 +49,34 @@ class UserController @Inject() (
   def edit(userId: Long) = userNeedLoginAction.async { implicit request =>
     // ログインユーザのuserIdと送られてきたuserIdが一致することを確認
     // 一致しない場合、403Forbiddenエラーを返す
-    userService.findUserById(userId).flatMap { user =>
-      user match {
-        case None => {
-          // ユーザが存在していない場合はNotFound
-          Future.successful(
-            NotFound(
-              views.html.errors
-                .client_error(404, "Not Found", "ユーザが見つかりませんでした")
+    if (userId != request.signInUser.userId) {
+      Future.successful(
+        Forbidden(
+          views.html.errors
+            .client_error(403, "Forbidden", messagesApi("error.http.forbidden"))
+        )
+      )
+    } else {
+      userService.findUserById(userId).flatMap { user =>
+        user match {
+          case None => {
+            // ユーザが存在していない場合はNotFound
+            Future.successful(
+              NotFound(
+                views.html.errors
+                  .client_error(
+                    404,
+                    "Not Found",
+                    messagesApi("error.http.notFound")
+                  )
+              )
             )
-          )
-        }
-        case Some(user) => {
-          val formWithUserData = updateUserProfileForm.fill(user)
-          departmentService.selectDepartmentList().map { departmentList =>
-            Ok(views.html.users.edit(formWithUserData, departmentList))
+          }
+          case Some(user) => {
+            val formWithUserData = updateUserProfileForm.fill(user)
+            departmentService.selectDepartmentList().map { departmentList =>
+              Ok(views.html.users.edit(formWithUserData, departmentList))
+            }
           }
         }
       }
@@ -76,34 +89,52 @@ class UserController @Inject() (
       parse.multipartFormData(fileUploadUtil.handleFilePartAsFile)
     )
       .async { implicit request =>
-        // where userId = ログインユーザのid
         // userDataのuserIdがログインユーザのIdと一致すること
         // 一致しない場合に403Forbiddenエラーを返す
-
         val sentUserForm = updateUserProfileForm.bindFromRequest()
+        val signInUser = request.signInUser
         val uploadedProfileImg = request.body.file("profileImg")
-
-        // プロフィール画像がアップロードされたらアプリケーションサーバーに保存する
-        uploadedProfileImg match {
-          case None => {}
-          case Some(uploadedProfileImg) =>
-            fileUploadUtil.saveToApplicationServer(
-              uploadedProfileImg,
-              UUID.randomUUID().toString()
+        if (sentUserForm.data("userId").toLong != signInUser.userId) {
+          Future.successful(
+            Forbidden(
+              views.html.errors
+                .client_error(
+                  403,
+                  "Forbidden",
+                  messagesApi("error.http.forbidden")
+                )
             )
-        }
+          )
+        } else {
+          // プロフィール画像がアップロードされたらアプリケーションサーバーに保存する
+          uploadedProfileImg match {
+            case None => {}
+            case Some(uploadedProfileImg) =>
+              fileUploadUtil.saveToApplicationServer(
+                uploadedProfileImg,
+                signInUser.email
+              )
+          }
 
-        val errorFunction = { formWithErrors: Form[UpdateUserProfileFormData] =>
-          departmentService.selectDepartmentList().map { departmentList =>
-            BadRequest(views.html.users.edit(formWithErrors, departmentList))
+          val errorFunction = {
+            formWithErrors: Form[UpdateUserProfileFormData] =>
+              departmentService.selectDepartmentList().map { departmentList =>
+                BadRequest(
+                  views.html.users.edit(formWithErrors, departmentList)
+                )
+              }
           }
-        }
-        val successFunction = { userData: UpdateUserProfileFormData =>
-          userService.update(userData).map { numberOfRowsUpdated =>
-            Redirect(routes.UserController.detail(1)) // ログインユーザIdに差し替え
-              .flashing("successUpdate" -> messagesApi("success.update"))
+          val successFunction = { userData: UpdateUserProfileFormData =>
+            val userDataWithImg =
+              userData.copy(profileImg = Option(signInUser.email))
+            userService.update(userDataWithImg).map { numberOfRowsUpdated =>
+              Redirect(
+                routes.UserController.detail(signInUser.userId)
+              )
+                .flashing("successUpdate" -> messagesApi("success.update"))
+            }
           }
+          sentUserForm.fold(errorFunction, successFunction)
         }
-        sentUserForm.fold(errorFunction, successFunction)
       }
 }

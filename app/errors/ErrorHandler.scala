@@ -9,14 +9,18 @@ import play.api.mvc._
 import play.api.mvc.Results._
 import play.api.routing.Router
 import scala.concurrent._
+import play.api.i18n.MessagesApi
+import play.api.i18n.Lang
 
 @Singleton
 class ErrorHandler @Inject() (
     env: Environment,
     config: Configuration,
+    messagesApi: MessagesApi,
     sourceMapper: OptionalSourceMapper,
     router: Provider[Router]
 ) extends DefaultHttpErrorHandler(env, config, sourceMapper, router) {
+  implicit val lang = Lang.defaultLang
   override protected def onNotFound(
       request: RequestHeader,
       message: String
@@ -24,7 +28,7 @@ class ErrorHandler @Inject() (
     Future.successful(
       NotFound(
         views.html.errors
-          .client_error(404, "Not Found", "ページが見つかりませんでした。")
+          .client_error(404, "Not Found", messagesApi("error.http.notFound"))
       )
     )
   }
