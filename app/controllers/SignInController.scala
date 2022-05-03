@@ -53,7 +53,7 @@ class SignInController @Inject() (
               // エラー情報を注入
               val formWithErrors = formToReturn.withError(
                 "userNotFound",
-                "user.notFound"
+                messagesApi("error.user.notFound")
               )
               BadRequest(views.html.users.sign_in(formWithErrors))
             }
