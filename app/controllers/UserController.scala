@@ -39,16 +39,24 @@ class UserController @Inject() (
 
   // マイページ遷移
   def detail(userId: Long) = userNeedLoginAction.async { implicit request =>
-    // ログインユーザのidと一致しているかのチェック あとで実装
-    postService.findByUserId(userId).map { posts =>
-      Ok(views.html.users.detail(posts))
+    // ページ表示権限確認
+    if (userId != request.signInUser.userId) {
+      Future.successful(
+        Forbidden(
+          views.html.errors
+            .client_error(403, "Forbidden", messagesApi("error.http.forbidden"))
+        )
+      )
+    } else {
+      postService.findByUserId(userId).map { posts =>
+        Ok(views.html.users.detail(posts))
+      }
     }
   }
 
   // プロフィール編集
   def edit(userId: Long) = userNeedLoginAction.async { implicit request =>
-    // ログインユーザのuserIdと送られてきたuserIdが一致することを確認
-    // 一致しない場合、403Forbiddenエラーを返す
+    // ページ表示権限確認
     if (userId != request.signInUser.userId) {
       Future.successful(
         Forbidden(
@@ -89,11 +97,10 @@ class UserController @Inject() (
       parse.multipartFormData(fileUploadUtil.handleFilePartAsFile)
     )
       .async { implicit request =>
-        // userDataのuserIdがログインユーザのIdと一致すること
-        // 一致しない場合に403Forbiddenエラーを返す
         val sentUserForm = updateUserProfileForm.bindFromRequest()
         val signInUser = request.signInUser
         val uploadedProfileImg = request.body.file("profileImg")
+        // update権限確認
         if (sentUserForm.data("userId").toLong != signInUser.userId) {
           Future.successful(
             Forbidden(
