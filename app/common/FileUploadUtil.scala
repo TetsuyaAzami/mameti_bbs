@@ -4,6 +4,7 @@ import play.core.parsers.Multipart
 import play.core.parsers.Multipart.FileInfo
 import play.api.libs.streams._
 import play.api.mvc.MultipartFormData._
+import play.api.Logger
 
 import akka.util.ByteString
 import akka.stream.scaladsl._
@@ -16,7 +17,7 @@ import java.nio.file.Paths
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import javax.inject._
-import play.api.Logger
+import java.nio.file.StandardCopyOption
 
 @Singleton
 class FileUploadUtil @Inject() (implicit ec: ExecutionContext) {
@@ -49,7 +50,11 @@ class FileUploadUtil @Inject() (implicit ec: ExecutionContext) {
   ) = {
     val saveFilePath =
       Paths.get(s"./public/images/profileImages/$userEmail")
-    Files.copy(uploadedFile.ref.toPath(), saveFilePath)
+    Files.copy(
+      uploadedFile.ref.toPath(),
+      saveFilePath,
+      StandardCopyOption.REPLACE_EXISTING
+    )
     deleteTempFile(uploadedFile.ref)
   }
 }

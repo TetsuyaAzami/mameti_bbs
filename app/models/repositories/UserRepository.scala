@@ -65,9 +65,10 @@ class UserRepository @Inject() (
   private[repositories] val signInUserParser = {
     get[Long]("u_user_id") ~
       get[String]("u_name") ~
+      get[String]("u_email") ~
       get[Option[String]]("u_profile_img") map {
-        case userId ~ name ~ profileImg =>
-          SignInUser(userId, name, profileImg)
+        case userId ~ name ~ email ~ profileImg =>
+          SignInUser(userId, name, email, profileImg)
       }
   }
 
@@ -112,6 +113,7 @@ class UserRepository @Inject() (
         SELECT
         u.user_id u_user_id,
         u.name u_name,
+        u.email u_email,
         u.profile_img u_profile_img
         FROM users u
         WHERE email = ${email} AND password = ${password}

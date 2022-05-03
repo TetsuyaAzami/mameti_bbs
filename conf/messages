@@ -15,3 +15,8 @@ error.update=更新中に何らかのエラーが発生しました
 error.needSignIn=ログインしてください
 error.email.dupulicate=既に使用されているメールアドレスです
 error.user.notFound=メールアドレスかパスワードが間違っています
+
+# HTTPエラー
+
+error.http.forbidden=権限がありません
+error.http.notFound=お探しのページは見つかりませんでした

@@ -31,6 +31,7 @@ final case class UpdateUserProfileFormData(
 final case class SignInUser(
     userId: Long,
     name: String,
+    email: String,
     profileImg: Option[String]
 )
 

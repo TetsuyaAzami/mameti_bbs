@@ -4,7 +4,7 @@
 @import java.time.format._
 
 @(posts: List[(Post,Option[Long])])(implicit request: UserRequestHeader, flash: Flash)
-
+@signInUser = @{request.signInUser}
 @main("マイページ"){
 <div class="d-flex flex-grow-1">
 	@*ナビゲーションバー*@
@@ -27,7 +27,7 @@
 							</div>
 						</section>
 						<div>
-							<a href="@routes.UserController.edit(1)">
+							<a href="@routes.UserController.edit(signInUser.userId)">
 								<button class="btn btn-primary btn-sm mt-5">プロフィールを編集する</button>
 							</a>
 						</div>
