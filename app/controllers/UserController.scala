@@ -26,7 +26,9 @@ import common._
 class UserController @Inject() (
     mcc: MessagesControllerComponents,
     cache: SyncCacheApi,
-    userAction: UserAction,
+    userOptAction: UserOptAction,
+    userNeedLoginAction: UserNeedLoginAction,
+    userNeedAuthorityAction: UserNeedAuthorityAction,
     userService: UserService,
     departmentService: DepartmentService,
     postService: PostService,
@@ -36,7 +38,7 @@ class UserController @Inject() (
   implicit val lang = Lang.defaultLang
 
   // マイページ遷移
-  def detail(userId: Long) = userAction.async { implicit request =>
+  def detail(userId: Long) = userNeedLoginAction.async { implicit request =>
     // ログインユーザのidと一致しているかのチェック あとで実装
     postService.findByUserId(userId).map { posts =>
       Ok(views.html.users.detail(posts))
@@ -44,7 +46,7 @@ class UserController @Inject() (
   }
 
   // プロフィール編集
-  def edit(userId: Long) = userAction.async { implicit request =>
+  def edit(userId: Long) = userNeedLoginAction.async { implicit request =>
     // ログインユーザのuserIdと送られてきたuserIdが一致することを確認
     // 一致しない場合、403Forbiddenエラーを返す
     userService.findUserById(userId).flatMap { user =>
@@ -70,7 +72,9 @@ class UserController @Inject() (
 
   // プロフィール更新
   def update() =
-    userAction(parse.multipartFormData(fileUploadUtil.handleFilePartAsFile))
+    userNeedAuthorityAction(
+      parse.multipartFormData(fileUploadUtil.handleFilePartAsFile)
+    )
       .async { implicit request =>
         // where userId = ログインユーザのid
         // userDataのuserIdがログインユーザのIdと一致すること
@@ -97,7 +101,7 @@ class UserController @Inject() (
         val successFunction = { userData: UpdateUserProfileFormData =>
           userService.update(userData).map { numberOfRowsUpdated =>
             Redirect(routes.UserController.detail(1)) // ログインユーザIdに差し替え
-              .flashing("updateSuccess" -> messagesApi("success.update"))
+              .flashing("successUpdate" -> messagesApi("success.update"))
           }
         }
         sentUserForm.fold(errorFunction, successFunction)

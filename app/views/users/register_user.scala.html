@@ -1,14 +1,14 @@
 @import helper._
-@import common.UserRequestHeader
+@import common.UserOptRequestHeader
 @import forms.SignUpFormData
 @import play.api.data._
-@(signUpForm: Form[SignUpFormData],departmentList: List[(String,String)])(implicit request: UserRequestHeader)
+@(signUpForm: Form[SignUpFormData],departmentList: List[(String,String)])(implicit request: UserOptRequestHeader)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 
 @main("ユーザ登録"){
 <div class="d-flex flex-grow-1">
 	@*ナビゲーションバー*@
-	@commons.navigation()
+	@commons.navigationUserOpt()
 	<section class="container main-contents">
 		<h1 class="text-center mt-5 fw-bold  py-3">会員登録</h1>
 		@form(routes.SignInController.signUp()) {

@@ -20,19 +20,21 @@ import javax.inject._
 class PostController @Inject() (
     mcc: MessagesControllerComponents,
     cache: SyncCacheApi,
-    userAction: UserAction,
+    userOptAction: UserOptAction,
+    userNeedLoginAction: UserNeedLoginAction,
+    userNeedAuthorityAction: UserNeedAuthorityAction,
     postService: PostService
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
   implicit val lang = Lang.defaultLang
 
-  def index() = userAction.async { implicit request =>
+  def index() = userOptAction.async { implicit request =>
     postService.findAll().map { allPosts =>
       Ok(views.html.posts.index(postForm, commentForm, allPosts))
     }
   }
 
-  def detail(postId: Long) = userAction.async { implicit request =>
+  def detail(postId: Long) = userOptAction.async { implicit request =>
     postService.findByPostIdWithCommentList(postId).flatMap {
       postWithCommentList =>
         postWithCommentList match {
@@ -51,7 +53,7 @@ class PostController @Inject() (
     }
   }
 
-  def insert() = userAction.async { implicit request =>
+  def insert() = userOptAction.async { implicit request =>
     val errorFunction = { formWithErrors: Form[PostFormData] =>
       postService.findAll().map { allPosts =>
         BadRequest(
@@ -81,7 +83,7 @@ class PostController @Inject() (
     postForm.bindFromRequest().fold(errorFunction, successFunction)
   }
 
-  def edit(postId: Long) = userAction.async { implicit request =>
+  def edit(postId: Long) = userNeedLoginAction.async { implicit request =>
     // ここでeditするpostのuserIdとログインユーザのuserIdが一致するか確認
     // あとで実装
 
@@ -92,7 +94,7 @@ class PostController @Inject() (
     }
   }
 
-  def update() = userAction.async { implicit request =>
+  def update() = userNeedAuthorityAction.async { implicit request =>
     // ここでeditするpostのuserIdとログインユーザのuserIdが一致するか確認
     // あとで実装
 

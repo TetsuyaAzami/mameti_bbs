@@ -1,13 +1,13 @@
 @import helper._
 @import domains.{Post,CommentFormData}
 @import java.time.format._
-@import common.UserRequestHeader
-@(post: Post, commentForm:Form[CommentFormData])(implicit request: UserRequestHeader)
+@import common.UserOptRequestHeader
+@(post: Post, commentForm:Form[CommentFormData])(implicit request: UserOptRequestHeader)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 @main("投稿詳細"){
 <div class="d-flex flex-grow-1">
 	@*ナビゲーションバー*@
-	@commons.navigation()
+	@commons.navigationUserOpt()
 	<section class="container main-contents">
 		<div class="page-title text-center mt-5">
 			<h1 class="fw-bold py-3">

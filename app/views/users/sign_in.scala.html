@@ -1,14 +1,14 @@
 @import helper._
 @import play.api.data.Form
 @import controllers.forms.SignInFormData
-@import common.UserRequestHeader
+@import common.UserOptRequestHeader
 
-@(signInForm: Form[SignInFormData])(implicit request: UserRequestHeader, flash: Flash)
+@(signInForm: Form[SignInFormData])(implicit request: UserOptRequestHeader, flash: Flash)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 @main("サインイン"){
 <div class="d-flex flex-grow-1">
 	@*ナビゲーションバー*@
-	@commons.navigation()
+	@commons.navigationUserOpt()
 	<section class="container main-contents">
 		<h1 class="text-center mt-5 fw-bold  py-3">ログイン</h1>
 		<div class="text-center fw-bold my-3">

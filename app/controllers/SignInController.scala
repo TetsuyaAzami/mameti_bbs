@@ -14,19 +14,17 @@ import controllers.forms.SignUpForm._
 import controllers.forms.SignInFormData
 import controllers.forms.SignUpFormData
 
-import javax.inject.Inject
+import javax.inject._
 import java.util.UUID
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import common.UserAction
-import common.CacheUtil
-import javax.inject._
+import common._
 
 @Singleton
 class SignInController @Inject() (
     mcc: MessagesControllerComponents,
     cache: SyncCacheApi,
-    userAction: UserAction,
+    userOptAction: UserOptAction,
     userService: UserService,
     departmentService: DepartmentService
 )(implicit ec: ExecutionContext)
@@ -34,12 +32,12 @@ class SignInController @Inject() (
   implicit val lang = Lang.defaultLang
 
   // ログイン遷移
-  def toSignIn() = userAction { implicit request =>
+  def toSignIn() = userOptAction { implicit request =>
     Ok(views.html.users.sign_in(signInForm))
   }
 
   // ログイン処理
-  def signIn() = userAction.async { implicit request =>
+  def signIn() = userOptAction.async { implicit request =>
     val sentSignInForm = signInForm.bindFromRequest()
     val errorFunction = { formWithErrors: Form[SignInFormData] =>
       Future.successful(BadRequest(views.html.users.sign_in(formWithErrors)))
@@ -80,14 +78,14 @@ class SignInController @Inject() (
   }
 
   // サインアップ遷移
-  def toSignUp() = userAction.async { implicit request =>
+  def toSignUp() = userOptAction.async { implicit request =>
     departmentService.selectDepartmentList().map { departmentList =>
       Ok(views.html.users.register_user(signUpForm, departmentList))
     }
   }
 
   // サインアップ処理
-  def signUp() = userAction.async { implicit request =>
+  def signUp() = userOptAction.async { implicit request =>
     val sentSignUpForm = signUpForm.bindFromRequest()
     val errorFunction = { formWithErrors: Form[SignUpFormData] =>
       departmentService.selectDepartmentList().map { departmentList =>
