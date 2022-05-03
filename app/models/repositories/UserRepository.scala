@@ -7,10 +7,11 @@ import anorm._
 import anorm.SqlParser._
 import play.api.db.DBApi
 
+import javax.inject._
 import java.time.LocalDate
-import javax.inject.Inject
 import scala.concurrent.Future
 
+@Singleton
 class UserRepository @Inject() (
     dbApi: DBApi,
     departmentRepository: DepartmentRepository

@@ -1,8 +1,8 @@
 package models
 
-import javax.inject._
 import play.api.libs.concurrent.CustomExecutionContext
 import akka.actor.ActorSystem
+import javax.inject._
 
 @Singleton
 class DatabaseExecutionContext @Inject() (system: ActorSystem)

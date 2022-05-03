@@ -1,15 +1,15 @@
 @import helper._
 @import models.domains._
 @import java.time.format._
-@import common.UserRequestHeader
+@import common.UserOptRequestHeader
 
 @(postForm: Form[PostFormData],commentForm: Form[CommentFormData],posts: List[(Post,Option[Long])])(implicit request:
-UserRequestHeader,flash: Flash)
+UserOptRequestHeader,flash: Flash)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 @main("投稿一覧"){
 	<div class="d-flex flex-grow-1">
 		@*ナビゲーションバー*@
-		@commons.navigation()
+		@commons.navigationUserOpt()
 		<section id="commentPostModal" class="modal" tabindex="-1">
 			<div class="modal-dialog">
 				<div class="modal-content">
@@ -37,7 +37,7 @@ UserRequestHeader,flash: Flash)
 		<section class="container main-contents">
 			<h1 class="text-center mt-5 fw-bold  py-3">みんなの豆知識一覧</h1>
 			<div id="flashSuccessMessage" class="text-center text-success fw-bold my-3">
-				<span>@flash.get("success").getOrElse("")</span>
+				<span>@flash.get("successInsert").getOrElse("")</span>
 			</div>
 			<div>
 				@request.signInUserOpt match {
