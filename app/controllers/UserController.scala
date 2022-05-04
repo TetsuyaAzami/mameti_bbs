@@ -20,7 +20,10 @@ import controllers.forms.SignUpForm._
 import java.util.UUID
 import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Failure
+import scala.util.Success
 import common._
+import akka.actor
 
 @Singleton
 class UserController @Inject() (
@@ -39,16 +42,24 @@ class UserController @Inject() (
 
   // マイページ遷移
   def detail(userId: Long) = userNeedLoginAction.async { implicit request =>
-    // ログインユーザのidと一致しているかのチェック あとで実装
-    postService.findByUserId(userId).map { posts =>
-      Ok(views.html.users.detail(posts))
+    // ページ表示権限確認
+    if (userId != request.signInUser.userId) {
+      Future.successful(
+        Forbidden(
+          views.html.errors
+            .client_error(403, "Forbidden", messagesApi("error.http.forbidden"))
+        )
+      )
+    } else {
+      postService.findByUserId(userId).map { posts =>
+        Ok(views.html.users.detail(posts))
+      }
     }
   }
 
   // プロフィール編集
   def edit(userId: Long) = userNeedLoginAction.async { implicit request =>
-    // ログインユーザのuserIdと送られてきたuserIdが一致することを確認
-    // 一致しない場合、403Forbiddenエラーを返す
+    // ページ表示権限確認
     if (userId != request.signInUser.userId) {
       Future.successful(
         Forbidden(
@@ -89,11 +100,11 @@ class UserController @Inject() (
       parse.multipartFormData(fileUploadUtil.handleFilePartAsFile)
     )
       .async { implicit request =>
-        // userDataのuserIdがログインユーザのIdと一致すること
-        // 一致しない場合に403Forbiddenエラーを返す
         val sentUserForm = updateUserProfileForm.bindFromRequest()
         val signInUser = request.signInUser
-        val uploadedProfileImg = request.body.file("profileImg")
+        val uploadedProfileImgOpt = request.body.file("profileImg")
+
+        // update権限確認
         if (sentUserForm.data("userId").toLong != signInUser.userId) {
           Future.successful(
             Forbidden(
@@ -106,15 +117,15 @@ class UserController @Inject() (
             )
           )
         } else {
-          // プロフィール画像がアップロードされたらアプリケーションサーバーに保存する
-          uploadedProfileImg match {
-            case None => {}
-            case Some(uploadedProfileImg) =>
-              fileUploadUtil.saveToApplicationServer(
-                uploadedProfileImg,
-                signInUser.email
-              )
+          // 拡張子チェック&エラーがあればリストとして取得
+          val uploadedFileErrorList =
+            FileUploadUtil.extractErrorsFromUploadedFile(uploadedProfileImgOpt)
+          // uploadedFileのエラーを注入
+          val formErrors = sentUserForm.errors.foldLeft(uploadedFileErrorList) {
+            (acc, error) => acc :+ error
           }
+          val formWithFileErrors =
+            sentUserForm.copy(errors = formErrors)
 
           val errorFunction = {
             formWithErrors: Form[UpdateUserProfileFormData] =>
@@ -125,8 +136,14 @@ class UserController @Inject() (
               }
           }
           val successFunction = { userData: UpdateUserProfileFormData =>
+            // アプリケーションサーバーに画像を保存
+            val uploadedFilenameOpt = FileUploadUtil.saveToApplicationServer(
+              uploadedProfileImgOpt,
+              signInUser.email
+            )
             val userDataWithImg =
-              userData.copy(profileImg = Option(signInUser.email))
+              userData.copy(profileImg = uploadedFilenameOpt)
+
             userService.update(userDataWithImg).map { numberOfRowsUpdated =>
               Redirect(
                 routes.UserController.detail(signInUser.userId)
@@ -134,7 +151,7 @@ class UserController @Inject() (
                 .flashing("successUpdate" -> messagesApi("success.update"))
             }
           }
-          sentUserForm.fold(errorFunction, successFunction)
+          formWithFileErrors.fold(errorFunction, successFunction)
         }
       }
 }
