@@ -21,16 +21,35 @@ class ErrorHandler @Inject() (
     router: Provider[Router]
 ) extends DefaultHttpErrorHandler(env, config, sourceMapper, router) {
   implicit val lang = Lang.defaultLang
-  override protected def onNotFound(
+
+  override def onClientError(
       request: RequestHeader,
+      statusCode: Int,
       message: String
   ): Future[Result] = {
-    Future.successful(
-      NotFound(
-        views.html.errors
-          .client_error(404, "Not Found", messagesApi("error.http.notFound"))
+    if (statusCode == 413) {
+      Future.successful(
+        EntityTooLarge(
+          views.html.errors
+            .client_error(
+              413,
+              "Request Entity Too large",
+              messagesApi("error.http.RequestEntityTooLarge")
+            )
+        )
       )
-    )
+    } else if (statusCode == 404) {
+      Future.successful(
+        NotFound(
+          views.html.errors
+            .client_error(
+              404,
+              "Not Found",
+              messagesApi("error.http.notFound")
+            )
+        )
+      )
+    } else super.onClientError(request, statusCode, message)
   }
 
   override def onProdServerError(
