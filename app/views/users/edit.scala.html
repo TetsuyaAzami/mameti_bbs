@@ -15,7 +15,7 @@ UserRequestHeader,flash: Flash)
 		@form(routes.UserController.update(), Symbol("enctype") -> "multipart/form-data") {
 		@CSRF.formField
 		@inputText(updateUserProfileForm("userId"), Symbol("type") -> "hidden")
-		<label for="email">名前: </label>
+		<label for="name">名前: </label>
 		@inputText(updateUserProfileForm("name"),Symbol("class") -> "form-control mb-3")
 		<label for="email">メールアドレス: </label>
 		@inputText(updateUserProfileForm("email"),Symbol("class") -> "form-control mb-3")
@@ -24,14 +24,16 @@ UserRequestHeader,flash: Flash)
 		<label for="password">自己紹介: </label>
 		@textarea(updateUserProfileForm("introduce"),Symbol("class") -> "form-control mb-3")
 		<label for="profileImg">プロフィール画像: </label>
-		@inputFile(updateUserProfileForm("profileImg"),Symbol("type") -> "file",Symbol("class") -> "mb-3")
+		<div id="profileImgError" class="errors text-danger"></div>
+		@inputFile(updateUserProfileForm("profileImg"),Symbol("type") -> "file",Symbol("id") -> "profileImgInput",Symbol("class") -> "mb-3",Symbol("accept") -> ".png, .jpg, .jpeg")
 		<label for="password">部署名: </label>
 		@select(updateUserProfileForm("departmentId"),departmentList,Symbol("class") -> "mb-3")
 
 		<div class="m-auto">
-			<button class="btn btn-primary btn-sm d-block m-auto">更新する</button>
+			<button id="updateButton" class="btn btn-primary btn-sm d-block m-auto">更新する</button>
 		</div>
 		}
 	</section>
 </div>
+<script src="@routes.Assets.versioned("javascripts/users/edit.js")"></script>
 }
