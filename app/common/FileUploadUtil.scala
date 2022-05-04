@@ -50,7 +50,7 @@ class FileUploadUtil @Inject() (implicit
 }
 
 object FileUploadUtil {
-  val validExtensions = List("jpg", "jpeg", "png")
+  val validExtensions = List("jpg", "jpeg", "png", "image/jpeg", "image/png")
 
   // ファイル名から拡張子を取り出す
   private def extractExtension(filename: String): String = {
