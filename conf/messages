@@ -20,3 +20,4 @@ error.extension.invalid=拡張子はjpg, jpeg, pngのいずれかにしてくだ
 # HTTPエラー
 error.http.forbidden=権限がありません
 error.http.notFound=お探しのページは見つかりませんでした
+error.http.RequestEntityTooLarge=ファイルサイズが大きすぎます。2MB以内にしてください

@@ -50,11 +50,7 @@ class FileUploadUtil @Inject() (implicit
 }
 
 object FileUploadUtil {
-  // 画像処理のための一時ファイルを削除
-  private def deleteTempFile(file: File) = {
-    val size = Files.size(file.toPath)
-    Files.deleteIfExists(file.toPath)
-  }
+  val validExtensions = List("jpg", "jpeg", "png")
 
   // ファイル名から拡張子を取り出す
   private def extractExtension(filename: String): String = {
@@ -66,15 +62,12 @@ object FileUploadUtil {
   // 拡張子チェック
   private def isExtensionValid(filename: String): Boolean = {
     val extension = extractExtension(filename)
-    val validExtensions = List("jpg", "jpeg", "png")
     if (validExtensions.contains(extension)) {
       true
     } else {
       false
     }
   }
-
-  // ファイルサイズチェック
 
   // 画像が正しい形式かチェックしてエラーリストを返す
   def extractErrorsFromUploadedFile(
@@ -92,9 +85,42 @@ object FileUploadUtil {
     errorList.toList
   }
 
-  // 画像保存に特化したメソッド
+  // 画像処理のための一時ファイルを削除
+  private def deleteTempFile(file: File) = {
+    val size = Files.size(file.toPath)
+    Files.deleteIfExists(file.toPath)
+  }
+
+  // すでにサーバーにアップロードされているファイルを削除
+  private def deleteExistingFile(userEmail: String) = {
+    validExtensions.map(extension => {
+      Files.deleteIfExists(
+        Paths.get(s"./public/images/profileImages/$userEmail.$extension")
+      )
+    })
+  }
+
+  // 画像保存をして、一時ファイルを削除
   def saveToApplicationServer(
-      uploadedFile: Option[FilePart[File]],
+      uploadedFileOpt: Option[FilePart[File]],
       userEmail: String
-  ) = {}
+  ): Option[String] = {
+    uploadedFileOpt match {
+      case None => {
+        deleteExistingFile(userEmail)
+        None
+      }
+      case Some(uploadedFile) => {
+        deleteExistingFile(userEmail)
+        val filename = Paths.get(uploadedFile.filename).getFileName()
+        val extension = extractExtension(filename.toString())
+        Files.copy(
+          uploadedFile.ref.toPath(),
+          Paths.get(s"./public/images/profileImages/$userEmail.$extension")
+        )
+        deleteTempFile(uploadedFile.ref)
+        Some(userEmail + "." + extension)
+      }
+    }
+  }
 }

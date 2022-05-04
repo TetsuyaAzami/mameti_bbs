@@ -102,7 +102,8 @@ class UserController @Inject() (
       .async { implicit request =>
         val sentUserForm = updateUserProfileForm.bindFromRequest()
         val signInUser = request.signInUser
-        val uploadedProfileImg = request.body.file("profileImg")
+        val uploadedProfileImgOpt = request.body.file("profileImg")
+
         // update権限確認
         if (sentUserForm.data("userId").toLong != signInUser.userId) {
           Future.successful(
@@ -116,9 +117,9 @@ class UserController @Inject() (
             )
           )
         } else {
-          // 拡張子とファイルサイズのチェック&エラーがあればリストとして取得
+          // 拡張子チェック&エラーがあればリストとして取得
           val uploadedFileErrorList =
-            FileUploadUtil.extractErrorsFromUploadedFile(uploadedProfileImg)
+            FileUploadUtil.extractErrorsFromUploadedFile(uploadedProfileImgOpt)
           // uploadedFileのエラーを注入
           val formErrors = sentUserForm.errors.foldLeft(uploadedFileErrorList) {
             (acc, error) => acc :+ error
@@ -135,12 +136,14 @@ class UserController @Inject() (
               }
           }
           val successFunction = { userData: UpdateUserProfileFormData =>
-            FileUploadUtil.saveToApplicationServer(
-              uploadedProfileImg,
+            // アプリケーションサーバーに画像を保存
+            val uploadedFilenameOpt = FileUploadUtil.saveToApplicationServer(
+              uploadedProfileImgOpt,
               signInUser.email
             )
             val userDataWithImg =
-              userData.copy(profileImg = Option(signInUser.email))
+              userData.copy(profileImg = uploadedFilenameOpt)
+
             userService.update(userDataWithImg).map { numberOfRowsUpdated =>
               Redirect(
                 routes.UserController.detail(signInUser.userId)
