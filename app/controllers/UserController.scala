@@ -20,7 +20,10 @@ import controllers.forms.SignUpForm._
 import java.util.UUID
 import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Failure
+import scala.util.Success
 import common._
+import akka.actor
 
 @Singleton
 class UserController @Inject() (
@@ -113,15 +116,15 @@ class UserController @Inject() (
             )
           )
         } else {
-          // プロフィール画像がアップロードされたらアプリケーションサーバーに保存する
-          uploadedProfileImg match {
-            case None => {}
-            case Some(uploadedProfileImg) =>
-              fileUploadUtil.saveToApplicationServer(
-                uploadedProfileImg,
-                signInUser.email
-              )
+          // 拡張子とファイルサイズのチェック&エラーがあればリストとして取得
+          val uploadedFileErrorList =
+            FileUploadUtil.extractErrorsFromUploadedFile(uploadedProfileImg)
+          // uploadedFileのエラーを注入
+          val formErrors = sentUserForm.errors.foldLeft(uploadedFileErrorList) {
+            (acc, error) => acc :+ error
           }
+          val formWithFileErrors =
+            sentUserForm.copy(errors = formErrors)
 
           val errorFunction = {
             formWithErrors: Form[UpdateUserProfileFormData] =>
@@ -132,6 +135,10 @@ class UserController @Inject() (
               }
           }
           val successFunction = { userData: UpdateUserProfileFormData =>
+            FileUploadUtil.saveToApplicationServer(
+              uploadedProfileImg,
+              signInUser.email
+            )
             val userDataWithImg =
               userData.copy(profileImg = Option(signInUser.email))
             userService.update(userDataWithImg).map { numberOfRowsUpdated =>
@@ -141,7 +148,7 @@ class UserController @Inject() (
                 .flashing("successUpdate" -> messagesApi("success.update"))
             }
           }
-          sentUserForm.fold(errorFunction, successFunction)
+          formWithFileErrors.fold(errorFunction, successFunction)
         }
       }
 }
