@@ -11,10 +11,10 @@ import controllers.forms.PostForm._
 import controllers.forms.CommentForm._
 
 import java.time.LocalDateTime
-import javax.inject.Inject
+import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
 import common._
-import javax.inject._
+import errors._
 
 @Singleton
 class PostController @Inject() (
@@ -23,7 +23,8 @@ class PostController @Inject() (
     userOptAction: UserOptAction,
     userNeedLoginAction: UserNeedLoginAction,
     userNeedAuthorityAction: UserNeedAuthorityAction,
-    postService: PostService
+    postService: PostService,
+    errorHandler: ErrorHandler
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
   implicit val lang = Lang.defaultLang
@@ -39,10 +40,7 @@ class PostController @Inject() (
       postWithCommentList =>
         postWithCommentList match {
           case None => {
-            // 404 NotFoundを返す。あとで変更
-            postService.findAll().map { allPosts =>
-              Ok(views.html.posts.index(postForm, commentForm, allPosts))
-            }
+            errorHandler.onClientError(request, 404, "")
           }
           case Some(postWithCommentList) => {
             Future.successful(

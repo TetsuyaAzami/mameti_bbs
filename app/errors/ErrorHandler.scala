@@ -38,6 +38,13 @@ class ErrorHandler @Inject() (
             )
         )
       )
+    } else if (statusCode == 403) {
+      Future.successful(
+        Forbidden(
+          views.html.errors
+            .client_error(403, "Forbidden", messagesApi("error.http.forbidden"))
+        )
+      )
     } else if (statusCode == 404) {
       Future.successful(
         NotFound(
