@@ -33,6 +33,7 @@ class CommentController @Inject() (
   def insert() = userNeedLoginAsyncAction(parse.json).async {
     implicit request =>
       val sentCommentForm = commentForm.bindFromRequest()
+      val signInUser = request.signInUser
 
       val errorFunction = { formWithErrors: Form[CommentFormData] =>
         Future.successful(BadRequest(formWithErrors.errorsAsJson))
@@ -40,15 +41,22 @@ class CommentController @Inject() (
       val successFunction = { commentData: CommentFormData =>
         // formのデータをdomainに詰め直す
         val comment = Comment(
-          userId = 1,
+          userId = signInUser.userId,
           postId = commentData.postId,
           content = commentData.content,
           commentedAt = LocalDateTime.now()
         )
-        commentService.insert(comment).flatMap { commentId =>
-          commentService.findByIdWithUser(commentId.get).map {
-            commentWithUser =>
-              Created(Json.toJson(commentWithUser))
+        commentService.insert(comment).flatMap { commentIdOpt =>
+          commentIdOpt match {
+            case None => {
+              Future.successful(InternalServerError)
+            }
+            case Some(commentId) => {
+              commentService.findByIdWithUser(commentId).map {
+                commentWithUser =>
+                  Created(Json.toJson(commentWithUser))
+              }
+            }
           }
         }
       }
