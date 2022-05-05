@@ -24,7 +24,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
 import scala.util.Success
 import common._
-import errors._
+import common.errors._
 
 @Singleton
 class UserController @Inject() (
@@ -43,7 +43,7 @@ class UserController @Inject() (
 
   // マイページ遷移
   def detail(userId: Long) = userNeedLoginAction.async { implicit request =>
-    // ページ表示権限確認
+    // ページ表示権限確認(認可)
     if (userId != request.signInUser.userId) {
       errorHandler.onClientError(request, 403, "")
     } else {
@@ -55,11 +55,13 @@ class UserController @Inject() (
 
   // プロフィール編集
   def edit(userId: Long) = userNeedLoginAction.async { implicit request =>
-    // ページ表示権限確認
-    if (userId != request.signInUser.userId) {
+    val signInUser = request.signInUser
+    val signInUserId = signInUser.userId
+    // ページ表示権限確認(認可)
+    if (userId != signInUserId) {
       errorHandler.onClientError(request, 403, "")
     } else {
-      userService.findUserById(userId).flatMap { user =>
+      userService.findUserById(signInUserId).flatMap { user =>
         user match {
           case None => {
             // ユーザが存在していない場合はNotFound
@@ -85,7 +87,7 @@ class UserController @Inject() (
         val sentUserForm = updateUserProfileForm.bindFromRequest()
         val signInUser = request.signInUser
 
-        // update権限確認
+        // update権限確認(認可)
         if (sentUserForm.data("userId").toLong != signInUser.userId) {
           errorHandler.onClientError(request, 403, "")
         } else {

@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
 import common._
-import errors._
+import common.errors._
 
 @Singleton
 class PostController @Inject() (
