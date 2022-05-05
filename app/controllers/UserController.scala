@@ -9,6 +9,7 @@ import play.api.mvc.{
 import play.api.data.Form
 import play.api.i18n.Lang
 import play.api.cache._
+import akka.actor
 
 import models.domains.{User, UpdateUserProfileFormData, SignInUser}
 import models.services.{UserService, PostService, DepartmentService}
@@ -23,7 +24,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
 import scala.util.Success
 import common._
-import akka.actor
+import errors._
 
 @Singleton
 class UserController @Inject() (
@@ -35,7 +36,8 @@ class UserController @Inject() (
     userService: UserService,
     departmentService: DepartmentService,
     postService: PostService,
-    fileUploadUtil: FileUploadUtil
+    fileUploadUtil: FileUploadUtil,
+    errorHandler: ErrorHandler
 )(implicit ec: ExecutionContext)
     extends MessagesAbstractController(mcc) {
   implicit val lang = Lang.defaultLang
@@ -44,12 +46,7 @@ class UserController @Inject() (
   def detail(userId: Long) = userNeedLoginAction.async { implicit request =>
     // ページ表示権限確認
     if (userId != request.signInUser.userId) {
-      Future.successful(
-        Forbidden(
-          views.html.errors
-            .client_error(403, "Forbidden", messagesApi("error.http.forbidden"))
-        )
-      )
+      errorHandler.onClientError(request, 403, "")
     } else {
       postService.findByUserId(userId).map { posts =>
         Ok(views.html.users.detail(posts))
@@ -61,27 +58,13 @@ class UserController @Inject() (
   def edit(userId: Long) = userNeedLoginAction.async { implicit request =>
     // ページ表示権限確認
     if (userId != request.signInUser.userId) {
-      Future.successful(
-        Forbidden(
-          views.html.errors
-            .client_error(403, "Forbidden", messagesApi("error.http.forbidden"))
-        )
-      )
+      errorHandler.onClientError(request, 403, "")
     } else {
       userService.findUserById(userId).flatMap { user =>
         user match {
           case None => {
             // ユーザが存在していない場合はNotFound
-            Future.successful(
-              NotFound(
-                views.html.errors
-                  .client_error(
-                    404,
-                    "Not Found",
-                    messagesApi("error.http.notFound")
-                  )
-              )
-            )
+            errorHandler.onClientError(request, 404, "")
           }
           case Some(user) => {
             val formWithUserData = updateUserProfileForm.fill(user)
@@ -106,16 +89,7 @@ class UserController @Inject() (
 
         // update権限確認
         if (sentUserForm.data("userId").toLong != signInUser.userId) {
-          Future.successful(
-            Forbidden(
-              views.html.errors
-                .client_error(
-                  403,
-                  "Forbidden",
-                  messagesApi("error.http.forbidden")
-                )
-            )
-          )
+          errorHandler.onClientError(request, 403, "")
         } else {
           // 拡張子チェック&エラーがあればリストとして取得
           val uploadedFileErrorList =
