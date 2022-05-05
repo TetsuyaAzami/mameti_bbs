@@ -105,14 +105,19 @@ class PostRepository @Inject() (
     }
   }
 
-  def findByPostId(postId: Long): Future[PostUpdateFormData] = Future {
+  def findByPostIdAndUserId(
+      postId: Long,
+      userId: Long
+  ): Future[Option[PostUpdateFormData]] = Future {
     db.withConnection { implicit conn =>
       SQL"""
       SELECT
       p.post_id p_post_id,
       p.content p_content
       FROM posts p
-      WHERE p.post_id = ${postId};""".as(forUpdate.single)
+      WHERE p.post_id = ${postId} AND p.user_id = ${userId};""".as(
+        forUpdate.singleOpt
+      )
     }
   }
 
@@ -166,18 +171,19 @@ class PostRepository @Inject() (
     }
   }
 
-  def update(post: Post) = Future {
+  def update(post: Post, userId: Long): Future[Long] = Future {
     db.withConnection { implicit conn =>
       SQL(
         """UPDATE posts SET
            content = {content},
            posted_at = {postedAt}
-           WHERE post_id = {postId};"""
+           WHERE post_id = {postId} AND user_id = {userId};"""
       )
         .on(
           "content" -> post.content,
           "postedAt" -> post.postedAt,
-          "postId" -> post.postId
+          "postId" -> post.postId,
+          "userId" -> userId
         )
         .executeUpdate()
     }
@@ -199,20 +205,12 @@ class PostRepository @Inject() (
     }
   }
 
-  def delete(postId: Long): Future[Long] = Future {
+  def delete(postId: Long, userId: Long): Future[Long] = Future {
     db.withConnection { implicit conn =>
       SQL"""
-      WITH
-      delete_comment AS( -- 投稿に紐づいているコメントも削除
-      DELETE FROM comments
-      WHERE post_id = ${postId}
-      ),
-      delete_likes AS( -- 投稿に紐づいているいいねも削除
-      DELETE FROM likes
-      WHERE post_id = ${postId}
-      )
       DELETE FROM posts
-      WHERE post_id = ${postId};""".executeUpdate()
+      WHERE post_id = ${postId} AND user_id = ${userId};""".executeUpdate()
+
     }
   }
 }

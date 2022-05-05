@@ -15,16 +15,20 @@ class PostService @Inject() (postRepository: PostRepository)(
   def findByUserId(userId: Long): Future[List[(Post, Option[Long])]] =
     postRepository.findByUserId(userId)
 
-  def findByPostId(postId: Long): Future[PostUpdateFormData] =
-    postRepository.findByPostId(postId)
+  def findByPostIdAndUserId(
+      postId: Long,
+      userId: Long
+  ): Future[Option[PostUpdateFormData]] =
+    postRepository.findByPostIdAndUserId(postId, userId)
 
   def findByPostIdWithCommentList(postId: Long): Future[Option[Post]] =
     postRepository.findByPostIdWithCommentList(postId)
 
-  def update(post: Post) = postRepository.update(post)
+  def update(post: Post, userId: Long) = postRepository.update(post, userId)
 
   def insert(post: Post): Future[Option[Long]] =
     postRepository.insert(post)
 
-  def delete(postId: Long): Future[Long] = postRepository.delete(postId)
+  def delete(postId: Long, userId: Long): Future[Long] =
+    postRepository.delete(postId, userId)
 }

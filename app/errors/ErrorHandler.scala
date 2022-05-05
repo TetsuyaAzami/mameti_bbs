@@ -38,6 +38,17 @@ class ErrorHandler @Inject() (
             )
         )
       )
+    } else if (statusCode == 401) {
+      Future.successful(
+        Unauthorized(
+          views.html.errors
+            .client_error(
+              401,
+              "Unauthorized",
+              messagesApi("error.http.unauthorized")
+            )
+        )
+      )
     } else if (statusCode == 403) {
       Future.successful(
         Forbidden(
