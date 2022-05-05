@@ -1,4 +1,4 @@
-package errors
+package common.errors
 
 import javax.inject._
 
