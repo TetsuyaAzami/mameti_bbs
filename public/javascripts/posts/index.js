@@ -50,6 +50,9 @@
         commentModal.hide();
       })
       .catch((error) => {
+        if (error.response.status == 401) {
+          location.href = "/users/sign-in" + "?=needSignIn";
+        }
         let errorMessage = error.response.data.content[0];
         $commentErrorMessage.innerText = errorMessage;
       });

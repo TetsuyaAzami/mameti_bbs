@@ -11,6 +11,7 @@ import controllers.routes
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
+import errors.ErrorHandler
 
 trait UserOptRequestHeader
     extends PreferredMessagesProvider
@@ -66,7 +67,6 @@ class UserNeedLoginAction @Inject() (
     val executionContext: ExecutionContext
 ) extends ActionBuilder[UserRequest, AnyContent]
     with Results {
-
   override def invokeBlock[A](
       request: Request[A],
       block: UserRequest[A] => Future[Result]
@@ -88,10 +88,40 @@ class UserNeedLoginAction @Inject() (
   }
 }
 
-class UserNeedAuthorityAction @Inject() (
+class UserNeedLoginAsyncAction @Inject() (
     val parser: BodyParsers.Default,
     cache: SyncCacheApi,
     messagesApi: MessagesApi
+)(implicit
+    val executionContext: ExecutionContext
+) extends ActionBuilder[UserRequest, AnyContent]
+    with Results {
+  override def invokeBlock[A](
+      request: Request[A],
+      block: UserRequest[A] => Future[Result]
+  ): Future[Result] = {
+    implicit val lang = Lang.defaultLang
+    val sessionIdOpt = request.session.get("sessionId")
+    val signInUserOpt = CacheUtil.getSessionUser(cache, sessionIdOpt)
+    signInUserOpt match {
+      case None => {
+        Future.successful(
+          Unauthorized
+        )
+      }
+      case Some(signInUser) => {
+        val userRequest = new UserRequest(request, signInUser, messagesApi)
+        block(userRequest)
+      }
+    }
+  }
+}
+
+class UserNeedAuthorityAction @Inject() (
+    val parser: BodyParsers.Default,
+    cache: SyncCacheApi,
+    messagesApi: MessagesApi,
+    errorHandler: ErrorHandler
 )(implicit
     val executionContext: ExecutionContext
 ) extends ActionBuilder[UserRequest, AnyContent]
@@ -105,11 +135,7 @@ class UserNeedAuthorityAction @Inject() (
     val signInUserOpt = CacheUtil.getSessionUser(cache, sessionIdOpt)
     signInUserOpt match {
       case None => {
-        Future.successful(
-          Forbidden(
-            views.html.errors.client_error(403, "Forbidden", "権限がありません")
-          )
-        )
+        errorHandler.onClientError(request, 403, "")
       }
       case Some(signInUser) => {
         val userRequest = new UserRequest(request, signInUser, messagesApi)
