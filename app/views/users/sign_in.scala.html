@@ -14,6 +14,7 @@
 		<div class="text-center fw-bold my-3">
 			<span class="text-success">@flash.get("successRegister").getOrElse("")</span>
 			<span class="text-danger">@flash.get("errorNeedSignIn").getOrElse("")</span>
+			<span id="errorNeedSignIn" class="text-danger display-none">@Messages("error.needSignIn")</span>
 			@signInForm.error("userNotFound") match {
 			case None =>{}
 			case Some(error) => {
@@ -33,4 +34,5 @@
 		}
 	</section>
 </div>
+<script src="@routes.Assets.versioned("javascripts/users/signIn.js")"></script>
 }

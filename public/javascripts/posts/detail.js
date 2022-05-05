@@ -31,11 +31,13 @@
         $commentContentInput.value = "";
       })
       .catch((error) => {
+        if (error.response.status == 401) {
+          location.href = "/users/sign-in" + "?=needSignIn";
+        }
         // エラーメッセージノードを削除
         removeErrorMessage($commentContentInput);
         //エラ-メッセージを取得 あとで実装
         let errorMessage = error.response.data.content[0];
-
         //エラーメッセージを表示
         displayErrorMessage(
           // エラーメッセージを持つDOMを作成
