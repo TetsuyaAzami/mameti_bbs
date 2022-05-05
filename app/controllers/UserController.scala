@@ -32,7 +32,6 @@ class UserController @Inject() (
     cache: SyncCacheApi,
     userOptAction: UserOptAction,
     userNeedLoginAction: UserNeedLoginAction,
-    userNeedAuthorityAction: UserNeedAuthorityAction,
     userService: UserService,
     departmentService: DepartmentService,
     postService: PostService,
@@ -79,18 +78,18 @@ class UserController @Inject() (
 
   // プロフィール更新
   def update() =
-    userNeedAuthorityAction(
+    userNeedLoginAction(
       parse.multipartFormData(fileUploadUtil.handleFilePartAsFile)
     )
       .async { implicit request =>
         val sentUserForm = updateUserProfileForm.bindFromRequest()
         val signInUser = request.signInUser
-        val uploadedProfileImgOpt = request.body.file("profileImg")
 
         // update権限確認
         if (sentUserForm.data("userId").toLong != signInUser.userId) {
           errorHandler.onClientError(request, 403, "")
         } else {
+          val uploadedProfileImgOpt = request.body.file("profileImg")
           // 拡張子チェック&エラーがあればリストとして取得
           val uploadedFileErrorList =
             FileUploadUtil.extractErrorsFromUploadedFile(uploadedProfileImgOpt)

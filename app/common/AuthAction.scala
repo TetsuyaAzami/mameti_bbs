@@ -116,31 +116,3 @@ class UserNeedLoginAsyncAction @Inject() (
     }
   }
 }
-
-class UserNeedAuthorityAction @Inject() (
-    val parser: BodyParsers.Default,
-    cache: SyncCacheApi,
-    messagesApi: MessagesApi,
-    errorHandler: ErrorHandler
-)(implicit
-    val executionContext: ExecutionContext
-) extends ActionBuilder[UserRequest, AnyContent]
-    with Results {
-
-  override def invokeBlock[A](
-      request: Request[A],
-      block: UserRequest[A] => Future[Result]
-  ): Future[Result] = {
-    val sessionIdOpt = request.session.get("sessionId")
-    val signInUserOpt = CacheUtil.getSessionUser(cache, sessionIdOpt)
-    signInUserOpt match {
-      case None => {
-        errorHandler.onClientError(request, 403, "")
-      }
-      case Some(signInUser) => {
-        val userRequest = new UserRequest(request, signInUser, messagesApi)
-        block(userRequest)
-      }
-    }
-  }
-}
