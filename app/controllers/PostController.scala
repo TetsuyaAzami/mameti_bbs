@@ -9,6 +9,7 @@ import models.domains._
 import models.services.PostService
 import controllers.forms.PostForm._
 import controllers.forms.CommentForm._
+import controllers.forms.SignInForm._
 
 import java.time.LocalDateTime
 import javax.inject._
@@ -22,7 +23,6 @@ class PostController @Inject() (
     cache: SyncCacheApi,
     userOptAction: UserOptAction,
     userNeedLoginAction: UserNeedLoginAction,
-    userNeedAuthorityAction: UserNeedAuthorityAction,
     postService: PostService,
     errorHandler: ErrorHandler
 )(implicit ec: ExecutionContext)
@@ -52,51 +52,75 @@ class PostController @Inject() (
   }
 
   def insert() = userOptAction.async { implicit request =>
-    val errorFunction = { formWithErrors: Form[PostFormData] =>
-      postService.findAll().map { allPosts =>
-        BadRequest(
-          views.html.posts
-            .index(formWithErrors, commentForm, allPosts)
+    val signInUserOpt = request.signInUserOpt
+    // ログイン確認
+    signInUserOpt match {
+      case None => {
+        Future.successful(
+          Redirect(routes.SignInController.toSignIn())
+            .flashing("errorNeedSignIn" -> messagesApi("error.needSignIn"))
         )
       }
-    }
-
-    val successFunction = { post: PostFormData =>
-      val postForInsert =
-        Post(
-          None,
-          post.content,
-          1, // ログインユーザIdに変更
-          None,
-          LocalDateTime.now(),
-          List()
-        )
-      postService.insert(postForInsert).flatMap { _ =>
-        postService.findAll().map { allPosts =>
-          Redirect(routes.PostController.index())
-            .flashing("successInsert" -> messagesApi("success.insert"))
+      case Some(signInUser) => {
+        val errorFunction = { formWithErrors: Form[PostFormData] =>
+          postService.findAll().map { allPosts =>
+            BadRequest(
+              views.html.posts
+                .index(formWithErrors, commentForm, allPosts)
+            )
+          }
         }
+
+        val successFunction = { post: PostFormData =>
+          val postForInsert =
+            Post(
+              None,
+              post.content,
+              signInUser.userId,
+              None,
+              LocalDateTime.now(),
+              List()
+            )
+          postService.insert(postForInsert).flatMap { _ =>
+            postService.findAll().map { allPosts =>
+              Redirect(routes.PostController.index())
+                .flashing("successInsert" -> messagesApi("success.insert"))
+            }
+          }
+        }
+        postForm.bindFromRequest().fold(errorFunction, successFunction)
       }
     }
-    postForm.bindFromRequest().fold(errorFunction, successFunction)
   }
 
   def edit(postId: Long) = userNeedLoginAction.async { implicit request =>
-    // ここでeditするpostのuserIdとログインユーザのuserIdが一致するか確認
-    // あとで実装
-
-    postService.findByPostId(postId).map { post =>
-      // DBから取得したデータをformに詰めてviewに渡す
-      val formWithPostData = postUpdateForm.fill(post)
-      Ok(views.html.posts.edit(formWithPostData))
+    val signInUser = request.signInUser
+    val userId = signInUser.userId
+    // ログインユーザが送られてきたpostIdの投稿を所有していなかったら、403エラー
+    postService.findByPostIdAndUserId(postId, userId).map { postOpt =>
+      postOpt match {
+        case None => {
+          Forbidden(
+            views.html.errors.client_error(
+              403,
+              "Forbidden",
+              messagesApi("error.http.forbidden")
+            )
+          )
+        }
+        case Some(post) => {
+          // DBから取得したデータをformに詰めてviewに渡す
+          val formWithPostData = postUpdateForm.fill(post)
+          Ok(views.html.posts.edit(formWithPostData))
+        }
+      }
     }
   }
 
-  def update() = userNeedAuthorityAction.async { implicit request =>
-    // ここでeditするpostのuserIdとログインユーザのuserIdが一致するか確認
-    // あとで実装
-
+  def update() = userNeedLoginAction.async { implicit request =>
     val sentPostForm = postUpdateForm.bindFromRequest()
+    val signInUser = request.signInUser
+    val userId = signInUser.userId
 
     val errorFunction = { formWithErrors: Form[PostUpdateFormData] =>
       Future.successful(BadRequest(views.html.posts.edit(formWithErrors)))
@@ -106,30 +130,51 @@ class PostController @Inject() (
         Post(
           Option(post.postId),
           post.content,
-          1, // ログインユーザのIdに変更
+          userId,
           None,
           LocalDateTime.now(),
           List()
         )
-      postService.update(savePostData)
-      postService
-        .findByUserId(1)
-        .map(post =>
-          Redirect(routes.UserController.detail(1))
-            .flashing("successUpdate" -> messagesApi("success.update"))
-        )
+      postService.update(savePostData, userId).flatMap {
+        // ログインユーザの所有している投稿以外を更新しようとしたら403エラー
+        numberOfRowsUpdated: Long =>
+          numberOfRowsUpdated match {
+            case 0 => {
+              errorHandler.onClientError(request, 403, "")
+            }
+            case _ => {
+              postService
+                .findByUserId(userId)
+                .map(post =>
+                  Redirect(routes.UserController.detail(userId))
+                    .flashing("successUpdate" -> messagesApi("success.update"))
+                )
+            }
+          }
+      }
     }
-
     sentPostForm.fold(errorFunction, successFunction)
   }
 
-  def delete(postId: Long) = Action.async { implicit request =>
-    // ここでeditするpostのuserIdとログインユーザのuserIdが一致するか確認
-    // あとで実装
-
-    postService.delete(postId).map { deletedPostId =>
-      Redirect(routes.UserController.detail(1))
-        .flashing("successDelete" -> messagesApi("success.delete"))
+  def delete(postId: Long) = userNeedLoginAction.async { implicit request =>
+    val signInUser = request.signInUser
+    val userId = signInUser.userId
+    postService.delete(postId, userId).map { numberOfRowsUpdated =>
+      numberOfRowsUpdated match {
+        case 0 => {
+          Forbidden(
+            views.html.errors.client_error(
+              403,
+              "Forbidden",
+              messagesApi("error.http.forbidden")
+            )
+          )
+        }
+        case _ => {
+          Redirect(routes.UserController.detail(userId))
+            .flashing("successDelete" -> messagesApi("success.delete"))
+        }
+      }
     }
   }
 }
