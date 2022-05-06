@@ -66,9 +66,24 @@ class UserRepository @Inject() (
     get[Long]("u_user_id") ~
       get[String]("u_name") ~
       get[String]("u_email") ~
-      get[Option[String]]("u_profile_img") map {
-        case userId ~ name ~ email ~ profileImg =>
-          SignInUser(userId, name, email, profileImg)
+      get[String]("u_password") ~
+      get[Option[LocalDate]]("u_birthday") ~
+      get[Option[String]]("u_introduce") ~
+      get[Option[String]]("u_profile_img") ~
+      get[Long]("u_department_id") ~
+      departmentRepository.simple map {
+        case userId ~ name ~ email ~ password ~ birthdayOpt ~ introduceOpt ~ profileImgOpt ~ departmentId ~ department =>
+          SignInUser(
+            userId,
+            name,
+            email,
+            password,
+            birthdayOpt,
+            introduceOpt,
+            profileImgOpt,
+            departmentId,
+            department
+          )
       }
   }
 
@@ -114,8 +129,16 @@ class UserRepository @Inject() (
         u.user_id u_user_id,
         u.name u_name,
         u.email u_email,
-        u.profile_img u_profile_img
+        u.password u_password,
+        u.birthday u_birthday,
+        u.introduce u_introduce,
+        u.profile_img u_profile_img,
+        u.department_id u_department_id,
+        d.department_id d_department_id,
+        d.name d_name
         FROM users u
+        INNER JOIN departments d
+        ON u.department_id = d.department_id
         WHERE email = ${email} AND password = ${password}
         ;
         """.as(signInUserParser.singleOpt)
@@ -124,19 +147,17 @@ class UserRepository @Inject() (
 
   def insert(user: User): Future[Option[Long]] = Future {
     db.withConnection { implicit conn =>
-      val userId =
-        SQL("""
+      SQL("""
             INSERT INTO users
             (name, email, password, department_id)
             VALUES({name},{email},{password},{departmentId});""")
-          .on(
-            "name" -> user.name,
-            "email" -> user.email,
-            "password" -> user.password,
-            "departmentId" -> user.departmentId
-          )
-          .executeInsert()
-      userId
+        .on(
+          "name" -> user.name,
+          "email" -> user.email,
+          "password" -> user.password,
+          "departmentId" -> user.departmentId
+        )
+        .executeInsert()
     }
   }
 
