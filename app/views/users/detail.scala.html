@@ -14,16 +14,23 @@
 			<div class="card my-3">
 				<div class="row g-0">
 					<div class="col-md-4 d-flex justify-content-center align-items-center">
-						<img src="@routes.Assets.versioned("images/Noimg.jpg")" class="profile-img-lg" alt="プロフィール画像">
+						@signInUser.profileImg match{
+							case None =>{
+								<img src="@routes.Assets.versioned("images/profileImages/Noimg.jpg")" class="profile-img-lg" alt="プロフィール画像">
+							}
+							case Some(profileImg) =>{
+								<img src="@routes.Assets.versioned(s"images/profileImages/${profileImg}")" class="profile-img-lg" alt="プロフィール画像">
+							}
+						}
 					</div>
 					<div class="col-md-8 d-flex justify-content-around">
 						<section class="display-profile">
 							<div class="card-body">
-								<h5 class="card-title">@signInUser.name</h5>
-								<p class="card-text">@signInUser.email</p>
-								<p class="card-text">@signInUser.birthday</p>
-								<p class="card-text">@signInUser.department.name</p>
-								<p class="card-text">@signInUser.introduce</p>
+								<p class="card-text">ユーザ名: @signInUser.name</p>
+								<p class="card-text">メールアドレス: @signInUser.email</p>
+								<p class="card-text">誕生日: @signInUser.birthday</p>
+								<p class="card-text">部署名: @signInUser.department.name</p>
+								<p class="card-text">自己紹介: @signInUser.introduce</p>
 							</div>
 						</section>
 						<div>
