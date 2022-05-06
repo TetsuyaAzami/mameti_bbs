@@ -86,7 +86,7 @@ class UserController @Inject() (
       .async { implicit request =>
         val sentUserForm = updateUserProfileForm.bindFromRequest()
         val signInUser = request.signInUser
-
+        val sessionId = request.session.get("sessionId")
         // update権限確認(認可)
         if (sentUserForm.data("userId").toLong != signInUser.userId) {
           errorHandler.onClientError(request, 403, "")
@@ -94,11 +94,14 @@ class UserController @Inject() (
           val uploadedProfileImgOpt = request.body.file("profileImg")
           // 拡張子チェック&エラーがあればリストとして取得
           val uploadedFileErrorList =
-            FileUploadUtil.extractErrorsFromUploadedFile(uploadedProfileImgOpt)
+            FileUploadUtil.extractErrorsFromUploadedFile(
+              uploadedProfileImgOpt
+            )
           // uploadedFileのエラーを注入
-          val formErrors = sentUserForm.errors.foldLeft(uploadedFileErrorList) {
-            (acc, error) => acc :+ error
-          }
+          val formErrors =
+            sentUserForm.errors.foldLeft(uploadedFileErrorList) {
+              (acc, error) => acc :+ error
+            }
           val formWithFileErrors =
             sentUserForm.copy(errors = formErrors)
 
@@ -119,11 +122,17 @@ class UserController @Inject() (
             val userDataWithImg =
               userData.copy(profileImg = uploadedFilenameOpt)
 
-            userService.update(userDataWithImg).map { numberOfRowsUpdated =>
-              Redirect(
-                routes.UserController.detail(signInUser.userId)
-              )
-                .flashing("successUpdate" -> messagesApi("success.update"))
+            userService.update(userDataWithImg).flatMap { numberOfRowsUpdated =>
+              userService
+                .findSignInUserById(signInUser.userId)
+                .map { updatedUserOpt =>
+                  val updatedUser = updatedUserOpt.get
+                  CacheUtil.setSessionUser(cache, sessionId, updatedUser)
+                  Redirect(
+                    routes.UserController.detail(signInUser.userId)
+                  )
+                    .flashing("successUpdate" -> messagesApi("success.update"))
+                }
             }
           }
           formWithFileErrors.fold(errorFunction, successFunction)

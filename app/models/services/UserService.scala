@@ -14,6 +14,10 @@ class UserService @Inject() (userRepository: UserRepository)(implicit
   def findUserById(userId: Long): Future[Option[UpdateUserProfileFormData]] =
     userRepository.findUserById(userId)
 
+  def findSignInUserById(
+      userId: Long
+  ): Future[Option[SignInUser]] = userRepository.findSignInUserById(userId)
+
   def findUserByEmail(email: String): Future[Option[Long]] =
     userRepository.findUserByEmail(email)
 

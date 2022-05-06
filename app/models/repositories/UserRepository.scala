@@ -106,6 +106,32 @@ class UserRepository @Inject() (
       }
     }
 
+  def findSignInUserById(
+      userId: Long
+  ): Future[Option[SignInUser]] =
+    Future {
+      db.withConnection { implicit con =>
+        SQL"""
+        SELECT
+        u.user_id u_user_id,
+        u.name u_name,
+        u.email u_email,
+        u.password u_password,
+        u.birthday u_birthday,
+        u.introduce u_introduce,
+        u.profile_img u_profile_img,
+        u.department_id u_department_id,
+        d.department_id d_department_id,
+        d.name d_name
+        FROM users u
+        INNER JOIN departments d
+        ON u.department_id = d.department_id
+        WHERE u.user_id = ${userId}
+        ;"""
+          .as(signInUserParser.singleOpt)
+      }
+    }
+
   def findUserByEmail(email: String): Future[Option[Long]] = Future {
     db.withConnection { implicit conn =>
       val userId =
