@@ -11,7 +11,7 @@ import play.api.i18n.Lang
 import play.api.cache._
 import akka.actor
 
-import models.domains.{User, UpdateUserProfileFormData, SignInUser}
+import models.domains.{User, UpdateUserProfileFormData}
 import models.services.{UserService, PostService, DepartmentService}
 import controllers.forms.{SignInFormData, SignUpFormData}
 import controllers.forms.UpdateUserProfileForm._

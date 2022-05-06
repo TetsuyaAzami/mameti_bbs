@@ -32,7 +32,12 @@ final case class SignInUser(
     userId: Long,
     name: String,
     email: String,
-    profileImg: Option[String]
+    password: String,
+    birthday: Option[LocalDate] = None,
+    introduce: Option[String] = None,
+    profileImg: Option[String] = None,
+    departmentId: Long,
+    department: Department
 )
 
 // 投稿したユーザ
