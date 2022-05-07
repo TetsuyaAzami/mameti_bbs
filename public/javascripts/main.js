@@ -41,6 +41,12 @@ const createCommentCardHeader = (commentData) => {
   sectionHeader.classList.add("card-header");
   sectionHeader.classList.add("bg-white");
 
+  //プロフィール画像img
+  const profileImg = document.createElement("img");
+  profileImg.src = `/assets/images/profileImages/${commentData.userWhoCommented.profileImg}`;
+  profileImg.classList.add("profile-img-sm");
+  profileImg.setAttribute("alt", "プロフィール画像");
+
   //ユーザ名span
   const spanUserName = document.createElement("span");
   spanUserName.classList.add("fs-5");
@@ -54,6 +60,7 @@ const createCommentCardHeader = (commentData) => {
   spanTime.innerText = formatDateUtil(commentData.commentedAt);
 
   //spanをsectionHeaderに追加
+  sectionHeader.append(profileImg);
   sectionHeader.append(spanUserName);
   sectionHeader.append(spanTime);
   return sectionHeader;

@@ -1,5 +1,5 @@
 (function () {
-  const $postList = document.getElementById("postList");
+  const $commentInfoList = document.getElementsByClassName("commentInfo");
   // コメントモーダル内DOM
   const $commentPostModal = document.getElementById("commentPostModal");
   const $modalBody = document.getElementById("modalBody");
@@ -8,13 +8,14 @@
   const $commentInsertButton = document.getElementById("commentInsertButton");
   const $commentErrorMessage = document.getElementById("commentErrorMessage");
   const $flashSuccessMessage = document.getElementById("flashSuccessMessage");
+  // 非同期通信の際にcsrfTokenが必要
+  const commentCsrfToken = $modalForm.children[0].value;
 
   const commentModal = new bootstrap.Modal($commentPostModal);
 
   // コメント紐付け対象である投稿のpostId
   let commentPostId = null;
-  // 非同期通信の際にcsrfTokenが必要
-  const commentCsrfToken = $modalForm.children[0].value;
+  let $commentCountSpan = null;
 
   // モーダル内コメントの初期化
   $commentPostModal.addEventListener("hide.bs.modal", () => {
@@ -24,10 +25,14 @@
   });
 
   // クリックした投稿のpostIdを取得
-  $postList.addEventListener("click", (e) => {
-    $flashSuccessMessage.innerText = "";
-    commentPostId = e.target.dataset.postId;
-  });
+  Array.from($commentInfoList).map((commentInfo) =>
+    commentInfo.addEventListener("click", (e) => {
+      $flashSuccessMessage.innerText = "";
+      commentPostId = e.target.dataset.postId;
+      $commentCountSpan = e.target.nextElementSibling;
+      console.log($commentCountSpan);
+    })
+  );
 
   $commentInsertButton.addEventListener("click", (e) => {
     const content = $contentInput.value;
@@ -46,7 +51,8 @@
         }
       )
       .then((response) => {
-        $flashSuccessMessage.innerText = response.data;
+        $flashSuccessMessage.innerText = "投稿完了しました";
+        $commentCountSpan.innerText = parseInt($commentCountSpan.innerText) + 1;
         commentModal.hide();
       })
       .catch((error) => {
