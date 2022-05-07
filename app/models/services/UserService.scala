@@ -14,6 +14,10 @@ class UserService @Inject() (userRepository: UserRepository)(implicit
   def findUserById(userId: Long): Future[Option[UpdateUserProfileFormData]] =
     userRepository.findUserById(userId)
 
+  def findSignInUserById(
+      userId: Long
+  ): Future[Option[SignInUser]] = userRepository.findSignInUserById(userId)
+
   def findUserByEmail(email: String): Future[Option[Long]] =
     userRepository.findUserByEmail(email)
 
@@ -25,6 +29,14 @@ class UserService @Inject() (userRepository: UserRepository)(implicit
 
   def insert(user: User): Future[Option[Long]] = userRepository.insert(user)
 
-  def update(user: UpdateUserProfileFormData): Future[Long] =
-    userRepository.update(user)
+  def update(user: UpdateUserProfileFormData): Future[Long] = {
+    user.profileImg match {
+      case None => {
+        userRepository.updateExceptProfileImg(user)
+      }
+      case Some(profileImg) => {
+        userRepository.update(user)
+      }
+    }
+  }
 }

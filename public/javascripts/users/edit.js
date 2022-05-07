@@ -3,15 +3,13 @@
   const $profileImgInput = document.getElementById("profileImgInput");
   const $profileImgError = document.getElementById("profileImgError");
   const $preview = document.getElementById("preview");
+  const $profileImg = $preview.children.item(0);
   const $updateButton = document.getElementById("updateButton");
 
   // 初期化処理
   const initFileHandler = () => {
     $profileImgError.innerText = "";
     $updateButton.disabled = false;
-    while ($preview.firstChild) {
-      $preview.removeChild($preview.firstChild);
-    }
   };
 
   //ファイルサイズを2MBに制限。
@@ -31,12 +29,9 @@
   const previewFile = (file) => {
     const reader = new FileReader();
 
-    reader.onload = function (e) {
+    reader.onload = (e) => {
       const imageUrl = e.target.result;
-      const img = document.createElement("img");
-      img.src = imageUrl;
-      img.classList.add("profile-img-lg");
-      $preview.appendChild(img);
+      $profileImg.src = imageUrl;
     };
 
     reader.readAsDataURL(file);

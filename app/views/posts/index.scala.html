@@ -42,7 +42,17 @@ UserOptRequestHeader,flash: Flash)
 			<div>
 				@request.signInUserOpt match {
 				case None => {}
-				case Some(signInUser) => { <span class="fw-bold">@(signInUser.name):</span> }
+				case Some(signInUser) => {
+						@signInUser.profileImg match {
+							case None =>{
+								<img src="@routes.Assets.versioned("images/profileImages/Noimg.jpg")" class="profile-img-sm" alt="プロフィール画像">
+							}
+							case Some(profileImg) =>{
+								<img src="@routes.Assets.versioned(s"images/profileImages/${profileImg}")" class="profile-img-sm" alt="プロフィール画像">
+							}
+						}
+						<span class="fw-bold" >@(signInUser.name):</span>
+				 }
 				}
 			</div>
 			<section class="mb-5">
@@ -57,25 +67,35 @@ UserOptRequestHeader,flash: Flash)
 				}
 			</section>
 			<section id="postList">
-				@posts.map{post =>
+				@posts.map{case (post,count) =>
 				<article class="border rounded">
-					<a href="@routes.PostController.detail(post._1.postId.get)">
+					<a href="@routes.PostController.detail(post.postId.get)">
 						<section class="card-header bg-white">
-							<span class="fs-5 fw-bold">@post._1.user.get.name</span>
-							<span class="ps-3 text-secondary">
-								@post._1.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
-							</span>
+							@post.user.get.profileImg match {
+								case None =>{
+									<img src="@routes.Assets.versioned("images/profileImages/Noimg.jpg")" class="profile-img-sm" alt="プロフィール画像">
+								}
+								case Some(profileImg) =>{
+									<img src="@routes.Assets.versioned(s"images/profileImages/${profileImg}")" class="profile-img-sm" alt="プロフィール画像">
+								}
+							}
+
+								<span class="ps-1 fs-5 fw-bold">@post.user.get.name</span>
+								<span class="ps-1 text-secondary">
+									@post.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+								</span>
+
 						</section>
 						<section class="card-body">
-							<div class="card-text p-3">@post._1.content</div>
+							<div class="card-text p-3">@post.content</div>
 						</section>
 					</a>
 					<section class="card-footer bg-white border-white">
 						<div class="px-3 w-25 d-flex justify-content-between align-items-center">
 							<span>
 								<i title="コメントする" class="far fa-comment" data-bs-toggle="modal"
-									data-bs-target="#commentPostModal" data-post-id="@post._1.postId"></i>
-								<span class="px-1">@post._2.getOrElse("")</span>
+									data-bs-target="#commentPostModal" data-post-id="@post.postId"></i>
+								<span class="px-1">@count.getOrElse("")</span>
 							</span>
 							<i title="いいね!" class="far fa-heart"></i>
 						</div>
