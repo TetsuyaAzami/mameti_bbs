@@ -79,7 +79,6 @@ UserOptRequestHeader,flash: Flash)
 									<img src="@routes.Assets.versioned(s"images/profileImages/${profileImg}")" class="profile-img-sm" alt="プロフィール画像">
 								}
 							}
-
 								<span class="ps-1 fs-5 fw-bold">@post.user.get.name</span>
 								<span class="ps-1 text-secondary">
 									@post.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
@@ -92,7 +91,7 @@ UserOptRequestHeader,flash: Flash)
 					</a>
 					<section class="card-footer bg-white border-white">
 						<div class="px-3 w-25 d-flex justify-content-between align-items-center">
-							<span>
+							<span class="commentInfo">
 								<i title="コメントする" class="far fa-comment" data-bs-toggle="modal"
 									data-bs-target="#commentPostModal" data-post-id="@post.postId"></i>
 								<span class="px-1">@count.getOrElse("")</span>

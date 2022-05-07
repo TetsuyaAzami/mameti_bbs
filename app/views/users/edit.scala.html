@@ -25,9 +25,15 @@ UserRequestHeader,flash: Flash)
 			@textarea(updateUserProfileForm("introduce"),Symbol("class") -> "form-control mb-3")
 			<div>プロフィール画像:</div>
 			<label for="profileImgInput" class="btn btn-outline-primary btn-sm">プロフィール画像を変更
-				<div id="profileImgError" class="errors text-danger"></div>
-				@inputFile(updateUserProfileForm("profileImg"),Symbol("type") -> "file",Symbol("id") -> "profileImgInput",Symbol("class") -> "mb-3 display-none",Symbol("accept") -> ".png, .jpg, .jpeg")
+				<input type="file" id="profileImgInput" name="profileImg" class="mb-3 display-none" accept=".png, .jpg, .jpeg">
 			</label>
+			@updateUserProfileForm.error("profileImg") match {
+				case None =>{}
+				case Some(error) =>{
+					<div class="errors text-danger">@error.format</div><br>
+				}
+			}
+			<div id="profileImgError" class="errors text-danger"></div>
 			<div id="preview" class="col-md-4 d-flex justify-content-center align-items-center">
 				@updateUserProfileForm.value.get.profileImg match {
 					case None =>{
