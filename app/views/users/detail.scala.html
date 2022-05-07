@@ -47,33 +47,41 @@
 		<div class="text-center text-success fw-bold my-3"><span>@flash.get("successDelete").getOrElse("")</span></div>
 		<div class="text-center text-danger fw-bold my-3"><span>@flash.get("failure").getOrElse("")</span></div>
 		<section>
-			@posts.map{post =>
+			@posts.map{case (post,count) =>
 			<article class="border rounded">
 				<section class="card-header bg-white">
-					<a href="@routes.PostController.detail(post._1.postId.get)">
-						<span class="fs-5 fw-bold">@post._1.user.get.name</span>
+					<a href="@routes.PostController.detail(post.postId.get)">
+						@signInUser.profileImg match {
+							case None =>{
+								<img src="@routes.Assets.versioned("images/profileImages/Noimg.jpg")" class="profile-img-sm" alt="プロフィール画像">
+							}
+							case Some(profileImg) =>{
+								<img src="@routes.Assets.versioned(s"images/profileImages/${profileImg}")" class="profile-img-sm" alt="プロフィール画像">
+							}
+						}
+						<span class="fs-5 fw-bold">@post.user.get.name</span>
 						<span class="ps-3 text-secondary">
-							@post._1.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+							@post.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
 						</span>
 					</a>
 				</section>
-				<a href="@routes.PostController.detail(post._1.postId.get)">
+				<a href="@routes.PostController.detail(post.postId.get)">
 					<section class="card-body">
-						<div class="card-text p-3">@post._1.content</div>
+						<div class="card-text p-3">@post.content</div>
 					</section>
 				</a>
 				<section class="card-footer bg-white border-white">
 					<div class="px-3 w-50 d-flex justify-content-between align-items-center">
-						<a href="@routes.PostController.detail(post._1.postId.get)">
+						<a href="@routes.PostController.detail(post.postId.get)">
 							<i title="コメントする" class="far fa-comment"></i>
-							<span>@post._2.getOrElse("")</span>
+							<span>@count.getOrElse("")</span>
 						</a>
 						<i title="いいね！" class="far fa-heart"></i>
-						@form(routes.PostController.delete(post._1.postId.get),Symbol("class") -> "deleteForm") {
+						@form(routes.PostController.delete(post.postId.get),Symbol("class") -> "deleteForm") {
 						@CSRF.formField
 							<i title="削除する" name="deleteButton" class="far fa-trash-alt"></i>
 						}
-						<a href="@routes.PostController.edit(post._1.postId.get)">
+						<a href="@routes.PostController.edit(post.postId.get)">
 							<i title="編集する" class="far fa-edit"></i>
 						</a>
 					</div>

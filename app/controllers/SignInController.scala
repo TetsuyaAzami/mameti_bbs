@@ -61,7 +61,6 @@ class SignInController @Inject() (
               // sessionIdの生成とキャッシュへのログインユーザ情報格納
               val sessionId = UUID.randomUUID().toString()
               CacheUtil.setSessionUser(cache, sessionId, signInUser)
-
               Redirect(routes.PostController.index())
                 .withSession(
                   "sessionId" -> sessionId

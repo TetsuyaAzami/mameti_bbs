@@ -23,10 +23,21 @@ UserRequestHeader,flash: Flash)
 			@inputDate(updateUserProfileForm("birthday"),Symbol("class") -> "form-control mb-3")
 			<label for="password">自己紹介: </label>
 			@textarea(updateUserProfileForm("introduce"),Symbol("class") -> "form-control mb-3")
-			<label for="profileImg">プロフィール画像: </label>
-			<div id="profileImgError" class="errors text-danger"></div>
-			@inputFile(updateUserProfileForm("profileImg"),Symbol("type") -> "file",Symbol("id") -> "profileImgInput",Symbol("class") -> "mb-3",Symbol("accept") -> ".png, .jpg, .jpeg")
-			<div id="preview" class="col-md-4 d-flex justify-content-center align-items-center"></div>
+			<div>プロフィール画像:</div>
+			<label for="profileImgInput" class="btn btn-outline-primary btn-sm">プロフィール画像を変更
+				<div id="profileImgError" class="errors text-danger"></div>
+				@inputFile(updateUserProfileForm("profileImg"),Symbol("type") -> "file",Symbol("id") -> "profileImgInput",Symbol("class") -> "mb-3 display-none",Symbol("accept") -> ".png, .jpg, .jpeg")
+			</label>
+			<div id="preview" class="col-md-4 d-flex justify-content-center align-items-center">
+				@updateUserProfileForm.value.get.profileImg match {
+					case None =>{
+						<img src="@routes.Assets.versioned("images/profileImages/Noimg.jpg")" class="profile-img-lg" alt="プロフィール画像">
+					}
+					case Some(profileImg) =>{
+						<img src="@routes.Assets.versioned(s"images/profileImages/${profileImg}")" class="profile-img-lg" alt="プロフィール画像">
+					}
+				}
+			</div>
 			<label for="password">部署名: </label>
 			@select(updateUserProfileForm("departmentId"),departmentList,Symbol("class") -> "mb-3")
 			<div class="m-auto">
