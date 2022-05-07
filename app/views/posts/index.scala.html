@@ -3,7 +3,7 @@
 @import java.time.format._
 @import common.UserOptRequestHeader
 
-@(postForm: Form[PostFormData],commentForm: Form[CommentFormData],posts: List[(Post,Option[Long])])(implicit request:
+@(postForm: Form[PostFormData],commentForm: Form[CommentFormData],posts: List[(Post,Option[Long],Option[Long])])(implicit request:
 UserOptRequestHeader,flash: Flash)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 @main("投稿一覧"){
@@ -67,7 +67,7 @@ UserOptRequestHeader,flash: Flash)
 				}
 			</section>
 			<section id="postList">
-				@posts.map{case (post,count) =>
+				@posts.map{case (post,commentCount,likeCount) =>
 				<article class="border rounded">
 					<a href="@routes.PostController.detail(post.postId.get)">
 						<section class="card-header bg-white">
@@ -94,9 +94,12 @@ UserOptRequestHeader,flash: Flash)
 							<span class="commentInfo">
 								<i title="コメントする" class="far fa-comment" data-bs-toggle="modal"
 									data-bs-target="#commentPostModal" data-post-id="@post.postId"></i>
-								<span class="px-1">@count.getOrElse("")</span>
+								<span class="px-1">@commentCount.getOrElse("")</span>
 							</span>
-							<i title="いいね!" class="far fa-heart"></i>
+							<span class="likeInfo">
+								<i title="いいね!" class="far fa-heart"></i>
+								<span class="px-1">@likeCount.getOrElse("")</span>
+							</span>
 						</div>
 					</section>
 				</article>

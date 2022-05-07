@@ -10,7 +10,8 @@ import scala.concurrent.Future
 class PostService @Inject() (postRepository: PostRepository)(
     ec: ExecutionContext
 ) {
-  def findAll(): Future[List[(Post, Option[Long])]] = postRepository.findAll()
+  def findAll(): Future[List[(Post, Option[Long], Option[Long])]] =
+    postRepository.findAll()
 
   def findByUserId(userId: Long): Future[List[(Post, Option[Long])]] =
     postRepository.findByUserId(userId)

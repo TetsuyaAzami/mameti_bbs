@@ -41,7 +41,7 @@ class PostRepository @Inject() (
       }
   }
 
-  def findAll(): Future[List[(Post, Option[Long])]] = Future {
+  def findAll(): Future[List[(Post, Option[Long], Option[Long])]] = Future {
     db.withConnection { implicit con =>
       SQL"""
         SELECT
@@ -50,24 +50,34 @@ class PostRepository @Inject() (
         p.user_id p_user_id,
         p.posted_at p_posted_at,
         c.count c_count, -- コメント数の取得
+        l.count l_count , -- いいね数の取得
         u.user_id u_user_id, -- 投稿したユーザの取得
         u.name u_name,
         u.profile_img u_profile_img
         FROM posts p
         LEFT OUTER JOIN (
-        SELECT
+        SELECT -- コメント数の取得
         post_id,
         count(*) count
         FROM comments
         GROUP BY post_id
         ) c
         ON p.post_id = c.post_id
+        LEFT OUTER JOIN(
+        SELECT
+        post_id,
+        COUNT(*) count
+        FROM likes
+        GROUP BY post_id
+        ) l
+        ON p.post_id = l.post_id
         INNER JOIN users u
         ON p.user_id = u.user_id
         ORDER BY p_posted_at DESC;"""
         .as(
-          (withUser ~ long("c_count").?).map { case post ~ count =>
-            (post.copy(), count)
+          (withUser ~ long("c_count").? ~ long("l_count").?).map {
+            case post ~ c_count ~ l_count =>
+              (post.copy(), c_count, l_count)
           }.*
         )
     }

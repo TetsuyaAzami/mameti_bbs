@@ -12,6 +12,7 @@ final case class Post(
     postedAt: LocalDateTime,
     commentList: List[Comment]
 )
+
 // insertの際に使用
 case class PostFormData(content: String)
 // updateの際に使用
