@@ -128,6 +128,8 @@ class UserController @Inject() (
                 .map { updatedUserOpt =>
                   val updatedUser = updatedUserOpt.get
                   CacheUtil.setSessionUser(cache, sessionId, updatedUser)
+                  // 画像の更新を待つ
+                  Thread.sleep(800)
                   Redirect(
                     routes.UserController.detail(signInUser.userId)
                   )

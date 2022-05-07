@@ -107,7 +107,6 @@ object FileUploadUtil {
   ): Option[String] = {
     uploadedFileOpt match {
       case None => {
-        deleteExistingFile(userEmail)
         None
       }
       case Some(uploadedFile) => {

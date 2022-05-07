@@ -29,6 +29,14 @@ class UserService @Inject() (userRepository: UserRepository)(implicit
 
   def insert(user: User): Future[Option[Long]] = userRepository.insert(user)
 
-  def update(user: UpdateUserProfileFormData): Future[Long] =
-    userRepository.update(user)
+  def update(user: UpdateUserProfileFormData): Future[Long] = {
+    user.profileImg match {
+      case None => {
+        userRepository.updateExceptProfileImg(user)
+      }
+      case Some(profileImg) => {
+        userRepository.update(user)
+      }
+    }
+  }
 }

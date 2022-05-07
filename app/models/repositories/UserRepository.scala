@@ -211,4 +211,27 @@ class UserRepository @Inject() (
         .executeUpdate()
     }
   }
+  def updateExceptProfileImg(user: UpdateUserProfileFormData): Future[Long] =
+    Future {
+      db.withConnection { implicit conn =>
+        SQL("""
+          UPDATE users SET
+          name = {name},
+          email = {email},
+          birthday = {birthday},
+          introduce = {introduce},
+          department_id = {departmentId}
+          WHERE user_id = {userId};
+      """)
+          .on(
+            "name" -> user.name,
+            "email" -> user.email,
+            "birthday" -> user.birthday,
+            "introduce" -> user.introduce,
+            "departmentId" -> user.departementId,
+            "userId" -> user.userId
+          )
+          .executeUpdate()
+      }
+    }
 }
