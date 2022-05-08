@@ -3,6 +3,7 @@
   const $commentInsertForm = document.getElementById("commentInsertForm");
   const $commentContentInput = document.getElementById("content");
   const $commentList = document.getElementById("commentList");
+  const $commentCount = document.getElementById("commentCount");
 
   const commentCsrfToken = $commentInsertForm.children[0].value;
   const commentPostId = document.getElementById("postId").value;
@@ -25,10 +26,11 @@
         }
       )
       .then((response) => {
-        appendCommentArticle(commentList, response.data);
+        appendCommentArticle($commentList, response.data);
         // エラーメッセージノードを削除
         removeErrorMessage($commentContentInput);
         $commentContentInput.value = "";
+        $commentCount.innerText = parseInt($commentCount.innerText) + 1;
       })
       .catch((error) => {
         if (error.response.status == 401) {

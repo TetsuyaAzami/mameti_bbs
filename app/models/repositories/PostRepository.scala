@@ -77,7 +77,7 @@ class PostRepository @Inject() (
         .as(
           (withUser ~ long("c_count").? ~ long("l_count").?).map {
             case post ~ c_count ~ l_count =>
-              (post.copy(), c_count, l_count)
+              (post, c_count, l_count)
           }.*
         )
     }

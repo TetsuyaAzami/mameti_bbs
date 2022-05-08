@@ -46,7 +46,7 @@
 				<div class="px-3 w-25 d-flex justify-content-between align-items-center">
 					<span class="commentInfo">
 						<i title="コメントする" class="far fa-comment"></i>
-						<span class="px-1">
+						<span id="commentCount" class="px-1">
 							@post.commentList.size match {
 							case 0 => {}
 							case _ => {@post.commentList.size}
