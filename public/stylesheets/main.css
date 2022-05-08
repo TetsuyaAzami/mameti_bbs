@@ -33,3 +33,11 @@ ul {
 .display-none {
   display: none;
 }
+
+.like-btn {
+  color: #808080;
+}
+
+.unlike-btn {
+  color: #e54747;
+}

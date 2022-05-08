@@ -21,8 +21,14 @@ INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (3,2,'post
 INSERT INTO comments (user_id, post_id, content, commented_at) VALUES (3,2,'post2に対するユーザ3のコメント3',NOW());
 
 INSERT INTO likes (user_id, post_id) VALUES(1,1);
-INSERT INTO likes (user_id, post_id) VALUES(1,2);
 INSERT INTO likes (user_id, post_id) VALUES(2,1);
+INSERT INTO likes (user_id, post_id) VALUES(3,1);
+INSERT INTO likes (user_id, post_id) VALUES(4,1);
+INSERT INTO likes (user_id, post_id) VALUES(1,2);
+INSERT INTO likes (user_id, post_id) VALUES(3,2);
+INSERT INTO likes (user_id, post_id) VALUES(4,2);
+INSERT INTO likes (user_id, post_id) VALUES(1,3);
+INSERT INTO likes (user_id, post_id) VALUES(3,3);
 
 --!Downs
 DELETE FROM likes;

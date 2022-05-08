@@ -2,7 +2,7 @@
 @import domains.{Post,CommentFormData}
 @import java.time.format._
 @import common.UserOptRequestHeader
-@(post: Post, commentForm:Form[CommentFormData])(implicit request: UserOptRequestHeader)
+@(post: Post, likeCount: Long, commentForm:Form[CommentFormData])(implicit request: UserOptRequestHeader)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 @main("投稿詳細"){
 <div class="d-flex flex-grow-1">
@@ -32,21 +32,38 @@
 			<section class="card-body">
 				<div class="card-text p-3">@post.content</div>
 			</section>
-			<section class="card-footer bg-white">
-				<div class="card-text px-3">○ likes</div>
-			</section>
+			@likeCount match {
+				case 0 => {}
+				case likeCount => {
+						<section class="card-footer bg-white">
+							<div class="card-text px-3">
+								@likeCount likes
+							</div>
+						</section>
+						}
+					}
 			<section class="card-footer bg-white p-3">
 				<div class="px-3 w-25 d-flex justify-content-between align-items-center">
-					<span>
+					<span class="commentInfo">
 						<i title="コメントする" class="far fa-comment"></i>
-						<span class="px-1">
+						<span id="commentCount" class="px-1">
 							@post.commentList.size match {
 							case 0 => {}
 							case _ => {@post.commentList.size}
 							}
 						</span>
 					</span>
-					<i title="いいね！" class="far fa-heart"></i>
+					<span class="likeInfo w-25">
+						<i title="いいね!" class="far fa-heart"></i>
+						<span class="px-1">
+							@likeCount match {
+								case 0 =>{}
+								case likeCount =>{
+									@likeCount
+								}
+							}
+						</span>
+					</span>
 				</div>
 			</section>
 			<hr class="m-0">
