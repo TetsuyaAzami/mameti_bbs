@@ -13,7 +13,9 @@ class PostService @Inject() (postRepository: PostRepository)(
   def findAll(): Future[List[(Post, Option[Long], Option[Long])]] =
     postRepository.findAll()
 
-  def findByUserId(userId: Long): Future[List[(Post, Option[Long])]] =
+  def findByUserId(
+      userId: Long
+  ): Future[List[(Post, Option[Long], Option[Long])]] =
     postRepository.findByUserId(userId)
 
   def findByPostIdAndUserId(
