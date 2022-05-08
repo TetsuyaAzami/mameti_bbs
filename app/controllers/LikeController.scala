@@ -26,8 +26,8 @@ class LikeController @Inject() (
     println()
     println()
     println("いいねされました")
-    postService.findAll().map { allPosts =>
-      Ok(views.html.posts.index(postForm, commentForm, allPosts))
+    postService.findAll().map { result =>
+      Ok(views.html.posts.index(postForm, commentForm, result))
     }
   }
 }

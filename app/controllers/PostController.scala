@@ -30,8 +30,8 @@ class PostController @Inject() (
   implicit val lang = Lang.defaultLang
 
   def index() = userOptAction.async { implicit request =>
-    postService.findAll().map { allPosts =>
-      Ok(views.html.posts.index(postForm, commentForm, allPosts))
+    postService.findAll().map { result =>
+      Ok(views.html.posts.index(postForm, commentForm, result))
     }
   }
 
@@ -66,10 +66,10 @@ class PostController @Inject() (
       }
       case Some(signInUser) => {
         val errorFunction = { formWithErrors: Form[PostFormData] =>
-          postService.findAll().map { allPosts =>
+          postService.findAll().map { result =>
             BadRequest(
               views.html.posts
-                .index(formWithErrors, commentForm, allPosts)
+                .index(formWithErrors, commentForm, result)
             )
           }
         }
