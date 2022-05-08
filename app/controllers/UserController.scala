@@ -47,8 +47,8 @@ class UserController @Inject() (
     if (userId != request.signInUser.userId) {
       errorHandler.onClientError(request, 403, "")
     } else {
-      postService.findByUserId(userId).map { postList =>
-        Ok(views.html.users.detail(postList))
+      postService.findByUserId(userId).map { result =>
+        Ok(views.html.users.detail(result))
       }
     }
   }

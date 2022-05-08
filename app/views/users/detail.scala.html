@@ -1,9 +1,10 @@
 @import helper._
 @import domains.Post
+@import domains.Like
 @import common.UserRequestHeader
 @import java.time.format._
 
-@(posts: List[(Post,Option[Long],Option[Long])])(implicit request: UserRequestHeader, flash: Flash)
+@(posts: List[(Post,Option[Long],List[Like])])(implicit request: UserRequestHeader, flash: Flash)
 @signInUser = @{request.signInUser}
 @main("マイページ"){
 <div class="d-flex flex-grow-1">
@@ -47,7 +48,7 @@
 		<div class="text-center text-success fw-bold my-3"><span>@flash.get("successDelete").getOrElse("")</span></div>
 		<div class="text-center text-danger fw-bold my-3"><span>@flash.get("failure").getOrElse("")</span></div>
 		<section>
-			@posts.map{case (post,commentCount,likeCount) =>
+			@posts.map{case (post,commentCount,likeList) =>
 			<article class="border rounded">
 				<section class="card-header bg-white">
 					<a href="@routes.PostController.detail(post.postId.get)">
@@ -77,9 +78,20 @@
 							<span class="px-1">@commentCount.getOrElse("")</span>
 						</a>
 						<span class="likeInfo w-25">
-							<i title="いいね！" class="far fa-heart">
+							@{val isLiked = likeList.exists(like => like.userId == signInUser.userId)
+								if(isLiked){
+									<i title="いいね!" class="fas fa-heart unlike-btn"></i>
+								}else{
+									<i title="いいね!" class="fas fa-heart like-btn"></i>
+								}
+								}
 							</i>
-							<span class="px-1">@likeCount.getOrElse("")</span>
+							<span class="px-1">
+								@likeList.size match {
+									case 0 =>{}
+									case num => {@num}
+								}
+							</span>
 						</span>
 						@form(routes.PostController.delete(post.postId.get),Symbol("class") -> "deleteForm w-25") {
 						@CSRF.formField
