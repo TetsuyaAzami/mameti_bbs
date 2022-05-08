@@ -91,12 +91,12 @@ UserOptRequestHeader,flash: Flash)
 					</a>
 					<section class="card-footer bg-white border-white">
 						<div class="px-3 w-25 d-flex justify-content-between align-items-center">
-							<span class="commentInfo">
+							<span class="commentInfo w-25">
 								<i title="コメントする" class="far fa-comment" data-bs-toggle="modal"
 									data-bs-target="#commentPostModal" data-post-id="@post.postId"></i>
 								<span class="px-1">@commentCount.getOrElse("")</span>
 							</span>
-							<span class="likeInfo">
+							<span class="likeInfo w-25">
 								<i title="いいね!" class="far fa-heart"></i>
 								<span class="px-1">@likeCount.getOrElse("")</span>
 							</span>

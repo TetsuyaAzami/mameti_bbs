@@ -131,10 +131,11 @@ class PostRepository @Inject() (
     }
   }
 
-  def findByPostIdWithCommentList(postId: Long): Future[Option[Post]] = Future {
-    db.withConnection { implicit conn =>
-      val sqlResult =
-        SQL"""
+  def findByPostIdWithCommentList(postId: Long): Future[(Option[Post], Long)] =
+    Future {
+      db.withConnection { implicit conn =>
+        val sqlResult =
+          SQL"""
           SELECT
           p.post_id p_post_id,
           p.content p_content,
@@ -150,7 +151,8 @@ class PostRepository @Inject() (
           c.commented_at c_commented_at,
           cu.user_id cu_user_id,
           cu.name cu_name,
-          cu.profile_img cu_profile_img
+          cu.profile_img cu_profile_img,
+          COALESCE(l.count,0) l_count --いいね数の取得
           FROM posts p
           LEFT OUTER JOIN users u
           ON p.user_id = u.user_id
@@ -158,28 +160,43 @@ class PostRepository @Inject() (
           ON p.post_id = c.post_id
           LEFT OUTER JOIN users cu
           ON c.user_id = cu.user_id
+          LEFT OUTER JOIN(
+          SELECT
+          post_id,
+          COUNT(*) count
+          FROM likes
+          GROUP BY post_id
+          ) l
+          ON p.post_id = l.post_id
           WHERE p.post_id = ${postId}
           ORDER BY c_commented_at DESC; """
-          .as(
-            (withUser ~ commentRepository.commentWithUserParser.?).*
-          )
+            .as(
+              (withUser ~ commentRepository.commentWithUserParser.? ~ long(
+                "l_count"
+              )).*
+            )
 
-      sqlResult match {
-        case Nil => None
-        case head :: next => {
-          val post = sqlResult(0)._1
-          val isCommentListNil = sqlResult(0)._2
-          val commentList = isCommentListNil match {
-            case None              => Nil
-            case Some(commentList) => sqlResult.map(e => e._2.get)
+        sqlResult match {
+          case Nil => {
+            (None, 0)
           }
-
-          val postWithCommentList = post.copy(commentList = commentList)
-          Some(postWithCommentList)
+          case head :: next => {
+            val post = sqlResult(0)._1._1
+            val likeCount = sqlResult(0)._2
+            val isCommentListNil = sqlResult(0)._1._2
+            // コメントが1つもなければ空のリストを返す
+            val commentList = isCommentListNil match {
+              case None => Nil
+              case Some(Comment(_, _, _, _, _, _)) => {
+                sqlResult.map(_._1._2.get)
+              }
+            }
+            val postWithCommentList = post.copy(commentList = commentList)
+            (Some(postWithCommentList), likeCount)
+          }
         }
       }
     }
-  }
 
   def update(post: Post, userId: Long): Future[Long] = Future {
     db.withConnection { implicit conn =>
