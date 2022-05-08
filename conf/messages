@@ -16,6 +16,7 @@ error.needSignIn=ログインしてください
 error.email.dupulicate=既に使用されているメールアドレスです
 error.user.notFound=メールアドレスかパスワードが間違っています
 error.extension.invalid=拡張子はjpg, jpeg, pngのいずれかにしてください
+error.number=数値を入力してください
 
 # HTTPエラー
 error.http.forbidden=権限がありません
