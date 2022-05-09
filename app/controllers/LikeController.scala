@@ -19,13 +19,14 @@ class LikeController @Inject() (
 )(implicit
     ec: ExecutionContext
 ) extends MessagesAbstractController(mcc) {
-  def insert = userOptAction.async { implicit request =>
+  def insert = userOptAction.async(parse.json) { implicit request =>
     // signInUserの有無によるログインチェック
     // 独自アクションビルダーでOptionのユーザを返すがログインが必要なものを定義すべき？
     println()
     println()
     println()
     println("いいねされました")
+    println(request.body("postId"))
     postService.findAll().map { result =>
       Ok(views.html.posts.index(postForm, commentForm, result))
     }

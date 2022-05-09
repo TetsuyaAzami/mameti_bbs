@@ -8,6 +8,7 @@
   const $commentInsertButton = document.getElementById("commentInsertButton");
   const $commentErrorMessage = document.getElementById("commentErrorMessage");
   const $flashSuccessMessage = document.getElementById("flashSuccessMessage");
+  const $likeInfoList = document.getElementsByClassName("likeInfo");
   // 非同期通信の際にcsrfTokenが必要
   const commentCsrfToken = $modalForm.children[0].value;
 
@@ -45,7 +46,6 @@
         },
         {
           headers: {
-            "Content-Type": "application/json",
             "Csrf-Token": commentCsrfToken,
           },
         }
@@ -62,5 +62,43 @@
         let errorMessage = error.response.data.content[0];
         $commentErrorMessage.innerText = errorMessage;
       });
+  });
+
+  // いいねinsert, delete
+  let likePostId = null;
+  Array.from($likeInfoList).map((likeInfo) => {
+    const heart = likeInfo.children[0];
+    const $heartCountSpan = likeInfo.children[1];
+    heart.addEventListener("click", (e) => {
+      const likePostId = e.target.dataset.postId;
+      instance
+        .post(
+          "/like/insert",
+          {
+            postId: likePostId,
+          },
+          {
+            headers: {
+              "Csrf-Token": commentCsrfToken,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            location.href = "/users/sign-in" + "?=needSignIn";
+          }
+          let errorMessage = error.response.data.content[0];
+          $commentErrorMessage.innerText = errorMessage;
+        });
+    });
+
+    // if ($heartCountSpan.innerText == "") {
+    //   $heartCountSpan.innerText = 1;
+    // } else {
+    //   $heartCountSpan.innerText = parseInt($heartCountSpan.innerText) + 1;
+    // }
   });
 })();
