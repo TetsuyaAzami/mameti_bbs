@@ -232,9 +232,8 @@ class PostRepository @Inject() (
   def insert(post: Post): Future[Option[Long]] = Future {
     db.withConnection { implicit conn =>
       SQL("""
-          INSERT INTO posts
-                     (content, user_id, posted_at)
-          VALUES     ({content}, {userId}, {postedAt});
+          INSERT INTO posts (content, user_id, posted_at)
+                      VALUES ({content}, {userId}, {postedAt});
       """)
         .on(
           "content" -> post.content,

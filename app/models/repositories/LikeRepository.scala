@@ -8,6 +8,7 @@ import models.DatabaseExecutionContext
 import models.domains.Like
 
 import javax.inject._
+import scala.concurrent.Future
 
 class LikeRepository @Inject() (
     dbApi: DBApi
@@ -22,5 +23,32 @@ class LikeRepository @Inject() (
       get[Long]("l_post_id") map { case likeId ~ userId ~ postId =>
         Like(likeId, userId, postId)
       }
+  }
+
+  def insert(like: Like): Future[Option[Long]] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""
+      INSERT INTO likes (user_id, post_id)
+                  VALUES (${like.userId},${like.postId});
+      """.executeInsert()
+    }
+  }
+
+  def count(postId: Long): Future[Long] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""
+      SELECT
+      COUNT(*) like_count
+      FROM likes
+      WHERE post_id = ${postId};""".as(long("like_count").single)
+    }
+  }
+
+  def delete(userId: Long, postId: Long): Future[Long] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""
+      DELETE FROM likes WHERE user_id = ${userId} AND post_id = ${postId};
+      """.executeUpdate()
+    }
   }
 }
