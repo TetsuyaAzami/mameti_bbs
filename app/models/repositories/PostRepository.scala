@@ -151,7 +151,9 @@ class PostRepository @Inject() (
     }
   }
 
-  def findByPostIdWithCommentList(postId: Long): Future[(Option[Post], Long)] =
+  def findByPostIdWithCommentList(
+      postId: Long
+  ): Future[(Option[Post], List[Like])] =
     Future {
       db.withConnection { implicit conn =>
         val sqlResult =
@@ -172,7 +174,9 @@ class PostRepository @Inject() (
           cu.user_id cu_user_id,
           cu.name cu_name,
           cu.profile_img cu_profile_img,
-          COALESCE(l.count,0) l_count --いいね数の取得
+          l.like_id l_like_id,
+          l.user_id l_user_id,
+          l.post_id l_post_id
           FROM posts p
           LEFT OUTER JOIN users u
           ON p.user_id = u.user_id
@@ -180,39 +184,28 @@ class PostRepository @Inject() (
           ON p.post_id = c.post_id
           LEFT OUTER JOIN users cu
           ON c.user_id = cu.user_id
-          LEFT OUTER JOIN(
-          SELECT
-          post_id,
-          COUNT(*) count
-          FROM likes
-          GROUP BY post_id
-          ) l
+          LEFT OUTER JOIN likes l
           ON p.post_id = l.post_id
           WHERE p.post_id = ${postId}
-          ORDER BY c_commented_at DESC; """
+          ORDER BY c_commented_at DESC;
+          """
             .as(
-              (withUser ~ commentRepository.commentWithUserParser.? ~ long(
-                "l_count"
-              )).*
+              (withUser ~ commentRepository.commentWithUserParser.? ~ likeRepository.simple.?).*
             )
 
         sqlResult match {
-          case Nil => {
-            (None, 0)
-          }
+          case Nil => (None, List())
           case head :: next => {
             val post = sqlResult(0)._1._1
-            val likeCount = sqlResult(0)._2
-            val isCommentListNil = sqlResult(0)._1._2
-            // コメントが1つもなければ空のリストを返す
-            val commentList = isCommentListNil match {
-              case None => Nil
-              case Some(Comment(_, _, _, _, _, _)) => {
-                sqlResult.map(_._1._2.get)
-              }
-            }
+            // (Post ~ Comment)ごとにグループ化
+            val groupedPosts = sqlResult.groupBy(_._1)
+            val commentList = groupedPosts.flatMap(_._1._2).toList
+            val likeList: List[Like] =
+              sqlResult.groupBy(_._2).flatMap(_._1).toList
+
             val postWithCommentList = post.copy(commentList = commentList)
-            (Some(postWithCommentList), likeCount)
+            val result = (Some(postWithCommentList), likeList)
+            result
           }
         }
       }
