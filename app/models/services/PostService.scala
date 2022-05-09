@@ -24,7 +24,9 @@ class PostService @Inject() (postRepository: PostRepository)(
   ): Future[Option[PostUpdateFormData]] =
     postRepository.findByPostIdAndUserId(postId, userId)
 
-  def findByPostIdWithCommentList(postId: Long): Future[(Option[Post], Long)] =
+  def findByPostIdWithCommentList(
+      postId: Long
+  ): Future[(Option[Post], List[Like])] =
     postRepository.findByPostIdWithCommentList(postId)
 
   def update(post: Post, userId: Long) = postRepository.update(post, userId)
