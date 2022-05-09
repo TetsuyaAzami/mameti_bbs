@@ -78,13 +78,11 @@
 							<span class="px-1">@commentCount.getOrElse("")</span>
 						</a>
 						<span class="likeInfo w-25">
-							@{val isLiked = likeList.exists(like => like.userId == signInUser.userId)
-								if(isLiked){
-									<i title="いいね!" class="fas fa-heart unlike-btn"></i>
-								}else{
-									<i title="いいね!" class="fas fa-heart like-btn"></i>
-								}
-								}
+							@if(likeList.exists(like => like.userId == signInUser.userId)){
+								<i title="いいね!" class="fas fa-heart unlike-btn" data-post-id=@{post.postId}></i>
+							}else{
+								<i title="いいね!" class="fas fa-heart like-btn" data-post-id=@{post.postId}></i>
+							}
 							</i>
 							<span class="px-1">
 								@likeList.size match {
