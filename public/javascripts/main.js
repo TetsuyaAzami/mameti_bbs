@@ -5,6 +5,32 @@ const instance = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+//サインインページにリダイレクト(認証)
+const needSignInFunction = (error) => {
+  if (error.response.status == 401) {
+    location.href = "/users/sign-in" + "?=needSignIn";
+  }
+};
+
+const likeManipulator = (url, likePostId, csrfToken, successFunction) => {
+  instance
+    .post(
+      url,
+      {
+        postId: likePostId,
+      },
+      {
+        headers: {
+          "Csrf-Token": csrfToken,
+        },
+      }
+    )
+    .then((response) => successFunction(response))
+    .catch((error) => {
+      needSignInFunction(error);
+    });
+};
+
 //エラーメッセージを表示するノードを作成
 const createErrorMesssage = (errorMessage) => {
   const errorMessageNode = document.createElement("div");
