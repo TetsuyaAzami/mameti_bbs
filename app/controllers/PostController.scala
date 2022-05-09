@@ -36,21 +36,21 @@ class PostController @Inject() (
   }
 
   def detail(postId: Long) = userOptAction.async { implicit request =>
-    postService.findByPostIdWithCommentList(postId).flatMap {
-      case (postWithCommentListOpt, likeCount) =>
-        postWithCommentListOpt match {
-          case None => {
-            errorHandler.onClientError(request, 404, "")
-          }
-          case (Some(postWithCommentList)) => {
-            Future.successful(
-              Ok(
-                views.html.posts
-                  .detail(postWithCommentList, likeCount, commentForm)
-              )
-            )
-          }
+    postService.findByPostIdWithCommentList(postId).flatMap { result =>
+      result._1 match {
+        case None => {
+          errorHandler.onClientError(request, 404, "")
         }
+        case (Some(postWithCommentList)) => {
+          val likeList = result._2
+          Future.successful(
+            Ok(
+              views.html.posts
+                .detail(postWithCommentList, likeList, commentForm)
+            )
+          )
+        }
+      }
     }
   }
 

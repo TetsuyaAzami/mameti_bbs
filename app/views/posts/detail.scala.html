@@ -1,8 +1,8 @@
 @import helper._
-@import domains.{Post,CommentFormData}
+@import domains.{Post,CommentFormData,Like}
 @import java.time.format._
 @import common.UserOptRequestHeader
-@(post: Post, likeCount: Long, commentForm:Form[CommentFormData])(implicit request: UserOptRequestHeader)
+@(post: Post, likeList: List[Like], commentForm:Form[CommentFormData])(implicit request: UserOptRequestHeader)
 @implicitField = @{helper.FieldConstructor(myFieldConstructorTemplate.f)}
 @main("投稿詳細"){
 <div class="d-flex flex-grow-1">
@@ -32,12 +32,12 @@
 			<section class="card-body">
 				<div class="card-text p-3">@post.content</div>
 			</section>
-			@likeCount match {
+			@likeList.size match {
 				case 0 => {}
-				case likeCount => {
+				case num => {
 						<section class="card-footer bg-white">
 							<div class="card-text px-3">
-								@likeCount likes
+								@num likes
 							</div>
 						</section>
 						}
@@ -54,12 +54,25 @@
 						</span>
 					</span>
 					<span class="likeInfo w-25">
-						<i title="いいね!" class="far fa-heart"></i>
+						@request.signInUserOpt match {
+							case None =>{
+								<i title="いいね!" class="fas fa-heart like-btn"></i>
+							}
+							case Some(signInUser) => {
+								@{val isLiked = likeList.exists(like => like.userId == signInUser.userId)
+								if(isLiked){
+									<i title="いいね!" class="fas fa-heart unlike-btn"></i>
+								}else{
+									<i title="いいね!" class="fas fa-heart like-btn"></i>
+								}
+								}
+							}
+						}
 						<span class="px-1">
-							@likeCount match {
+							@likeList.size match {
 								case 0 =>{}
-								case likeCount =>{
-									@likeCount
+								case num =>{
+									@num
 								}
 							}
 						</span>
