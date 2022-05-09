@@ -73,18 +73,14 @@ class PostRepository @Inject() (
         ORDER BY p_posted_at DESC;
         """
         .as(
-          (withUser ~ long("c_count").? ~ likeRepository.simple.?).map {
-            case post ~ cCount ~ like =>
-              (post, cCount, like)
-          }.*
+          (withUser ~ long("c_count").? ~ likeRepository.simple.?).*
         )
       // postIdごとにsqlの取得結果をグループ化
       val groupedPosts = sqlResult.groupBy(_._1)
       val result = groupedPosts.map { e =>
-        val postList = e._2
-        val post = postList(0)._1
-        val commentCount = postList(0)._2
-        val likeList = postList.flatMap(_._3)
+        val post = e._1._1
+        val commentCount = e._1._2
+        val likeList = e._2.flatMap(_._2)
         (post, commentCount, likeList)
       }
       result.toList
@@ -93,19 +89,21 @@ class PostRepository @Inject() (
 
   def findByUserId(
       userId: Long
-  ): Future[List[(Post, Option[Long], Option[Long])]] = Future {
+  ): Future[List[(Post, Option[Long], List[Like])]] = Future {
     db.withConnection { implicit conn =>
-      SQL"""
+      val sqlResult = SQL"""
         SELECT
         p.post_id p_post_id,
         p.content p_content,
         p.user_id p_user_id,
         p.posted_at p_posted_at,
         c.count c_count, -- コメント数の取得
-        l.count l_count, -- いいね数の取得
         u.user_id u_user_id, -- 投稿したユーザの取得
         u.name u_name,
-        u.profile_img u_profile_img
+        u.profile_img u_profile_img,
+        l.like_id l_like_id,
+        l.user_id l_user_id,
+        l.post_id l_post_id
         FROM posts p
         LEFT OUTER JOIN (
         SELECT
@@ -115,23 +113,25 @@ class PostRepository @Inject() (
         GROUP BY post_id
         ) c
         ON p.post_id = c.post_id
-        LEFT OUTER JOIN(
-        SELECT
-        post_id,
-        COUNT(*) count
-        FROM likes
-        GROUP BY post_id
-        ) l
-        ON p.post_id = l.post_id
         INNER JOIN users u
         ON p.user_id = u.user_id
+        LEFT OUTER JOIN likes l
+        ON p.post_id = l.post_id
         WHERE p.user_id = ${userId}
         ORDER BY p_posted_at DESC;
         """
-        .as((withUser ~ long("c_count").? ~ long("l_count").?).map {
-          case post ~ cCount ~ lCount =>
-            (post, cCount, lCount)
-        }.*)
+        .as((withUser ~ long("c_count").? ~ likeRepository.simple.?).*)
+
+      val groupedPosts = sqlResult.groupBy(_._1)
+
+      val result = groupedPosts.map { e =>
+        val postList = e._2
+        val post = e._1._1
+        val commentCount = e._1._2
+        val likeList = e._2.flatMap(_._2)
+        (post, commentCount, likeList)
+      }
+      result.toList
     }
   }
 
