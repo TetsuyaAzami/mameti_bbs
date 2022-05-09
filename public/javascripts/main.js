@@ -12,6 +12,7 @@ const needSignInFunction = (error) => {
   }
 };
 
+//like操作の抽象メソッド
 const likeManipulator = (url, likePostId, csrfToken, successFunction) => {
   instance
     .post(
@@ -30,6 +31,14 @@ const likeManipulator = (url, likePostId, csrfToken, successFunction) => {
       needSignInFunction(error);
     });
 };
+
+//likeのinsert操作抽象メソッド
+const insertLikeManipulator = (likePostId, csrfToken, insertSuccessFunction) =>
+  likeManipulator("/like/insert", likePostId, csrfToken, insertSuccessFunction);
+
+//likeのdelete操作抽象メソッド
+const deleteLikeManipulator = (likePostId, csrfToken, deleteSuccessFunction) =>
+  likeManipulator("/like/delete", likePostId, csrfToken, deleteSuccessFunction);
 
 //エラーメッセージを表示するノードを作成
 const createErrorMesssage = (errorMessage) => {

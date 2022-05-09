@@ -76,13 +76,6 @@
       $heart.classList.remove("like-btn");
       $heart.classList.add("unlike-btn");
     };
-    const insertLikeManipulator = (likePostId) =>
-      likeManipulator(
-        "/like/insert",
-        likePostId,
-        csrfToken,
-        insertSuccessFunction
-      );
 
     //いいねdelete 成功パターン
     const deleteSuccessFunction = (response) => {
@@ -90,21 +83,14 @@
       $heart.classList.remove("unlike-btn");
       $heart.classList.add("like-btn");
     };
-    const deleteLikeManipulator = (likePostId) =>
-      likeManipulator(
-        "/like/delete",
-        likePostId,
-        csrfToken,
-        deleteSuccessFunction
-      );
 
     $heart.addEventListener("click", (e) => {
       const likePostId = e.target.dataset.postId;
       const isInsertButton = e.target.classList.contains("like-btn");
       if (isInsertButton) {
-        insertLikeManipulator(likePostId);
+        insertLikeManipulator(likePostId, csrfToken, insertSuccessFunction);
       } else {
-        deleteLikeManipulator(likePostId);
+        deleteLikeManipulator(likePostId, csrfToken, deleteSuccessFunction);
       }
     });
   });

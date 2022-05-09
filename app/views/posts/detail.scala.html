@@ -56,15 +56,13 @@
 					<span class="likeInfo w-25">
 						@request.signInUserOpt match {
 							case None =>{
-								<i title="いいね!" class="fas fa-heart like-btn"></i>
+								<i title="いいね!" class="fas fa-heart like-btn" data-post-id=@{post.postId}></i>
 							}
 							case Some(signInUser) => {
-								@{val isLiked = likeList.exists(like => like.userId == signInUser.userId)
-								if(isLiked){
-									<i title="いいね!" class="fas fa-heart unlike-btn"></i>
+								@if(likeList.exists(like => like.userId == signInUser.userId)){
+									<i title="いいね!" class="fas fa-heart unlike-btn" data-post-id=@{post.postId}></i>
 								}else{
-									<i title="いいね!" class="fas fa-heart like-btn"></i>
-								}
+									<i title="いいね!" class="fas fa-heart like-btn" data-post-id=@{post.postId}></i>
 								}
 							}
 						}
