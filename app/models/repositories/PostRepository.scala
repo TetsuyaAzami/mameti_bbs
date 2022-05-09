@@ -9,6 +9,7 @@ import play.api.db.DBApi
 
 import scala.concurrent.Future
 import scala.language.postfixOps
+import scala.math.Ordering.Implicits._
 import javax.inject._
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -83,7 +84,14 @@ class PostRepository @Inject() (
         val likeList = e._2.flatMap(_._2)
         (post, commentCount, likeList)
       }
-      result.toList
+      // 投稿時間の降順でsort
+      result.toList.sortWith {
+        case (
+              (post1, commentCount1, likeList1),
+              (post2, commentCount2, likeList2)
+            ) =>
+          post1.postedAt > post2.postedAt
+      }
     }
   }
 
