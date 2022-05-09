@@ -8,7 +8,6 @@
   const $commentInsertButton = document.getElementById("commentInsertButton");
   const $commentErrorMessage = document.getElementById("commentErrorMessage");
   const $flashSuccessMessage = document.getElementById("flashSuccessMessage");
-  const $likeInfoList = document.getElementsByClassName("likeInfo");
   // 非同期通信の際にcsrfTokenが必要
   const csrfToken = $modalForm.children[0].value;
 
@@ -65,7 +64,7 @@
   });
 
   // いいねinsert, delete
-  const likeCsrfToken = document;
+  const $likeInfoList = document.getElementsByClassName("likeInfo");
   Array.from($likeInfoList).map((likeInfo) => {
     const $heart = likeInfo.children[0];
     const $heartCountSpan = likeInfo.children[1];
