@@ -43,4 +43,12 @@ class LikeRepository @Inject() (
       WHERE post_id = ${postId};""".as(long("like_count").single)
     }
   }
+
+  def delete(userId: Long, postId: Long): Future[Long] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""
+      DELETE FROM likes WHERE user_id = ${userId} AND post_id = ${postId};
+      """.executeUpdate()
+    }
+  }
 }

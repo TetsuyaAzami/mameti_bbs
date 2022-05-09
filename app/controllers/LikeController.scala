@@ -19,6 +19,8 @@ import play.api.data.Form
 import models.domains.LikeForInsert
 import models.domains.Like
 import play.api.libs.json.Json
+import common.errors.ErrorHandler
+import play.api.libs.json.JsPath
 import views.html.defaultpages.error
 
 @Singleton
@@ -26,7 +28,8 @@ class LikeController @Inject() (
     mcc: MessagesControllerComponents,
     postService: PostService,
     userOptAction: UserOptAction,
-    likeService: LikeService
+    likeService: LikeService,
+    errorHander: ErrorHandler
 )(implicit
     ec: ExecutionContext
 ) extends MessagesAbstractController(mcc) {
@@ -55,6 +58,32 @@ class LikeController @Inject() (
           }
         }
         likeForm.bindFromRequest().fold(errorFunction, successFunction)
+      }
+    }
+  }
+
+  def delete() = userOptAction.async(parse.json) { implicit request =>
+    val signInUserOpt = request.signInUserOpt
+    signInUserOpt match {
+      case None => {
+        errorHander.onClientError(request, 403, "")
+      }
+      case Some(signInUser) => {
+        val userId = signInUser.userId
+        val postIdReads = (JsPath \ "postId").read[Long]
+        val postId = request.body("postId").as[String].toLong
+        likeService.delete(userId, postId).flatMap { numberOfRowsDelete =>
+          numberOfRowsDelete match {
+            case 0 => {
+              errorHander.onClientError(request, 403, "")
+            }
+            case num => {
+              likeService.count(postId).map { likeCount =>
+                Ok(Json.toJson(likeCount))
+              }
+            }
+          }
+        }
       }
     }
   }

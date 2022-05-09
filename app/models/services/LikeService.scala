@@ -15,4 +15,6 @@ class LikeService @Inject() (likeRepository: LikeRepository)(
     likeRepository.insert(like)
 
   def count(postId: Long): Future[Long] = likeRepository.count(postId)
+
+  def delete(userId: Long, postId: Long) = likeRepository.delete(userId, postId)
 }
