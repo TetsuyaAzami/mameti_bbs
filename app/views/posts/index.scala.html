@@ -19,12 +19,12 @@ UserOptRequestHeader,flash: Flash)
 					</div>
 					<div id="modalBody" class="modal-body">
 						@form(routes.CommentController.insert()) {
-						@CSRF.formField
-						<span id="commentErrorMessage" class="text-danger"></span>
-						@textarea(commentForm("content"),Symbol("class") -> "form-control")
-						<div class="mt-1 text-end">
-							<span class="me-5">
-								<button id="commentInsertButton" class="btn btn-primary btn-sm"
+							@CSRF.formField
+							<span id="commentErrorMessage" class="text-danger"></span>
+							@textarea(commentForm("content"),Symbol("class") -> "form-control")
+							<div class="mt-1 text-end">
+								<span class="me-5">
+									<button id="commentInsertButton" class="btn btn-primary btn-sm"
 									type="button">送信</button>
 								}
 							</span>
@@ -41,8 +41,8 @@ UserOptRequestHeader,flash: Flash)
 			</div>
 			<div>
 				@request.signInUserOpt match {
-				case None => {}
-				case Some(signInUser) => {
+					case None => {}
+					case Some(signInUser) => {
 						@signInUser.profileImg match {
 							case None =>{
 								<img src="@routes.Assets.versioned("images/profileImages/Noimg.jpg")" class="profile-img-sm" alt="プロフィール画像">
@@ -52,26 +52,26 @@ UserOptRequestHeader,flash: Flash)
 							}
 						}
 						<span class="fw-bold" >@(signInUser.name):</span>
-				 }
+					}
 				}
 			</div>
 			<section class="mb-5">
 				@form(routes.PostController.insert()) {
-				@CSRF.formField
-				@textarea(postForm("content"),Symbol("class")->"form-control", Symbol("placeholder")->"今日の豆知識をつぶやこう!")
-				<div class="mt-1 text-end">
-					<span class="me-5">
-						<button class="btn btn-primary btn-sm" type="submit">投稿する</button>
-					</span>
-				</div>
+					@CSRF.formField
+					@textarea(postForm("content"),Symbol("class")->"form-control", Symbol("placeholder")->"今日の豆知識をつぶやこう!")
+					<div class="mt-1 text-end">
+						<span class="me-5">
+							<button class="btn btn-primary btn-sm" type="submit">投稿する</button>
+						</span>
+					</div>
 				}
 			</section>
 			<section id="postList">
 				@posts.map{case (post,commentCount,likeList) =>
-				<article class="border rounded">
-					<a href="@routes.PostController.detail(post.postId.get)">
-						<section class="card-header bg-white">
-							@post.user.get.profileImg match {
+					<article class="border rounded">
+						<a href="@routes.PostController.detail(post.postId.get)">
+							<section class="card-header bg-white">
+								@post.user.get.profileImg match {
 								case None =>{
 									<img src="@routes.Assets.versioned("images/profileImages/Noimg.jpg")" class="profile-img-sm" alt="プロフィール画像">
 								}
@@ -99,15 +99,13 @@ UserOptRequestHeader,flash: Flash)
 							<span class="likeInfo w-25">
 								@request.signInUserOpt match {
 									case None =>{
-										<i title="いいね!" class="fas fa-heart like-btn" data-post-id="@post.postId"></i>
+										<i title="いいね!" class="fas fa-heart like-btn" data-post-id=@{post.postId}></i>
 									}
 									case Some(signInUser) => {
-										@{val isLiked = likeList.exists(like => like.userId == signInUser.userId)
-										if(isLiked){
-											<i title="いいね!" class="fas fa-heart unlike-btn" data-post-id="@post.postId"></i>
+										@if(likeList.exists(like => like.userId == signInUser.userId)){
+											<i title="いいね!" class="fas fa-heart unlike-btn" data-post-id=@{post.postId}></i>
 										}else{
-											<i title="いいね!" class="fas fa-heart like-btn"></i>
-										}
+											<i title="いいね!" class="fas fa-heart like-btn" data-post-id=@{post.postId}></i>
 										}
 									}
 								}

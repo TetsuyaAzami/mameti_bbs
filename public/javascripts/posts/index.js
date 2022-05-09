@@ -65,7 +65,6 @@
   });
 
   // いいねinsert, delete
-  let likePostId = null;
   Array.from($likeInfoList).map((likeInfo) => {
     const heart = likeInfo.children[0];
     const $heartCountSpan = likeInfo.children[1];
@@ -84,7 +83,7 @@
           }
         )
         .then((response) => {
-          console.log(response);
+          console.log(response.data);
         })
         .catch((error) => {
           if (error.response.status == 401) {
