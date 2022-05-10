@@ -1,0 +1,8 @@
+@import helper._
+@import domains.Post
+@import domains.Like
+@import common.UserRequestHeader
+@(posts: List[(Post,Option[Long],List[Like])])(implicit request: UserRequestHeader)
+
+@main("ranking"){
+}
