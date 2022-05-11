@@ -88,7 +88,8 @@ class PostRepository @Inject() (
   }
 
   def findAllWithFlag(
-      department: Option[String]
+      department: Option[String],
+      sortBy: Option[String]
   ): Future[List[(Post, Option[Long], List[Like])]] =
     Future {
       db.withConnection { implicit con =>
@@ -288,7 +289,8 @@ class PostRepository @Inject() (
         u.profile_img u_profile_img,
         l.like_id l_like_id,
         l.user_id l_user_id,
-        l.post_id l_post_id
+        l.post_id l_post_id,
+        d.name d_name
         FROM posts p
         LEFT OUTER JOIN (
         SELECT -- コメント数の取得
@@ -302,10 +304,12 @@ class PostRepository @Inject() (
         ON p.user_id = u.user_id
         LEFT OUTER JOIN likes l
         ON p.post_id = l.post_id
+        LEFT OUTER JOIN departments d
+        ON u.department_id = d.department_id
         """
     val withFlag = department match {
       case None             => { simple }
-      case Some(department) => { simple + """ WHERE departmentId = 1""" }
+      case Some(department) => { simple + """ WHERE d.name = ${department} """ }
     }
     withFlag
   }

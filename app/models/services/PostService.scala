@@ -18,10 +18,11 @@ class PostService @Inject() (postRepository: PostRepository)(implicit
   }
 
   def findAllWithFlag(
-      department: Option[String]
+      department: Option[String],
+      sortBy: Option[String]
   ): Future[List[(Post, Option[Long], List[Like])]] = {
     // いいね順でsort
-    postRepository.findAllWithFlag(department).map { result =>
+    postRepository.findAllWithFlag(department, sortBy).map { result =>
       result.sortWith { (e1, e2) => e1._3.size > e2._3.size }
     }
   }
