@@ -21,11 +21,6 @@ class RankingController @Inject() (
   def index(department: Option[String]) = userNeedLoginAction.async {
     implicit request =>
       postService.findAllWithFlag(department).map { result =>
-        result.foreach { res =>
-          println()
-          print(res)
-          println(res._3.size)
-        }
         Ok(views.html.ranking.index(result))
       }
   }
