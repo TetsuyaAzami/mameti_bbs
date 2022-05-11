@@ -33,7 +33,7 @@ POST    /like/insert                controllers.LikeController.insert()
 POST    /like/delete                controllers.LikeController.delete()
 
 ## Rankingページ
-GET     /ranking                    controllers.RankingController.index(department:Option[String])
+GET     /ranking                    controllers.RankingController.index(department:Option[String],sortBy:Option[String])
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

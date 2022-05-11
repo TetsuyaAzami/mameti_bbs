@@ -12,7 +12,26 @@
 	@commons.navigation()
 	<section class="container main-contents">
 		<h1 class="text-center mt-5 fw-bold  py-3">ランキング</h1>
+		<ul class="nav nav-tabs">
+			<li class="nav-item">
+			  <a class="nav-link active" aria-current="page" href="@routes.RankingController.index(None,Option("like"))">全部門</a>
+			</li>
+			<li class="nav-item">
+			  <a class="nav-link" href="@routes.RankingController.index(Option("フロントエンド"),Option("like"))">フロントエンド</a>
+			</li>
+			<li class="nav-item">
+			  <a class="nav-link" href="@routes.RankingController.index(Option("バックエンド"),Option("like"))">バックエンド</a>
+			</li>
+			<li class="nav-item">
+			  <a class="nav-link" href="@routes.RankingController.index(Option("クラウド"),Option("like"))" tabindex="-1">クラウド</a>
+			</li>
+		  </ul>
 		<section>
+			@if(posts == Nil){
+				<div class="text-center mt-3 fw-bold">
+					<p>この部門ではまだ投稿はありません</p>
+				</div>
+			}
 			@posts.zipWithIndex.map{case ((post,commentCount,likeList),index) =>
 				<article class="border rounded d-flex">
 					<section class="ranking-flag d-flex align-items-center justify-content-center border-end" style="width: 64px;">
