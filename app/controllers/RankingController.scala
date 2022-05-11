@@ -20,7 +20,7 @@ class RankingController @Inject() (
   implicit val lang = Lang.defaultLang
   def index(department: Option[String], sortBy: Option[String]) =
     userNeedLoginAction.async { implicit request =>
-      postService.findAllWithFlag(None, None).map { result =>
+      postService.findAllWithFlag(department, sortBy).map { result =>
         Ok(views.html.ranking.index(result))
       }
     }

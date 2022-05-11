@@ -27,6 +27,11 @@
 			</li>
 		  </ul>
 		<section>
+			@if(posts == Nil){
+				<div class="text-center mt-3 fw-bold">
+					<p>この部門ではまだ投稿はありません</p>
+				</div>
+			}
 			@posts.zipWithIndex.map{case ((post,commentCount,likeList),index) =>
 				<article class="border rounded d-flex">
 					<section class="ranking-flag d-flex align-items-center justify-content-center border-end" style="width: 64px;">

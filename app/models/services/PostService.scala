@@ -19,11 +19,25 @@ class PostService @Inject() (postRepository: PostRepository)(implicit
 
   def findAllWithFlag(
       department: Option[String],
-      sortBy: Option[String]
+      sortByOpt: Option[String]
   ): Future[List[(Post, Option[Long], List[Like])]] = {
-    // いいね順でsort
-    postRepository.findAllWithFlag(department, sortBy).map { result =>
-      result.sortWith { (e1, e2) => e1._3.size > e2._3.size }
+    sortByOpt match {
+      case None => {
+        // 投稿順でsort
+        postRepository.findAllWithFlag(department).map { result =>
+          result.sortWith { (e1, e2) => e1._1.postedAt isAfter e2._1.postedAt }
+        }
+      }
+      case Some("like") => {
+        // いいね順でsort
+        postRepository.findAllWithFlag(department).map { result =>
+          result.sortWith { (e1, e2) => e1._3.size > e2._3.size }
+        }
+      }
+      case Some(value) => {
+        // 予期せぬ値が渡されてきたら空のリストを返す
+        Future.successful(Nil)
+      }
     }
   }
 
