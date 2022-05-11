@@ -71,7 +71,6 @@ class PostRepository @Inject() (
         ON p.user_id = u.user_id
         LEFT OUTER JOIN likes l
         ON p.post_id = l.post_id
-        ORDER BY p_posted_at DESC;
         """
         .as(
           (withUser ~ long("c_count").? ~ likeRepository.simple.?).*
@@ -84,16 +83,31 @@ class PostRepository @Inject() (
         val likeList = e._2.flatMap(_._2)
         (post, commentCount, likeList)
       }
-      // 投稿時間の降順でsort
-      result.toList.sortWith {
-        case (
-              (post1, commentCount1, likeList1),
-              (post2, commentCount2, likeList2)
-            ) =>
-          post1.postedAt > post2.postedAt
-      }
+      result.toList
     }
   }
+
+  def findAllWithFlag(
+      department: Option[String]
+  ): Future[List[(Post, Option[Long], List[Like])]] =
+    Future {
+      db.withConnection { implicit con =>
+        val sqlResult = SQL(generateFindAllWithFlagSQL(department))
+          .as(
+            (withUser ~ long("c_count").? ~ likeRepository.simple.?).*
+          )
+        // postIdごとにsqlの取得結果をグループ化
+        val groupedPosts = sqlResult.groupBy(_._1)
+        val result = groupedPosts.map { e =>
+          val post = e._1._1
+          val commentCount = e._1._2
+          val likeList = e._2.flatMap(_._2)
+          (post, commentCount, likeList)
+        }
+        // 投稿時間の降順でsort
+        result.toList
+      }
+    }
 
   def findByUserId(
       userId: Long
@@ -259,5 +273,40 @@ class PostRepository @Inject() (
       WHERE post_id = ${postId} AND user_id = ${userId};""".executeUpdate()
 
     }
+  }
+
+  def generateFindAllWithFlagSQL(department: Option[String]): String = {
+    val simple = """
+        SELECT
+        p.post_id p_post_id,
+        p.content p_content,
+        p.user_id p_user_id,
+        p.posted_at p_posted_at,
+        c.count c_count, -- コメント数の取得
+        u.user_id u_user_id, -- 投稿したユーザの取得
+        u.name u_name,
+        u.profile_img u_profile_img,
+        l.like_id l_like_id,
+        l.user_id l_user_id,
+        l.post_id l_post_id
+        FROM posts p
+        LEFT OUTER JOIN (
+        SELECT -- コメント数の取得
+        post_id,
+        count(*) count
+        FROM comments
+        GROUP BY post_id
+        ) c
+        ON p.post_id = c.post_id
+        INNER JOIN users u
+        ON p.user_id = u.user_id
+        LEFT OUTER JOIN likes l
+        ON p.post_id = l.post_id
+        """
+    val withFlag = department match {
+      case None             => { simple }
+      case Some(department) => { simple + """ WHERE departmentId = 1""" }
+    }
+    withFlag
   }
 }

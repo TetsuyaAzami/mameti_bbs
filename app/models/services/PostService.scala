@@ -7,11 +7,24 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
-class PostService @Inject() (postRepository: PostRepository)(
+class PostService @Inject() (postRepository: PostRepository)(implicit
     ec: ExecutionContext
 ) {
-  def findAll(): Future[List[(Post, Option[Long], List[Like])]] =
-    postRepository.findAll()
+  def findAll(): Future[List[(Post, Option[Long], List[Like])]] = {
+    // 投稿順でsort
+    postRepository.findAll().map { result =>
+      result.sortWith { (e1, e2) => e1._1.postedAt isAfter e2._1.postedAt }
+    }
+  }
+
+  def findAllWithFlag(
+      department: Option[String]
+  ): Future[List[(Post, Option[Long], List[Like])]] = {
+    // いいね順でsort
+    postRepository.findAllWithFlag(department).map { result =>
+      result.sortWith { (e1, e2) => e1._3.size > e2._3.size }
+    }
+  }
 
   def findByUserId(
       userId: Long
