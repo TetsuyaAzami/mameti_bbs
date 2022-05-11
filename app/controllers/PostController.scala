@@ -30,7 +30,7 @@ class PostController @Inject() (
   implicit val lang = Lang.defaultLang
 
   def index() = userOptAction.async { implicit request =>
-    postService.findAll().map { result =>
+    postService.findAllWithFlag(None, None).map { result =>
       Ok(views.html.posts.index(postForm, commentForm, result))
     }
   }
