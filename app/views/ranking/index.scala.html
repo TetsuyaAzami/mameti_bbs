@@ -1,0 +1,72 @@
+@import helper._
+@import domains.Post
+@import domains.Like
+@import java.time.format._
+@import common.UserRequestHeader
+@(posts: List[(Post,Option[Long],List[Like])])(implicit request: UserRequestHeader)
+
+@signInUser = @{request.signInUser}
+@main("ranking"){
+<div class="d-flex flex-grow-1">
+	@*ナビゲーションバー*@
+	@commons.navigation()
+	<section class="container main-contents">
+		<h1 class="text-center mt-5 fw-bold  py-3">ランキング</h1>
+		<section>
+			@posts.zipWithIndex.map{case ((post,commentCount,likeList),index) =>
+				<article class="border rounded d-flex">
+					<section class="ranking-flag d-flex align-items-center justify-content-center border-end" style="width: 64px;">
+						<h5>@{index + 1}位</h5>
+					</section>
+					<section class="article-body flex-grow-1">
+						<a href="@routes.PostController.detail(post.postId.get)">
+							<section class="card-header bg-white">
+								@post.user.get.profileImg match {
+									case None =>{
+										<img src="@routes.Assets.versioned("images/profileImages/Noimg.jpg")" class="profile-img-sm"
+										alt="プロフィール画像">
+									}
+									case Some(profileImg) =>{
+										<img src="@routes.Assets.versioned(s"images/profileImages/${profileImg}")"
+										class="profile-img-sm" alt="プロフィール画像">
+									}
+								}
+								<span class="ps-1 fs-5 fw-bold">@post.user.get.name</span>
+								<span class="ps-1 text-secondary">
+									@post.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
+								</span>
+							</section>
+							<section class="card-body">
+								<div class="card-text p-3">@post.content</div>
+							</section>
+						</a>
+						<section class="card-footer bg-white border-white">
+							<div class="px-3 w-25 d-flex justify-content-between align-items-center">
+								<span class="commentInfo w-25">
+									<i title="コメントする" class="far fa-comment" data-bs-toggle="modal"
+									data-bs-target="#commentPostModal" data-post-id="@post.postId"></i>
+									<span class="px-1">@commentCount.getOrElse("")</span>
+								</span>
+								<span class="likeInfo w-25">
+									@if(likeList.exists(like => like.userId == signInUser.userId)){
+										<i title="いいね!" class="fas fa-heart unlike-btn" data-post-id=@{post.postId}></i>
+									}else{
+										<i title="いいね!" class="fas fa-heart like-btn" data-post-id=@{post.postId}></i>
+									}
+									<span class="px-1">
+										@likeList.size match {
+											case 0 => {}
+											case num => {@num}
+										}
+									</span>
+								</span>
+							</div>
+						</section>
+					</section>
+				</article>
+			}
+		</section>
+	</section>
+</div>
+<script src="@routes.Assets.versioned("javascripts/ranking/index.js")"></script>
+}
