@@ -10,26 +10,19 @@ import scala.concurrent.Future
 class PostService @Inject() (postRepository: PostRepository)(implicit
     ec: ExecutionContext
 ) {
-  def findAll(): Future[List[(Post, Option[Long], List[Like])]] = {
-    // 投稿順でsort
-    postRepository.findAll().map { result =>
-      result.sortWith { (e1, e2) => e1._1.postedAt isAfter e2._1.postedAt }
-    }
-  }
-
   def findAllWithFlag(
       department: Option[String],
       sortByOpt: Option[String]
   ): Future[List[(Post, Option[Long], List[Like])]] = {
     sortByOpt match {
       case None => {
-        // 投稿順でsort
+        // 投稿日の降順でsort
         postRepository.findAllWithFlag(department).map { result =>
           result.sortWith { (e1, e2) => e1._1.postedAt isAfter e2._1.postedAt }
         }
       }
       case Some("like") => {
-        // いいね順でsort
+        // いいねの降順でsort
         postRepository.findAllWithFlag(department).map { result =>
           result.sortWith { (e1, e2) => e1._3.size > e2._3.size }
         }
@@ -44,7 +37,10 @@ class PostService @Inject() (postRepository: PostRepository)(implicit
   def findByUserId(
       userId: Long
   ): Future[List[(Post, Option[Long], List[Like])]] =
-    postRepository.findByUserId(userId)
+    // 投稿日の降順でsort
+    postRepository.findByUserId(userId).map { result =>
+      result.sortWith((e1, e2) => e1._1.postedAt isAfter e2._1.postedAt)
+    }
 
   def findByPostIdAndUserId(
       postId: Long,
@@ -55,7 +51,24 @@ class PostService @Inject() (postRepository: PostRepository)(implicit
   def findByPostIdWithCommentList(
       postId: Long
   ): Future[(Option[Post], List[Like])] =
-    postRepository.findByPostIdWithCommentList(postId)
+    postRepository.findByPostIdWithCommentList(postId).map { result =>
+      val postOpt = result._1
+      postOpt match {
+        case None => {
+          (None, Nil)
+        }
+        // コメントリストの投稿日の降順でsort
+        case Some(post) => {
+          val sortedCommentList =
+            post.commentList.sortWith((comment1, comment2) =>
+              comment1.commentedAt isAfter comment2.commentedAt
+            )
+          val postWithSortedCommentList =
+            post.copy(commentList = sortedCommentList)
+          (Some(postWithSortedCommentList), result._2)
+        }
+      }
+    }
 
   def update(post: Post, userId: Long) = postRepository.update(post, userId)
 

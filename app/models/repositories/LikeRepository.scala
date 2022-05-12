@@ -38,7 +38,7 @@ class LikeRepository @Inject() (
     db.withConnection { implicit conn =>
       SQL"""
       SELECT
-      COUNT(*) like_count
+      COUNT(like_id) like_count
       FROM likes
       WHERE post_id = ${postId};""".as(long("like_count").single)
     }
