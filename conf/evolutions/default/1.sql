@@ -3,6 +3,7 @@ CREATE TABLE departments(
 department_id serial PRIMARY KEY,
 name VARCHAR(30) NOT NULL UNIQUE
 );
+CREATE INDEX ON departments(name);
 
 CREATE TABLE users(
 user_id serial PRIMARY KEY,

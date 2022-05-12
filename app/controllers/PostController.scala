@@ -66,7 +66,7 @@ class PostController @Inject() (
       }
       case Some(signInUser) => {
         val errorFunction = { formWithErrors: Form[PostFormData] =>
-          postService.findAll().map { result =>
+          postService.findAllWithFlag(None, None).map { result =>
             BadRequest(
               views.html.posts
                 .index(formWithErrors, commentForm, result)
@@ -85,7 +85,7 @@ class PostController @Inject() (
               List()
             )
           postService.insert(postForInsert).flatMap { _ =>
-            postService.findAll().map { allPosts =>
+            postService.findAllWithFlag(None, None).map { allPosts =>
               Redirect(routes.PostController.index())
                 .flashing("successInsert" -> messagesApi("success.insert"))
             }
