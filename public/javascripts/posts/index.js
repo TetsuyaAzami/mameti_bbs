@@ -7,7 +7,7 @@
   $postButton.setAttribute("disabled", true);
   $postContent.addEventListener("input", (e) => {
     const trimmedTextareaValue = e.target.value
-      .replace(/\r\n/g, "")
+      .replace(/\r?\n/g, "")
       .replace(/\s+/g, "");
 
     if (!trimmedTextareaValue) {
