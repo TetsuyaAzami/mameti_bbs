@@ -1,4 +1,19 @@
 (function () {
+  const $postForm = document.forms.postForm;
+  const postContent = $postForm[1];
+  const postButton = $postForm[2];
+  // フロント側で投稿が1文字以上であることのバリデーションをかける
+  postButton.setAttribute("disabled", true);
+  postContent.addEventListener("input", () => {
+    const trimmedTextareaValue = postContent.value.replace("\r?\n/g", "");
+
+    if (trimmedTextareaValue == 0) {
+      postButton.setAttribute("disabled", true);
+    } else {
+      postButton.removeAttribute("disabled");
+    }
+  });
+
   const $commentInfoList = document.getElementsByClassName("commentInfo");
   // コメントモーダル内DOM
   const $commentPostModal = document.getElementById("commentPostModal");
