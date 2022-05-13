@@ -8,6 +8,19 @@
   const csrfToken = $commentInsertForm.children[0].value;
   const commentPostId = document.getElementById("postId").value;
 
+  // 全角空白、半角空白、改行のみのコメントに対するバリデーション
+  $commentInsertButton.setAttribute("disabled", true);
+  $commentContentInput.addEventListener("input", (e) => {
+    const trimmedTextareaValue = e.target.value
+      .replace(/\r?\n/g, "")
+      .replace(/\s+/g, "");
+    if (!trimmedTextareaValue) {
+      $commentInsertButton.setAttribute("disabled", true);
+    } else {
+      $commentInsertButton.removeAttribute("disabled");
+    }
+  });
+
   // コメント投稿処理
   $commentInsertButton.addEventListener("click", (e) => {
     let content = $commentContentInput.value;
