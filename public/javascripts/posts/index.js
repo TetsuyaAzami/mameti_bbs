@@ -1,16 +1,19 @@
 (function () {
   const $postForm = document.forms.postForm;
-  const postContent = $postForm[1];
-  const postButton = $postForm[2];
-  // フロント側で投稿が1文字以上であることのバリデーションをかける
-  postButton.setAttribute("disabled", true);
-  postContent.addEventListener("input", () => {
-    const trimmedTextareaValue = postContent.value.replace("\r?\n/g", "");
+  const $postContent = $postForm[1];
+  const $postButton = $postForm[2];
+  // 全角空白、半角空白、改行のみの投稿に対するバリデーション
+  // 1文字以上
+  $postButton.setAttribute("disabled", true);
+  $postContent.addEventListener("input", (e) => {
+    const trimmedTextareaValue = e.target.value
+      .replace(/\r?\n/g, "")
+      .replace(/\s+/g, "");
 
-    if (trimmedTextareaValue == 0) {
-      postButton.setAttribute("disabled", true);
+    if (!trimmedTextareaValue) {
+      $postButton.setAttribute("disabled", true);
     } else {
-      postButton.removeAttribute("disabled");
+      $postButton.removeAttribute("disabled");
     }
   });
 
