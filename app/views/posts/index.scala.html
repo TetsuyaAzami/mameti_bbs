@@ -56,7 +56,7 @@ UserOptRequestHeader,flash: Flash)
 				}
 			</div>
 			<section class="mb-5">
-				@form(routes.PostController.insert()) {
+				@form(routes.PostController.insert(),Symbol("name") -> "postForm") {
 					@CSRF.formField
 					@textarea(postForm("content"),Symbol("class")->"form-control", Symbol("placeholder")->"今日の豆知識をつぶやこう!")
 					<div class="mt-1 text-end">

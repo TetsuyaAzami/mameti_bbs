@@ -75,10 +75,11 @@ class PostController @Inject() (
         }
 
         val successFunction = { post: PostFormData =>
+          val trimmedContent = post.content.replace("\r", "").replace("\n", "")
           val postForInsert =
             Post(
               None,
-              post.content,
+              trimmedContent,
               signInUser.userId,
               None,
               LocalDateTime.now(),
