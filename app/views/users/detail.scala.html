@@ -66,11 +66,17 @@
 						</span>
 					</a>
 				</section>
-				<a href="@routes.PostController.detail(post.postId.get)">
-					<section class="card-body">
-						<div class="card-text p-3">@post.content</div>
-					</section>
-				</a>
+				<section class="card-body" data-post-id=@{post.postId}>
+					<div class="card-text p-3">@post.content</div>
+					<div class="display-none contentEditDiv">
+						<textarea class="card-textarea">@post.content</textarea>
+						<div class="mt-1 text-end">
+							<span class="me-5">
+								<button type="button" name="editDecideButton" class="btn btn-primary btn-sm">編集確定</button>
+							</span>
+						</div>
+					</div>
+				</section>
 				<section class="card-footer bg-white border-white">
 					<div class="px-3 w-50 d-flex justify-content-between align-items-center">
 						<a href="@routes.PostController.detail(post.postId.get)" class="w-25">
@@ -95,9 +101,9 @@
 						@CSRF.formField
 							<i title="削除する" name="deleteButton" class="far fa-trash-alt"></i>
 						}
-						<a href="@routes.PostController.edit(post.postId.get)" class="w-25">
-							<i title="編集する" class="far fa-edit"></i>
-						</a>
+						<span class="w-25">
+							<i title="編集する" class="far fa-edit editFormGenerateButton" data-post-id="@post.postId.get"></i>
+						</span>
 					</div>
 				</section>
 			</article>
