@@ -83,7 +83,6 @@ UserOptRequestHeader,flash: Flash)
 								<span class="ps-1 text-secondary">
 									@post.postedAt.format(DateTimeFormatter.ofPattern("MM/dd hh:mm"))
 								</span>
-
 						</section>
 						<section class="card-body">
 							<div class="card-text p-3">@post.content</div>
@@ -91,12 +90,12 @@ UserOptRequestHeader,flash: Flash)
 					</a>
 					<section class="card-footer bg-white border-white">
 						<div class="px-3 w-25 d-flex justify-content-between align-items-center">
-							<span class="commentInfo w-25">
+							<span class="commentInfo w-25 d-flex align-items-center">
 								<i title="コメントする" class="far fa-comment" data-bs-toggle="modal"
 									data-bs-target="#commentPostModal" data-post-id="@post.postId"></i>
 								<span class="px-1">@commentCount.getOrElse("")</span>
 							</span>
-							<span class="likeInfo w-25">
+							<span class="likeInfo w-25 d-flex align-items-center">
 								@request.signInUserOpt match {
 									case None =>{
 										<i title="いいね!" class="fas fa-heart like-btn" data-post-id=@{post.postId}></i>

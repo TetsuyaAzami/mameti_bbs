@@ -98,6 +98,10 @@ class PostController @Inject() (
   }
 
   def edit(postId: Long) = userNeedLoginAction.async { implicit request =>
+    println()
+    println()
+    println()
+    println("editを通りました")
     val signInUser = request.signInUser
     val userId = signInUser.userId
     // ログインユーザが送られてきたpostIdの投稿を所有していなかったら、403エラー
