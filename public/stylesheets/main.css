@@ -41,3 +41,11 @@ ul {
 .unlike-btn {
   color: #e54747;
 }
+
+.card-textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: 16px;
+}
