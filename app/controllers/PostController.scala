@@ -4,6 +4,8 @@ import play.api.mvc.{MessagesControllerComponents, MessagesAbstractController}
 import play.api.cache.SyncCacheApi
 import play.api.data.Form
 import play.api.i18n.Lang
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
 
 import models.domains._
 import models.services.PostService
@@ -14,6 +16,7 @@ import controllers.forms.SignInForm._
 import java.time.LocalDateTime
 import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.collection.Seq
 import common._
 import common.errors._
 
@@ -75,7 +78,7 @@ class PostController @Inject() (
         }
 
         val successFunction = { post: PostFormData =>
-          val trimmedContent = post.content.replace("\r", "").replace("\n", "")
+          val trimmedContent = post.content.replaceAll("\n{2,}|\r{2,}", "\n")
           val postForInsert =
             Post(
               None,
@@ -97,71 +100,50 @@ class PostController @Inject() (
     }
   }
 
-  def edit(postId: Long) = userNeedLoginAction.async { implicit request =>
-    println()
-    println()
-    println()
-    println("editを通りました")
-    val signInUser = request.signInUser
-    val userId = signInUser.userId
-    // ログインユーザが送られてきたpostIdの投稿を所有していなかったら、403エラー
-    postService.findByPostIdAndUserId(postId, userId).map { postOpt =>
-      postOpt match {
-        case None => {
-          Forbidden(
-            views.html.errors.client_error(
-              403,
-              "Forbidden",
-              messagesApi("error.http.forbidden")
+  def updateAsync() = userNeedLoginAction(parse.json).async {
+    implicit request =>
+      val postResult = request.body.validate[PostUpdateFormData]
+      val signInUser = request.signInUser
+      val userId = signInUser.userId
+
+      val errorFunction = {
+        errors: Seq[
+          (JsPath, Seq[JsonValidationError])
+        ] =>
+          {
+            Future.successful(
+              BadRequest(Json.obj("errors" -> JsError.toJson(errors)))
             )
-          )
-        }
-        case Some(post) => {
-          // DBから取得したデータをformに詰めてviewに渡す
-          val formWithPostData = postUpdateForm.fill(post)
-          Ok(views.html.posts.edit(formWithPostData))
-        }
-      }
-    }
-  }
-
-  def update() = userNeedLoginAction.async { implicit request =>
-    val sentPostForm = postUpdateForm.bindFromRequest()
-    val signInUser = request.signInUser
-    val userId = signInUser.userId
-
-    val errorFunction = { formWithErrors: Form[PostUpdateFormData] =>
-      Future.successful(BadRequest(views.html.posts.edit(formWithErrors)))
-    }
-    val successFunction = { post: PostUpdateFormData =>
-      val savePostData =
-        Post(
-          Option(post.postId),
-          post.content,
-          userId,
-          None,
-          LocalDateTime.now(),
-          List()
-        )
-      postService.update(savePostData, userId).flatMap {
-        // ログインユーザの所有している投稿以外を更新しようとしたら403エラー
-        numberOfRowsUpdated: Long =>
-          numberOfRowsUpdated match {
-            case 0 => {
-              errorHandler.onClientError(request, 403, "")
-            }
-            case _ => {
-              postService
-                .findByUserId(userId)
-                .map(post =>
-                  Redirect(routes.UserController.detail(userId))
-                    .flashing("successUpdate" -> messagesApi("success.update"))
-                )
-            }
           }
       }
-    }
-    sentPostForm.fold(errorFunction, successFunction)
+      val successFunction = { post: PostUpdateFormData =>
+        // 2行以上空の行があれば、1行の空行に修正
+        val trimmedContent = post.content.replaceAll("\n{3,}|\r{3,}", "\n\n")
+        val savePostData =
+          Post(
+            Option(post.postId),
+            trimmedContent,
+            userId,
+            None,
+            LocalDateTime.now(),
+            List()
+          )
+        postService.update(savePostData, userId).flatMap {
+          // ログインユーザの所有している投稿以外を更新しようとしたら403エラー
+          numberOfRowsUpdated: Long =>
+            numberOfRowsUpdated match {
+              case 0 => {
+                Future.successful(Forbidden)
+              }
+              case _ => {
+                postService.findByPostIdAndUserId(post.postId, userId).map {
+                  updatedPost => Ok(Json.toJson(updatedPost.get.content))
+                }
+              }
+            }
+        }
+      }
+      postResult.fold(errorFunction, successFunction)
   }
 
   def delete(postId: Long) = userNeedLoginAction.async { implicit request =>
