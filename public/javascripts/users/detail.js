@@ -96,6 +96,7 @@
           // id = "jsPostErrorMsgDiv"であるエラーメッセージを消す
           removeErrorMsgDiv("jsPostErrorMsgDiv");
           const content = $cardTextarea.value;
+          // axios 投稿更新処理
           instance
             .post(
               `/posts/update`,
@@ -110,8 +111,11 @@
               }
             )
             .then((response) => {
-              console.log(response);
-              console.log(response.data);
+              // 既存コンテンツDivに更新した投稿を反映して表示
+              const updatedContent = response.data;
+              $existingPostContentDiv.innerText = updatedContent;
+              displayExistingContent($contentEditDiv, $existingPostContentDiv);
+              $contentFooter.classList.remove("display-none");
             })
             .catch((error) => {
               const errors = error.response.data;
