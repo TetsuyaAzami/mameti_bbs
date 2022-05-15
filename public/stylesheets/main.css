@@ -49,3 +49,6 @@ ul {
   resize: none;
   padding: 16px;
 }
+.error-message {
+  color: red;
+}

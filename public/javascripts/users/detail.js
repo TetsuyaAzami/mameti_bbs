@@ -71,7 +71,7 @@
       // textarea内コンテンツの最後にfocusを当てる
       focusTextarea(
         $editTextarea,
-        extractInnerTextCursorPoint($existingPostContentDiv)
+        extractCursorPoint($existingPostContentDiv.innerText)
       );
     })
   );
@@ -86,39 +86,51 @@
       $cardTextarea.nextElementSibling.firstElementChild.firstElementChild;
     const postId = parseInt($contentEditDiv.parentNode.dataset.postId);
 
-    $cardTextarea.addEventListener("focus", () => {
-      $contentFooter.classList.add("display-none");
-      // 編集確定操作
-      $cardEditButton.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const content = $cardTextarea.value;
-        instance
-          .post(
-            `/posts/update`,
-            {
-              postId: postId,
-              content: content,
-            },
-            {
-              headers: {
-                "Csrf-Token": csrfToken,
+    $cardTextarea.addEventListener(
+      "focus",
+      () => {
+        $contentFooter.classList.add("display-none");
+        // 編集確定操作
+        $cardEditButton.addEventListener("click", (e) => {
+          e.stopPropagation();
+          // id = "jsPostErrorMsgDiv"であるエラーメッセージを消す
+          removeErrorMsgDiv("jsPostErrorMsgDiv");
+          const content = $cardTextarea.value;
+          instance
+            .post(
+              `/posts/update`,
+              {
+                postId: postId,
+                content: content,
               },
-            }
-          )
-          .then((response) => {
-            console.log(response);
-            console.log(response.data);
-          })
-          .catch((error) => {
-            console.log(error);
-            console.log(error.data);
-          });
-      });
-    });
+              {
+                headers: {
+                  "Csrf-Token": csrfToken,
+                },
+              }
+            )
+            .then((response) => {
+              console.log(response);
+              console.log(response.data);
+            })
+            .catch((error) => {
+              const errors = error.response.data;
+              const contentObj = errors.errors["obj.content"][0];
+              const errorMsg = contentObj.msg[0];
+              const $cardBody = $contentEditDiv.parentNode;
+              prependErrorMsg($cardBody, errorMsg);
+              focusTextarea($cardTextarea, extractCursorPoint(content));
+            });
+        });
+      },
+      { once: true }
+    );
     $cardTextarea.addEventListener("blur", (e) => {
       const blurTarget = e.relatedTarget;
       if (blurTarget == null || blurTarget.name != "editDecideButton") {
         if (confirm("編集内容を破棄してもよろしいでしょうか？")) {
+          // id = "jsPostErrorMsgDiv"であるエラーメッセージを消す
+          removeErrorMsgDiv("jsPostErrorMsgDiv");
           // 既存コンテンツに内容を修正
           const existingContent = $existingPostContentDiv.innerText;
           $cardTextarea.value = existingContent;
@@ -130,7 +142,7 @@
             // 編集中のtextareaに再度focus
             focusTextarea(
               $cardTextarea,
-              extractValueCursorPoint($cardTextarea)
+              extractCursorPoint($cardTextarea.value)
             );
           }, 10);
         }
@@ -161,22 +173,37 @@
     $existingPostContentDiv.classList.remove("display-none");
   };
 
-  // focus時のカーソル位置を決める(innerText版)
-  const extractInnerTextCursorPoint = ($contentDiv) => {
-    const postContent = $contentDiv.innerText;
-    const postContentLength = postContent.length;
-    return postContentLength;
-  };
-  // focus時のカーソル位置を決める(value版)
-  const extractValueCursorPoint = ($contentDiv) => {
-    const postContent = $contentDiv.value;
-    const postContentLength = postContent.length;
-    return postContentLength;
+  // focus時のカーソル位置を決める(
+  const extractCursorPoint = (content) => {
+    const contentLength = content.length;
+    return contentLength;
   };
 
   //forcusTargetにfocus
   const focusTextarea = ($forcusTarget, cursorPosition) => {
     $forcusTarget.focus();
     $forcusTarget.setSelectionRange(cursorPosition, cursorPosition);
+  };
+
+  // errorMsgをtargetNodeの先頭子要素に追加
+  const prependErrorMsg = ($targetNode, errorMsg) => {
+    const $errorMsgDiv = produceErrorMsgDiv(errorMsg);
+    $targetNode.prepend($errorMsgDiv);
+  };
+  // エラーメッセージ表示Div作成
+  const produceErrorMsgDiv = (errorMsg) => {
+    const $errorMsgDiv = document.createElement("div");
+    $errorMsgDiv.innerText = errorMsg;
+    $errorMsgDiv.style.padding = "16px";
+    $errorMsgDiv.classList.add("error-message");
+    $errorMsgDiv.id = "jsPostErrorMsgDiv";
+    return $errorMsgDiv;
+  };
+  // エラーメッセージを消す
+  const removeErrorMsgDiv = (id) => {
+    const $ErrorMsgDiv = document.getElementById(id);
+    if ($ErrorMsgDiv != null) {
+      $ErrorMsgDiv.remove();
+    }
   };
 })();
