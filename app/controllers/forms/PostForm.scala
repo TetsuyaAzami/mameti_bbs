@@ -11,10 +11,8 @@ import play.api.data.validation.Invalid
 import play.api.data.validation.ValidationError
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import views.html.defaultpages.error
 
 object PostForm {
-
   val postForm = Form {
     mapping(
       "content" -> text.verifying(contentConstraint)
@@ -46,11 +44,20 @@ object PostForm {
           content <- contentResult
           result <-
             if (content.isBlank) {
-              JsError(JsonValidationError("error.minLength", 1))
+              JsError(
+                (JsPath \ "content"),
+                JsonValidationError("error.minLength", 1)
+              )
             } else if (content.replaceAll("\r|\n", "").isBlank) {
-              JsError(JsonValidationError("error.minLength", 1))
+              JsError(
+                (JsPath \ "content"),
+                JsonValidationError("error.minLength", 1)
+              )
             } else if (content.length > 140) {
-              JsError(JsonValidationError("error.maxLength", 140))
+              JsError(
+                (JsPath \ "content"),
+                JsonValidationError("error.maxLength", 140)
+              )
             } else {
               JsSuccess(PostUpdateFormData(postId, content))
             }

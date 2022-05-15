@@ -19,6 +19,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.Seq
 import common._
 import common.errors._
+import play.api.templates.PlayMagic.translate
 
 @Singleton
 class PostController @Inject() (
@@ -111,8 +112,27 @@ class PostController @Inject() (
           (JsPath, Seq[JsonValidationError])
         ] =>
           {
+            // messagesApiからmessageを抽出
+            val errorWithTranslatedMessage = for {
+              error <- errors
+              errorJsPath = error._1
+              jsonValidationError <- error._2
+              message <- jsonValidationError.messages
+
+              jsonError = JsonValidationError(
+                messagesApi(
+                  message,
+                  jsonValidationError.args.map(translate): _*
+                )
+              )
+            } yield (errorJsPath, Seq(jsonError))
+
             Future.successful(
-              BadRequest(Json.obj("errors" -> JsError.toJson(errors)))
+              BadRequest(
+                Json.obj(
+                  "errors" -> JsError.toJson(errorWithTranslatedMessage)
+                )
+              )
             )
           }
       }
@@ -133,6 +153,9 @@ class PostController @Inject() (
           numberOfRowsUpdated: Long =>
             numberOfRowsUpdated match {
               case 0 => {
+                println()
+                println()
+                println("権限ないです")
                 Future.successful(Forbidden)
               }
               case _ => {
