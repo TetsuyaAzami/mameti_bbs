@@ -23,7 +23,7 @@ object PostForm {
 
   lazy val contentConstraint: Constraint[String] = Constraint(
     "constraints.post.content"
-  )({ content =>
+  )(content =>
     // 空もしくは空白のみの投稿を許さない
     if (content.isBlank) Invalid(ValidationError("error.minLength", 1))
     // 改行のみの投稿を許さない
@@ -31,7 +31,7 @@ object PostForm {
       Invalid(ValidationError("error.minLength", 1))
     else if (content.length > 140) Invalid("error.maxLength", 140)
     else Valid
-  })
+  )
 
   implicit val postUpdateFormDataReads: Reads[PostUpdateFormData] =
     new Reads[PostUpdateFormData] {
