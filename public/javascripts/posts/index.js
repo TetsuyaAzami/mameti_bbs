@@ -28,12 +28,24 @@
   const $flashSuccessMessage = document.getElementById("flashSuccessMessage");
   // 非同期通信の際にcsrfTokenが必要
   const csrfToken = $modalForm.children[0].value;
-
   const commentModal = new bootstrap.Modal($commentPostModal);
 
   // コメント紐付け対象である投稿のpostId
   let commentPostId = null;
   let $commentCountSpan = null;
+
+  // コメント投稿ボタンのdisalbed判定
+  $commentInsertButton.setAttribute("disabled", true);
+  $contentInput.addEventListener("input", (e) => {
+    const trimmedContent = $contentInput.value
+      .replace(/\r|\n/g, "")
+      .replace(/\s+/g, "");
+    if (trimmedContent != "") {
+      $commentInsertButton.removeAttribute("disabled");
+    } else {
+      $commentInsertButton.setAttribute("disabled", true);
+    }
+  });
 
   // モーダル内コメントの初期化
   $commentPostModal.addEventListener("hide.bs.modal", () => {
@@ -48,7 +60,6 @@
       $flashSuccessMessage.innerText = "";
       commentPostId = e.target.dataset.postId;
       $commentCountSpan = e.target.nextElementSibling;
-      console.log($commentCountSpan);
     })
   );
 
@@ -69,7 +80,13 @@
       )
       .then((response) => {
         $flashSuccessMessage.innerText = "投稿完了しました";
-        $commentCountSpan.innerText = parseInt($commentCountSpan.innerText) + 1;
+        if ($commentCountSpan.innerText == "") {
+          $commentCountSpan.innerText = 1;
+        } else {
+          $commentCountSpan.innerText =
+            parseInt($commentCountSpan.innerText) + 1;
+        }
+
         commentModal.hide();
       })
       .catch((error) => {

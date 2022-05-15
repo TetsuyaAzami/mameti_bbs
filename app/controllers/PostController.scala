@@ -153,9 +153,6 @@ class PostController @Inject() (
           numberOfRowsUpdated: Long =>
             numberOfRowsUpdated match {
               case 0 => {
-                println()
-                println()
-                println("権限ないです")
                 Future.successful(Forbidden)
               }
               case _ => {
