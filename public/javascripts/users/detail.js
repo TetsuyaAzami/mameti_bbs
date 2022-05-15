@@ -64,12 +64,13 @@
       const $contentEditDiv = $cardBodySection.children[1];
       // 既存コンテンツ取得
       const $existingPostContentDiv = $cardBodySection.children[0];
+      const $editTextarea = $contentEditDiv.children[0];
 
       displayTextarea($contentEditDiv, $existingPostContentDiv);
 
       // textarea内コンテンツの最後にfocusを当てる
       focusTextarea(
-        extractCardTextArea($contentEditDiv),
+        $editTextarea,
         extractInnerTextCursorPoint($existingPostContentDiv)
       );
     })
@@ -83,41 +84,40 @@
       $cardTextarea.parentNode.parentNode.nextElementSibling;
     const $cardEditButton =
       $cardTextarea.nextElementSibling.firstElementChild.firstElementChild;
-    const postId = $contentEditDiv.parentNode.dataset.postId;
+    const postId = parseInt($contentEditDiv.parentNode.dataset.postId);
 
     $cardTextarea.addEventListener("focus", () => {
       $contentFooter.classList.add("display-none");
       // 編集確定操作
-      $cardEditButton.addEventListener(
-        "click",
-        (e) => {
-          e.stopPropagation();
-          console.log(postId);
-          // instance.post(`/posts/${postId}/edit`);
-        },
-        { once: true }
-      );
+      $cardEditButton.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const content = $cardTextarea.value;
+        instance
+          .post(
+            `/posts/update`,
+            {
+              postId: postId,
+              content: content,
+            },
+            {
+              headers: {
+                "Csrf-Token": csrfToken,
+              },
+            }
+          )
+          .then((response) => {
+            console.log(response);
+            console.log(response.data);
+          })
+          .catch((error) => {
+            console.log(error);
+            console.log(error.data);
+          });
+      });
     });
     $cardTextarea.addEventListener("blur", (e) => {
       const blurTarget = e.relatedTarget;
-      if (blurTarget == null) {
-        if (confirm("編集内容を破棄してもよろしいでしょうか？")) {
-          // 既存コンテンツに内容を修正
-          const existingContent = $existingPostContentDiv.innerText;
-          $cardTextarea.value = existingContent;
-          displayExistingContent($contentEditDiv, $existingPostContentDiv);
-          $contentFooter.classList.remove("display-none");
-        } else {
-          // キャンセルをクリックした際にblurが発動しないように少し待つ
-          setTimeout(() => {
-            // 編集中のtextareaに再度focus
-            focusTextarea(
-              $cardTextarea,
-              extractValueCursorPoint($cardTextarea)
-            );
-          }, 10);
-        }
-      } else if (blurTarget.name != "editDecideButton") {
+      if (blurTarget == null || blurTarget.name != "editDecideButton") {
         if (confirm("編集内容を破棄してもよろしいでしょうか？")) {
           // 既存コンテンツに内容を修正
           const existingContent = $existingPostContentDiv.innerText;
@@ -148,11 +148,6 @@
       }
     });
     return $taragetCardBodySection;
-  };
-
-  // 編集ブロックからtextareaを抽出
-  const extractCardTextArea = ($contentEditDiv) => {
-    return $contentEditDiv.children[0];
   };
 
   // 編集textareaを表示して既存コンテンツを非表示にする

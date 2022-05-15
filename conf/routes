@@ -8,8 +8,7 @@ GET     /                           controllers.PostController.index()
 GET     /posts                      controllers.PostController.index()
 POST    /posts                      controllers.PostController.insert()
 GET     /posts/:postId/detail       controllers.PostController.detail(postId: Long)
-GET     /posts/:postId/edit         controllers.PostController.edit(postId: Long)
-POST    /posts/update               controllers.PostController.update()
+POST    /posts/update               controllers.PostController.updateAsync()
 POST    /posts/delete               controllers.PostController.delete(postId: Long)
 
 # Comment
