@@ -113,7 +113,11 @@
 
     //いいねdelete 成功パターン
     const deleteSuccessFunction = (response) => {
-      $heartCountSpan.innerText = response.data;
+      if (response.data == 0) {
+        $heartCountSpan.innerText = "";
+      } else {
+        $heartCountSpan.innerText = response.data;
+      }
       $heart.classList.remove("unlike-btn");
       $heart.classList.add("like-btn");
     };
