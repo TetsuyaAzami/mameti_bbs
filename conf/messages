@@ -17,6 +17,7 @@ error.email.dupulicate=既に使用されているメールアドレスです
 error.user.notFound=メールアドレスかパスワードが間違っています
 error.extension.invalid=拡張子はjpg, jpeg, pngのいずれかにしてください
 error.number=数値を入力してください
+error.user.birthday.mustBeBeforeNow=現在時刻より前の時刻を入力してください
 
 # HTTPエラー
 error.http.forbidden=権限がありません
