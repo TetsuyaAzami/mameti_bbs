@@ -10,7 +10,7 @@ lazy val root = (project in file("."))
       jdbc,
       evolutions,
       caffeine,
-      "org.postgresql" % "postgresql" % "42.3.3",
+      "mysql" % "mysql-connector-java" % "8.0.28",
       "org.playframework.anorm" %% "anorm" % "2.6.5",
       "org.webjars" % "bootstrap" % "5.0.0",
       "org.webjars" % "font-awesome" % "5.15.4",
