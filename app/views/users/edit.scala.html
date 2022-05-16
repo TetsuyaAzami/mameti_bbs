@@ -35,7 +35,8 @@ UserRequestHeader,flash: Flash)
 			}
 			<div id="profileImgError" class="errors text-danger"></div>
 			<div id="preview" class="col-md-4 d-flex justify-content-center align-items-center">
-				@updateUserProfileForm.value.get.profileImg match {
+
+				@updateUserProfileForm.data.get("profileImg") match {
 					case None =>{
 						<img src="@routes.Assets.versioned("images/profileImages/Noimg.jpg")" class="profile-img-lg" alt="プロフィール画像">
 					}

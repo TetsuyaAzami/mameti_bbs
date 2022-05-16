@@ -7,6 +7,10 @@ import models.domains.UpdateUserProfileFormData
 
 import java.time.LocalDate
 import common._
+import play.api.data.validation.Constraint
+import play.api.data.validation.Valid
+import play.api.data.validation.ValidationError
+import play.api.data.validation.Invalid
 
 object UpdateUserProfileForm {
   val updateUserProfileForm = Form {
@@ -14,7 +18,9 @@ object UpdateUserProfileForm {
       "userId" -> longNumber,
       "name" -> text(minLength = 1, maxLength = 128),
       "email" -> email,
-      "birthday" -> optional(localDate(pattern = "yyyy-MM-dd")),
+      "birthday" -> optional(
+        localDate(pattern = "yyyy-MM-dd").verifying(birthdayConstraint)
+      ),
       "introduce" -> optional(text(maxLength = 200)),
       "profileImg" -> optional(
         text(maxLength = 200)
@@ -22,4 +28,16 @@ object UpdateUserProfileForm {
       "departmentId" -> longNumber(min = 1, max = 3)
     )(UpdateUserProfileFormData.apply)(UpdateUserProfileFormData.unapply)
   }
+
+  lazy val birthdayConstraint: Constraint[LocalDate] = Constraint(
+    "constraints.user.birthday"
+  )(birthday => {
+
+    val isBirthdayIsBeforeNow: Boolean = birthday.isBefore(LocalDate.now())
+    if (isBirthdayIsBeforeNow) {
+      Valid
+    } else {
+      Invalid(ValidationError("error.user.birthday.mustBeBeforeNow"))
+    }
+  })
 }
