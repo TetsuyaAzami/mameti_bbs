@@ -6,6 +6,8 @@ import play.api.data.Form
 import play.api.i18n.Lang
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import play.api.templates.PlayMagic.translate
+import play.api.Configuration
 
 import models.domains._
 import models.services.PostService
@@ -19,11 +21,11 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.Seq
 import common._
 import common.errors._
-import play.api.templates.PlayMagic.translate
 
 @Singleton
 class PostController @Inject() (
     mcc: MessagesControllerComponents,
+    configuration: Configuration,
     cache: SyncCacheApi,
     userOptAction: UserOptAction,
     userNeedLoginAction: UserNeedLoginAction,
@@ -34,6 +36,15 @@ class PostController @Inject() (
   implicit val lang = Lang.defaultLang
 
   def index() = userOptAction.async { implicit request =>
+    val myS3Client = new MyS3Client(configuration)
+    println()
+    println()
+    println()
+    println(myS3Client.conf)
+    println(myS3Client.bucketName)
+    println(myS3Client.directory)
+    println(myS3Client.accessKey)
+    println(myS3Client.secretKey)
     postService.findAllWithFlag(None, None).map { result =>
       Ok(views.html.posts.index(postForm, commentForm, result))
     }
