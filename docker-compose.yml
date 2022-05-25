@@ -1,0 +1,47 @@
+services:
+  sbt:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: play
+    container_name: play
+    working_dir: /app
+    command: sbt run
+    ports:
+      - "9000:9000"
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+    networks:
+      - play-docker
+    tty: true
+    restart: always
+    depends_on:
+      - db
+  db:
+    image: mysql:8.0.29
+    container_name: mysql
+    env_file:
+      - ./db/env.mysql
+    volumes:
+      - type: volume
+        source: mysql-data
+        target: /var/lib/mysql
+      - type: bind
+        source: ./db/my.cnf
+        target: /etc/mysql/conf.d/my.cnf
+    ports:
+      - "3307:3306"
+    expose:
+      - "3307"
+    networks:
+      - play-docker
+    restart: always
+
+volumes:
+  mysql-data:
+
+networks:
+  play-docker:
+    driver: bridge

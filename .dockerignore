@@ -8,15 +8,22 @@ target
 /.project
 /.settings
 /RUNNING_PID
+/.vscode
+/.git
+/.gitignore
+/mametiBBS_er_diagram.dio
+/mametiBBS_er_diagram.png
+/docker-compose.yml
+/Dockerfile
 
 # bloop and metals
-.bloop
-project/metals.sbt
-project/project
-.metals
+/.bloop
+/project/metals.sbt
+/project/project
+/.metals
 
 # uploadedImages
 /public/images/profileImages/*
 
 # secret infomation
-db
+/db
