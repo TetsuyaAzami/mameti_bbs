@@ -2,6 +2,7 @@ package common
 
 import play.core.parsers.Multipart
 import play.core.parsers.Multipart.FileInfo
+import play.api.Configuration
 import play.api.mvc.MultipartFormData._
 import play.api.data.FormError
 import play.api.libs.streams._
@@ -19,17 +20,19 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import scala.util.Try
-import scala.util.Failure
 import scala.util.Success
+import scala.util.Failure
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import scala.collection.mutable.ListBuffer
 
 @Singleton
-class FileUploadUtil @Inject() (implicit
+class FileUploadUtil @Inject() (configuration: Configuration)(implicit
     ec: ExecutionContext
 ) {
   private val logger = Logger(this.getClass())
+  val myS3Client = new MyS3Client(configuration)
+  val validExtensions = List("jpg", "jpeg", "png", "image/jpeg", "image/png")
   private implicit val lang = Lang.defaultLang
 
   type FilePartHandler[A] =
@@ -46,11 +49,6 @@ class FileUploadUtil @Inject() (implicit
         FilePart(partName, filename, contentType, path.toFile)
       }
   }
-
-}
-
-object FileUploadUtil {
-  val validExtensions = List("jpg", "jpeg", "png", "image/jpeg", "image/png")
 
   // ファイル名から拡張子を取り出す
   private def extractExtension(filename: String): String = {
@@ -94,14 +92,14 @@ object FileUploadUtil {
   // すでにサーバーにアップロードされているファイルを削除
   private def deleteExistingFile(userEmail: String) = {
     validExtensions.map(extension => {
-      Files.deleteIfExists(
-        Paths.get(s"./public/images/profileImages/$userEmail.$extension")
-      )
+      val deleteFileName = userEmail + "." + extension
+      // S3のバケット上からオブジェクトを削除
+      myS3Client.delete(deleteFileName)
     })
   }
 
   // 画像保存をして、一時ファイルを削除
-  def saveToApplicationServer(
+  def save(
       uploadedFileOpt: Option[FilePart[File]],
       userEmail: String
   ): Option[String] = {
@@ -113,13 +111,13 @@ object FileUploadUtil {
         deleteExistingFile(userEmail)
         val filename = Paths.get(uploadedFile.filename).getFileName()
         val extension = extractExtension(filename.toString())
-        Files.copy(
-          uploadedFile.ref.toPath(),
-          Paths.get(s"./public/images/profileImages/$userEmail.$extension")
-        )
+        val uploadFileName = userEmail + "." + extension
+        // S3のバケット上にオブジェクトを作成
+        myS3Client.put(uploadFileName, uploadedFile.ref.toPath())
         deleteTempFile(uploadedFile.ref)
         Some(userEmail + "." + extension)
       }
     }
   }
+
 }
