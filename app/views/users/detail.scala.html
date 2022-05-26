@@ -17,10 +17,10 @@
 					<div class="col-md-4 d-flex justify-content-center align-items-center">
 						@signInUser.profileImg match{
 							case None =>{
-								<img src="@routes.Assets.versioned("images/profileImages/Noimg.jpg")" class="profile-img-lg" alt="プロフィール画像">
+								<img src="https://mameti-bbs.s3.ap-northeast-1.amazonaws.com/uploadedImages/Noimg.jpg" class="profile-img-lg" alt="プロフィール画像">
 							}
 							case Some(profileImg) =>{
-								<img src="@routes.Assets.versioned(s"images/profileImages/${profileImg}")" class="profile-img-lg" alt="プロフィール画像">
+								<img src="https://mameti-bbs.s3.ap-northeast-1.amazonaws.com/uploadedImages/@profileImg" class="profile-img-lg" alt="プロフィール画像">
 							}
 						}
 					</div>
@@ -54,10 +54,10 @@
 					<a href="@routes.PostController.detail(post.postId.get)">
 						@post.user.get.profileImg match {
 							case None =>{
-								<img src="@routes.Assets.versioned("images/profileImages/Noimg.jpg")" class="profile-img-sm" alt="プロフィール画像">
+								<img src="https://mameti-bbs.s3.ap-northeast-1.amazonaws.com/uploadedImages/Noimg.jpg" class="profile-img-sm" alt="プロフィール画像">
 							}
 							case Some(profileImg) =>{
-								<img src="@routes.Assets.versioned(s"images/profileImages/${profileImg}")" class="profile-img-sm" alt="プロフィール画像">
+								<img src="https://mameti-bbs.s3.ap-northeast-1.amazonaws.com/uploadedImages/@profileImg" class="profile-img-sm" alt="プロフィール画像">
 							}
 						}
 						<span class="fs-5 fw-bold">@post.user.get.name</span>

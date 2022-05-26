@@ -6,6 +6,8 @@ services:
     image: play
     container_name: play
     working_dir: /app
+    env_file:
+      - .env
     command: sbt run
     ports:
       - "9000:9000"

@@ -94,7 +94,7 @@ class UserController @Inject() (
           val uploadedProfileImgOpt = request.body.file("profileImg")
           // 拡張子チェック&エラーがあればリストとして取得
           val uploadedFileErrorList =
-            FileUploadUtil.extractErrorsFromUploadedFile(
+            fileUploadUtil.extractErrorsFromUploadedFile(
               uploadedProfileImgOpt
             )
           // uploadedFileのエラーを注入
@@ -115,7 +115,7 @@ class UserController @Inject() (
           }
           val successFunction = { userData: UpdateUserProfileFormData =>
             // アプリケーションサーバーに画像を保存
-            val uploadedFilenameOpt = FileUploadUtil.saveToApplicationServer(
+            val uploadedFilenameOpt = fileUploadUtil.save(
               uploadedProfileImgOpt,
               signInUser.email
             )

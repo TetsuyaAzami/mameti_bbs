@@ -42,11 +42,11 @@
 							<section class="card-header bg-white">
 								@post.user.get.profileImg match {
 									case None =>{
-										<img src="@routes.Assets.versioned("images/profileImages/Noimg.jpg")" class="profile-img-sm"
+										<img src="https://mameti-bbs.s3.ap-northeast-1.amazonaws.com/uploadedImages/Noimg.jpg" class="profile-img-sm"
 										alt="プロフィール画像">
 									}
 									case Some(profileImg) =>{
-										<img src="@routes.Assets.versioned(s"images/profileImages/${profileImg}")"
+										<img src="https://mameti-bbs.s3.ap-northeast-1.amazonaws.com/uploadedImages/@profileImg"
 										class="profile-img-sm" alt="プロフィール画像">
 									}
 								}
