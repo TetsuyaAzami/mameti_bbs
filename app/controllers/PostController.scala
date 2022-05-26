@@ -21,6 +21,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.Seq
 import common._
 import common.errors._
+import java.nio.file.Files
+import java.nio.file.Paths
 
 @Singleton
 class PostController @Inject() (
@@ -36,15 +38,6 @@ class PostController @Inject() (
   implicit val lang = Lang.defaultLang
 
   def index() = userOptAction.async { implicit request =>
-    val myS3Client = new MyS3Client(configuration)
-    println()
-    println()
-    println()
-    println(myS3Client.conf)
-    println(myS3Client.bucketName)
-    println(myS3Client.directory)
-    println(myS3Client.accessKey)
-    println(myS3Client.secretKey)
     postService.findAllWithFlag(None, None).map { result =>
       Ok(views.html.posts.index(postForm, commentForm, result))
     }

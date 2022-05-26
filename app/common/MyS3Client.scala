@@ -12,6 +12,8 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
+import software.amazon.awssdk.core.sync.ResponseTransformer
+import java.nio.file.Paths
 
 class MyS3Client @Inject() (configuration: Configuration) {
   val conf = configuration
@@ -37,7 +39,9 @@ class MyS3Client @Inject() (configuration: Configuration) {
         .bucket(bucketName)
         .key(directory + fileName)
         .build()
-    s3.getObject(getObjectRequest)
+    s3.getObject(
+      getObjectRequest
+    )
   }
 
   def put(fileName: String, path: Path) = {
