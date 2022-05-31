@@ -18,10 +18,6 @@ project/project
 # uploadedImages
 /public/images/profileImages/*
 
-# secret infomation
-db
-.env
-
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
