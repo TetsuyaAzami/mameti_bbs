@@ -7,7 +7,7 @@ target
 /.classpath
 /.project
 /.settings
-/RUNNING_PID
+.scalafmt.conf
 
 # bloop and metals
 .bloop
