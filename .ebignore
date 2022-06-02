@@ -7,7 +7,7 @@ target
 /.classpath
 /.project
 /.settings
-/RUNNING_PID
+.scalafmt.conf
 
 # bloop and metals
 .bloop
@@ -17,10 +17,6 @@ project/project
 
 # uploadedImages
 /public/images/profileImages/*
-
-# secret infomation
-db
-.env
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

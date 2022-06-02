@@ -1,3 +1,4 @@
+import org.eclipse.jgit.api.MergeCommand.FastForwardMode.Merge
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
   .settings(
@@ -5,6 +6,8 @@ lazy val root = (project in file("."))
     organization := "com.example",
     version := "1.0-SNAPSHOT",
     scalaVersion := "2.13.8",
+    sources in (Compile, doc) := Seq.empty,
+    publishArtifact in (Compile, packageDoc) := false,
     libraryDependencies ++= Seq(
       guice,
       jdbc,
