@@ -15,6 +15,10 @@ target
 /mametiBBS_er_diagram.png
 /docker-compose.yml
 /Dockerfile
+/.scalafmt.conf
+/.ebignore
+/.elasticbeanstalk
+
 
 # bloop and metals
 /.bloop
