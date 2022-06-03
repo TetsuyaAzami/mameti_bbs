@@ -2,9 +2,11 @@ services:
   play:
     build:
       context: .
+      target: play-dev
       dockerfile: Dockerfile
-    image: play
-    container_name: play
+    image: play-dev
+    container_name: play-dev
+    command: sbt run
     env_file:
       - .env
     ports:
@@ -12,7 +14,7 @@ services:
     expose:
       - "9000"
     networks:
-      - play-docker
+      - play-docker-dev
     tty: true
     restart: always
     depends_on:
@@ -35,7 +37,7 @@ services:
     expose:
       - "3307"
     networks:
-      - play-docker
+      - play-docker-dev
     restart: always
 
   web:
@@ -51,12 +53,12 @@ services:
     ports:
       - 80:80
     networks:
-      - play-docker
+      - play-docker-dev
     restart: always
 
 volumes:
   mysql-data:
 
 networks:
-  play-docker:
+  play-docker-dev:
     driver: bridge
