@@ -18,8 +18,9 @@ lazy val root = (project in file("."))
       "org.webjars" % "bootstrap" % "5.0.0",
       "org.webjars" % "font-awesome" % "5.15.4",
       "org.webjars.npm" % "axios" % "0.26.0",
-      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.198",
-      "software.amazon.awssdk" % "s3" % "2.17.198",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.12.1",
+      "software.amazon.awssdk" % "bom" % "2.17.203",
+      "software.amazon.awssdk" % "s3" % "2.17.203",
       "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
     ),
     scalacOptions ++= List(
