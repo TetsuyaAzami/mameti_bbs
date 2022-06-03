@@ -4,6 +4,7 @@ import play.api.Configuration
 import scala.concurrent.ExecutionContext
 import javax.inject.Inject
 import java.nio.file.Path
+import java.nio.file.Paths
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
@@ -13,7 +14,6 @@ import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.core.sync.ResponseTransformer
-import java.nio.file.Paths
 
 class MyS3Client @Inject() (configuration: Configuration) {
   val conf = configuration
