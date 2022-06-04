@@ -8,6 +8,10 @@ target
 /.project
 /.settings
 .scalafmt.conf
+docker-compose.dev.yml
+mametiBBS_er_diagram.dio
+mametiBBS_er_diagram.png
+/mametiBBS_infra.dio
 
 # bloop and metals
 .bloop
