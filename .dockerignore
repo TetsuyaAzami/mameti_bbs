@@ -13,6 +13,7 @@ target
 /.gitignore
 /mametiBBS_er_diagram.dio
 /mametiBBS_er_diagram.png
+/mametiBBS_infra.dio
 /docker-compose.yml
 /docker-compose.dev.yml
 /Dockerfile
