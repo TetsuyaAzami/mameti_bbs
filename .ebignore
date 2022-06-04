@@ -8,6 +8,7 @@ target
 /.project
 /.settings
 .scalafmt.conf
+docker-compose.dev.yml
 
 # bloop and metals
 .bloop
