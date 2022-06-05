@@ -1,9 +1,20 @@
 package common
 
-import play.api.cache.SyncCacheApi
+import play.api.cache.redis.CacheAsyncApi
 import models.domains.SignInUser
+import software.amazon.awssdk.core.internal.http.pipeline.stages.SigningStage
 
-object CacheUtil {
+import javax.inject.Inject
+import scala.util.Success
+import scala.util.Failure
+import scala.concurrent.duration._
+import scala.language.postfixOps
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Await
+
+class CacheUtil @Inject() (cache: CacheAsyncApi)(implicit
+    ec: ExecutionContext
+) {
 
   /** キャッシュにユーザをセット
     *
@@ -15,7 +26,6 @@ object CacheUtil {
     *   ログインユーザ情報
     */
   def setSessionUser(
-      cache: SyncCacheApi,
       sessionId: String,
       signInUser: SignInUser
   ) = {
@@ -32,7 +42,6 @@ object CacheUtil {
     *   ログインユーザ情報
     */
   def setSessionUser(
-      cache: SyncCacheApi,
       sessionId: Option[String],
       signInUser: SignInUser
   ) = {
@@ -52,12 +61,14 @@ object CacheUtil {
     *   成功時: ログインユーザ情報 失敗時: None
     */
   def getSessionUser(
-      cache: SyncCacheApi,
       sessionId: Option[String]
   ): Option[SignInUser] = {
     sessionId match {
-      case None            => None
-      case Some(sessionId) => cache.get(sessionId)
+      case None => None
+      case Some(sessionId) => {
+        val signInUserResult = cache.get[SignInUser](sessionId)
+        Await.result(signInUserResult, 5 seconds)
+      }
     }
   }
 
@@ -68,7 +79,7 @@ object CacheUtil {
     * @param sessionId
     *   ログインsessionId
     */
-  def deleteSessionUser(cache: SyncCacheApi, sessionId: String) = {
+  def deleteSessionUser(sessionId: String) = {
     cache.remove(sessionId)
   }
 

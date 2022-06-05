@@ -54,8 +54,24 @@ services:
       - play-docker
     restart: always
 
+  redis:
+    image: redis:7.0.0-alpine
+    container_name: redis
+    volumes:
+      - type: volume
+        source: redis-data
+        target: /data
+    ports:
+      - "6379:6379"
+    expose:
+      - "6379"
+    networks:
+      - play-docker
+    restart: always
+
 volumes:
   mysql-data:
+  redis-data:
 
 networks:
   play-docker:

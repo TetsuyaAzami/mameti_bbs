@@ -8,7 +8,6 @@ import play.api.mvc.{
 }
 import play.api.data.Form
 import play.api.i18n.Lang
-import play.api.cache._
 import akka.actor
 
 import models.domains.{User, UpdateUserProfileFormData}
@@ -29,7 +28,7 @@ import common.errors._
 @Singleton
 class UserController @Inject() (
     mcc: MessagesControllerComponents,
-    cache: SyncCacheApi,
+    cache: CacheUtil,
     userOptAction: UserOptAction,
     userNeedLoginAction: UserNeedLoginAction,
     userService: UserService,
@@ -127,7 +126,7 @@ class UserController @Inject() (
                 .findSignInUserById(signInUser.userId)
                 .map { updatedUserOpt =>
                   val updatedUser = updatedUserOpt.get
-                  CacheUtil.setSessionUser(cache, sessionId, updatedUser)
+                  cache.setSessionUser(sessionId, updatedUser)
                   // 画像の更新を待つ
                   Thread.sleep(800)
                   Redirect(

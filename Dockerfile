@@ -12,7 +12,7 @@ RUN sbt -V
 
 FROM sbt as play-dev
 
-COPY . /app
+COPY . /app/
 
 CMD [ "bash" ]
 
