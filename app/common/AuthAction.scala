@@ -2,7 +2,6 @@ package common
 
 import play.api.mvc._
 import play.api.i18n._
-import play.api.cache.SyncCacheApi
 
 import models.domains.SignInUser
 import views.html.users.sign_in

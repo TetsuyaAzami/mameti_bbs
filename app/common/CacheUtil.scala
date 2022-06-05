@@ -1,11 +1,20 @@
 package common
 
-import play.api.cache.redis.CacheApi
+import play.api.cache.redis.CacheAsyncApi
 import models.domains.SignInUser
-import javax.inject.Inject
 import software.amazon.awssdk.core.internal.http.pipeline.stages.SigningStage
 
-class CacheUtil @Inject() (cache: CacheApi) {
+import javax.inject.Inject
+import scala.util.Success
+import scala.util.Failure
+import scala.concurrent.duration._
+import scala.language.postfixOps
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Await
+
+class CacheUtil @Inject() (cache: CacheAsyncApi)(implicit
+    ec: ExecutionContext
+) {
 
   /** キャッシュにユーザをセット
     *
@@ -55,8 +64,11 @@ class CacheUtil @Inject() (cache: CacheApi) {
       sessionId: Option[String]
   ): Option[SignInUser] = {
     sessionId match {
-      case None            => None
-      case Some(sessionId) => cache.get[SignInUser](sessionId)
+      case None => None
+      case Some(sessionId) => {
+        val signInUserResult = cache.get[SignInUser](sessionId)
+        Await.result(signInUserResult, 5 seconds)
+      }
     }
   }
 
