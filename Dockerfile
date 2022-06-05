@@ -12,6 +12,8 @@ RUN sbt -V
 
 FROM sbt as play-dev
 
+COPY . /app/
+
 CMD [ "bash" ]
 
 FROM play-dev as builder
