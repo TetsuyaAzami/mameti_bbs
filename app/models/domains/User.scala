@@ -38,7 +38,7 @@ final case class SignInUser(
     profileImg: Option[String] = None,
     departmentId: Long,
     department: Department
-)
+) extends Serializable
 
 // 投稿したユーザ
 final case class UserWhoPosted(

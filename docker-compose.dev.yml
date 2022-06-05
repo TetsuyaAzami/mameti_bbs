@@ -6,6 +6,11 @@ services:
       dockerfile: Dockerfile
     image: play-dev
     container_name: play-dev
+    volumes:
+      - type: bind
+        source: .
+        target: /app/
+
     command: sbt run
     env_file:
       - .env
@@ -56,8 +61,25 @@ services:
       - play-docker-dev
     restart: always
 
+  redis:
+    image: redis:7.0.0-alpine
+    container_name: redis
+    volumes:
+      - type: volume
+        source: redis-data
+        target: /data
+    ports:
+      - "6379:6379"
+    expose:
+      - "6379"
+    networks:
+      - play-docker-dev
+    restart: always
+
+
 volumes:
   mysql-data:
+  redis-data:
 
 networks:
   play-docker-dev:

@@ -41,7 +41,7 @@ class UserRequest[A](
 
 class UserOptAction @Inject() (
     val parser: BodyParsers.Default,
-    cache: SyncCacheApi,
+    cache: CacheUtil,
     messagesApi: MessagesApi
 )(implicit
     val executionContext: ExecutionContext
@@ -53,7 +53,7 @@ class UserOptAction @Inject() (
       block: UserOptRequest[A] => Future[Result]
   ): Future[Result] = {
     val sessionIdOpt = request.session.get("sessionId")
-    val signInUserOpt = CacheUtil.getSessionUser(cache, sessionIdOpt)
+    val signInUserOpt = cache.getSessionUser(sessionIdOpt)
     val userRequest = new UserOptRequest(request, signInUserOpt, messagesApi)
     block(userRequest)
   }
@@ -61,7 +61,7 @@ class UserOptAction @Inject() (
 
 class UserNeedLoginAction @Inject() (
     val parser: BodyParsers.Default,
-    cache: SyncCacheApi,
+    cache: CacheUtil,
     messagesApi: MessagesApi
 )(implicit
     val executionContext: ExecutionContext
@@ -73,7 +73,7 @@ class UserNeedLoginAction @Inject() (
   ): Future[Result] = {
     implicit val lang = Lang.defaultLang
     val sessionIdOpt = request.session.get("sessionId")
-    val signInUserOpt = CacheUtil.getSessionUser(cache, sessionIdOpt)
+    val signInUserOpt = cache.getSessionUser(sessionIdOpt)
     signInUserOpt match {
       case None =>
         Future.successful(
@@ -90,7 +90,7 @@ class UserNeedLoginAction @Inject() (
 
 class UserNeedLoginAsyncAction @Inject() (
     val parser: BodyParsers.Default,
-    cache: SyncCacheApi,
+    cache: CacheUtil,
     messagesApi: MessagesApi
 )(implicit
     val executionContext: ExecutionContext
@@ -102,7 +102,7 @@ class UserNeedLoginAsyncAction @Inject() (
   ): Future[Result] = {
     implicit val lang = Lang.defaultLang
     val sessionIdOpt = request.session.get("sessionId")
-    val signInUserOpt = CacheUtil.getSessionUser(cache, sessionIdOpt)
+    val signInUserOpt = cache.getSessionUser(sessionIdOpt)
     signInUserOpt match {
       case None => {
         Future.successful(

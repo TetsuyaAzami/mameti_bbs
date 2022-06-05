@@ -1,9 +1,11 @@
 package common
 
-import play.api.cache.SyncCacheApi
+import play.api.cache.redis.CacheApi
 import models.domains.SignInUser
+import javax.inject.Inject
+import software.amazon.awssdk.core.internal.http.pipeline.stages.SigningStage
 
-object CacheUtil {
+class CacheUtil @Inject() (cache: CacheApi) {
 
   /** キャッシュにユーザをセット
     *
@@ -15,7 +17,6 @@ object CacheUtil {
     *   ログインユーザ情報
     */
   def setSessionUser(
-      cache: SyncCacheApi,
       sessionId: String,
       signInUser: SignInUser
   ) = {
@@ -32,7 +33,6 @@ object CacheUtil {
     *   ログインユーザ情報
     */
   def setSessionUser(
-      cache: SyncCacheApi,
       sessionId: Option[String],
       signInUser: SignInUser
   ) = {
@@ -52,12 +52,11 @@ object CacheUtil {
     *   成功時: ログインユーザ情報 失敗時: None
     */
   def getSessionUser(
-      cache: SyncCacheApi,
       sessionId: Option[String]
   ): Option[SignInUser] = {
     sessionId match {
       case None            => None
-      case Some(sessionId) => cache.get(sessionId)
+      case Some(sessionId) => cache.get[SignInUser](sessionId)
     }
   }
 
@@ -68,7 +67,7 @@ object CacheUtil {
     * @param sessionId
     *   ログインsessionId
     */
-  def deleteSessionUser(cache: SyncCacheApi, sessionId: String) = {
+  def deleteSessionUser(sessionId: String) = {
     cache.remove(sessionId)
   }
 

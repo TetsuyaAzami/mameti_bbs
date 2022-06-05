@@ -2,7 +2,6 @@ package controllers
 
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.MessagesAbstractController
-import play.api.cache.SyncCacheApi
 import play.api.i18n.Lang
 import play.api.data.Form
 
@@ -23,7 +22,7 @@ import common._
 @Singleton
 class SignInController @Inject() (
     mcc: MessagesControllerComponents,
-    cache: SyncCacheApi,
+    cache: CacheUtil,
     userOptAction: UserOptAction,
     userService: UserService,
     departmentService: DepartmentService
@@ -60,7 +59,7 @@ class SignInController @Inject() (
             case Some(signInUser) => {
               // sessionIdの生成とキャッシュへのログインユーザ情報格納
               val sessionId = UUID.randomUUID().toString()
-              CacheUtil.setSessionUser(cache, sessionId, signInUser)
+              cache.setSessionUser(sessionId, signInUser)
               Redirect(routes.PostController.index())
                 .withSession(
                   "sessionId" -> sessionId
