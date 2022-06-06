@@ -16,6 +16,7 @@ COPY . /app/
 
 CMD [ "bash" ]
 
+
 FROM play-dev as builder
 
 RUN sbt dist
