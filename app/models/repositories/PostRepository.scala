@@ -88,11 +88,11 @@ class PostRepository @Inject() (
   }
 
   def findAllWithFlag(
-      departmentOpt: Option[String]
+      department: String
   ): Future[List[(Post, Option[Long], List[Like])]] =
     Future {
       db.withConnection { implicit con =>
-        val simple = """
+        val sqlResult = SQL("""
         SELECT
         p.post_id p_post_id,
         p.content p_content,
@@ -105,6 +105,7 @@ class PostRepository @Inject() (
         l.like_id l_like_id,
         l.user_id l_user_id,
         l.post_id l_post_id,
+        d.department_id d_department_id,
         d.name d_name
         FROM posts p
         LEFT OUTER JOIN (
@@ -121,22 +122,15 @@ class PostRepository @Inject() (
         ON p.post_id = l.post_id
         LEFT OUTER JOIN departments d
         ON u.department_id = d.department_id
-        """
+        WHERE d.name = {departmentName}
+        """)
+          .on("departmentName" -> department)
+          .as(
+            (withUser ~ long(
+              "c_count"
+            ).? ~ likeRepository.simple.?).*
+          )
 
-        // departmentが渡されていれば、そのdepartmentをWHERE句で追加指定
-        val sqlResult = departmentOpt match {
-          case None => {
-            SQL(simple)
-              .as((withUser ~ long("c_count").? ~ likeRepository.simple.?).*)
-          }
-          case Some(department) => {
-            SQL(simple + "WHERE d.name = {departmentName}")
-              .on(
-                "departmentName" -> department
-              )
-              .as((withUser ~ long("c_count").? ~ likeRepository.simple.?).*)
-          }
-        }
         // postIdごとにsqlの取得結果をグループ化
         val groupedPosts = sqlResult.groupBy(_._1)
         val result = groupedPosts.map { e =>
