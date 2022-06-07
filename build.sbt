@@ -23,7 +23,8 @@ lazy val root = (project in file("."))
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.12.1",
       "software.amazon.awssdk" % "bom" % "2.17.203",
       "software.amazon.awssdk" % "s3" % "2.17.203",
-      "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
+      "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
+      "org.scalatestplus" %% "mockito-3-4" % "3.2.10.0" % Test
     ),
     scalacOptions ++= List(
       "-encoding",
@@ -33,5 +34,6 @@ lazy val root = (project in file("."))
       "-unchecked",
       "-Xfatal-warnings"
     ),
+    javaOptions in Test += "-Dconfig.file=/conf/test.conf",
     javacOptions ++= List("-Xlint:unchecked", "-Xlint:deprecation", "-Werror")
   )
