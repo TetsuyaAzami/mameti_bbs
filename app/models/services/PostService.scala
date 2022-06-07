@@ -10,6 +10,9 @@ import scala.concurrent.Future
 class PostService @Inject() (postRepository: PostRepository)(implicit
     ec: ExecutionContext
 ) {
+  def findAll(): Future[List[(Post, Option[Long], List[Like])]] =
+    postRepository.findAll()
+
   def findAllWithFlag(
       department: Option[String],
       sortByOpt: Option[String]
