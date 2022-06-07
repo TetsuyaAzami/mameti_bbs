@@ -7,7 +7,6 @@ import play.api.i18n.Lang
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.templates.PlayMagic.translate
-import play.api.Configuration
 
 import models.domains._
 import models.services.PostService
@@ -27,7 +26,6 @@ import java.nio.file.Paths
 @Singleton
 class PostController @Inject() (
     mcc: MessagesControllerComponents,
-    configuration: Configuration,
     cache: SyncCacheApi,
     userOptAction: UserOptAction,
     userNeedLoginAction: UserNeedLoginAction,
