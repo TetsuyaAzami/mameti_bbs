@@ -11,7 +11,10 @@ class PostService @Inject() (postRepository: PostRepository)(implicit
     ec: ExecutionContext
 ) {
   def findAll(): Future[List[(Post, Option[Long], List[Like])]] =
-    postRepository.findAll()
+    // 投稿日の降順でsort
+    postRepository.findAll().map { result =>
+      result.sortWith((e1, e2) => e1._1.postedAt isAfter e2._1.postedAt)
+    }
 
   def findAllWithFlag(
       department: Option[String],
@@ -21,6 +24,7 @@ class PostService @Inject() (postRepository: PostRepository)(implicit
       case Some("like") => {
         department match {
           case None => {
+            // いいねの降順でsort
             postRepository.findAll().map { result =>
               result.sortWith { (e1, e2) => e1._3.size > e2._3.size }
             }

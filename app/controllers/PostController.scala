@@ -1,7 +1,6 @@
 package controllers
 
 import play.api.mvc.{MessagesControllerComponents, MessagesAbstractController}
-import play.api.cache.SyncCacheApi
 import play.api.data.Form
 import play.api.i18n.Lang
 import play.api.libs.functional.syntax._
@@ -26,7 +25,6 @@ import java.nio.file.Paths
 @Singleton
 class PostController @Inject() (
     mcc: MessagesControllerComponents,
-    cache: SyncCacheApi,
     userOptAction: UserOptAction,
     userNeedLoginAction: UserNeedLoginAction,
     postService: PostService,
