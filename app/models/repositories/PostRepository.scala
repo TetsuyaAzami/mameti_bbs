@@ -43,12 +43,56 @@ class PostRepository @Inject() (
       }
   }
 
+  def findAll(): Future[List[(Post, Option[Long], List[Like])]] = Future {
+    db.withConnection { implicit con =>
+      {
+        val sqlResult = SQL"""
+        SELECT
+        p.post_id p_post_id,
+        p.content p_content,
+        p.user_id p_user_id,
+        p.posted_at p_posted_at,
+        c.count c_count, -- コメント数の取得
+        u.user_id u_user_id, -- 投稿したユーザの取得
+        u.name u_name,
+        u.profile_img u_profile_img,
+        l.like_id l_like_id,
+        l.user_id l_user_id,
+        l.post_id l_post_id
+        FROM posts p
+        LEFT OUTER JOIN (
+        SELECT -- コメント数の取得
+        post_id,
+        count(comment_id) count
+        FROM comments
+        GROUP BY post_id
+        ) c
+        ON p.post_id = c.post_id
+        INNER JOIN users u
+        ON p.user_id = u.user_id
+        LEFT OUTER JOIN likes l
+        ON p.post_id = l.post_id
+        """.as((withUser ~ long("c_count").? ~ likeRepository.simple.?).*)
+
+        val groupedPosts = sqlResult.groupBy(_._1)
+
+        val result = groupedPosts.map { e =>
+          val post = e._1._1
+          val commentCount = e._1._2
+          val likeList = e._2.flatMap(_._2)
+          (post, commentCount, likeList)
+        }
+        result.toList
+      }
+    }
+  }
+
   def findAllWithFlag(
-      departmentOpt: Option[String]
+      department: String
   ): Future[List[(Post, Option[Long], List[Like])]] =
     Future {
       db.withConnection { implicit con =>
-        val simple = """
+        val sqlResult = SQL("""
         SELECT
         p.post_id p_post_id,
         p.content p_content,
@@ -61,6 +105,7 @@ class PostRepository @Inject() (
         l.like_id l_like_id,
         l.user_id l_user_id,
         l.post_id l_post_id,
+        d.department_id d_department_id,
         d.name d_name
         FROM posts p
         LEFT OUTER JOIN (
@@ -77,22 +122,15 @@ class PostRepository @Inject() (
         ON p.post_id = l.post_id
         LEFT OUTER JOIN departments d
         ON u.department_id = d.department_id
-        """
+        WHERE d.name = {departmentName}
+        """)
+          .on("departmentName" -> department)
+          .as(
+            (withUser ~ long(
+              "c_count"
+            ).? ~ likeRepository.simple.?).*
+          )
 
-        // departmentが渡されていれば、そのdepartmentをWHERE句で追加指定
-        val sqlResult = departmentOpt match {
-          case None => {
-            SQL(simple)
-              .as((withUser ~ long("c_count").? ~ likeRepository.simple.?).*)
-          }
-          case Some(department) => {
-            SQL(simple + "WHERE d.name = {departmentName}")
-              .on(
-                "departmentName" -> department
-              )
-              .as((withUser ~ long("c_count").? ~ likeRepository.simple.?).*)
-          }
-        }
         // postIdごとにsqlの取得結果をグループ化
         val groupedPosts = sqlResult.groupBy(_._1)
         val result = groupedPosts.map { e =>

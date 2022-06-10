@@ -44,7 +44,8 @@ final case class SignInUser(
 final case class UserWhoPosted(
     userId: Long,
     name: String,
-    profileImg: Option[String]
+    profileImg: Option[String],
+    department: Option[Department]
 )
 
 // コメントしたユーザ

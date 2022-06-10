@@ -10,24 +10,34 @@ import scala.concurrent.Future
 class PostService @Inject() (postRepository: PostRepository)(implicit
     ec: ExecutionContext
 ) {
+  def findAll(): Future[List[(Post, Option[Long], List[Like])]] =
+    // 投稿日の降順でsort
+    postRepository.findAll().map { result =>
+      result.sortWith((e1, e2) => e1._1.postedAt isAfter e2._1.postedAt)
+    }
+
   def findAllWithFlag(
       department: Option[String],
       sortByOpt: Option[String]
   ): Future[List[(Post, Option[Long], List[Like])]] = {
     sortByOpt match {
-      case None => {
-        // 投稿日の降順でsort
-        postRepository.findAllWithFlag(department).map { result =>
-          result.sortWith { (e1, e2) => e1._1.postedAt isAfter e2._1.postedAt }
-        }
-      }
       case Some("like") => {
-        // いいねの降順でsort
-        postRepository.findAllWithFlag(department).map { result =>
-          result.sortWith { (e1, e2) => e1._3.size > e2._3.size }
+        department match {
+          case None => {
+            // いいねの降順でsort
+            postRepository.findAll().map { result =>
+              result.sortWith { (e1, e2) => e1._3.size > e2._3.size }
+            }
+          }
+          case Some(department) => {
+            // いいねの降順でsort
+            postRepository.findAllWithFlag(department).map { result =>
+              result.sortWith { (e1, e2) => e1._3.size > e2._3.size }
+            }
+          }
         }
       }
-      case Some(value) => {
+      case x => {
         // 予期せぬ値が渡されてきたら空のリストを返す
         Future.successful(Nil)
       }

@@ -45,9 +45,10 @@ class UserRepository @Inject() (
   private[repositories] val userWhoPostedParser = {
     get[Long]("u_user_id") ~
       get[String]("u_name") ~
-      get[Option[String]]("u_profile_img") map {
-        case userId ~ name ~ profileImg =>
-          UserWhoPosted(userId, name, profileImg)
+      get[Option[String]]("u_profile_img") ~
+      departmentRepository.simple.? map {
+        case userId ~ name ~ profileImg ~ department =>
+          UserWhoPosted(userId, name, profileImg, department)
       }
   }
 
