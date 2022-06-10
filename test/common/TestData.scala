@@ -4,22 +4,30 @@ import models.domains.Post
 import models.domains.UserWhoPosted
 import java.time.LocalDateTime
 import models.domains.Like
+import models.domains.Department
+import models.domains.Comment
+import models.domains.UserWhoCommented
 
 object PostRepositoryTestData {
   // findAllWithFlagメソッドのテストデータ
-  val findAllWithFlag: List[(Post, Option[Long], List[Like])] = List(
+  val selectTestData: List[(Post, Option[Long], List[Like])] = List(
     (
       Post(
         Some(1),
         "テスト投稿1",
         1,
         Some(
-          UserWhoPosted(1, "user1", Some("email1@example.com.jpg"))
+          UserWhoPosted(
+            1,
+            "user1",
+            Some("email1@example.com.jpg"),
+            Some(Department(1, "フロントエンド"))
+          )
         ),
         LocalDateTime.of(2022, 11, 11, 11, 11),
         List()
       ),
-      None,
+      Some(1.toLong),
       List(
         Like(Some(1), 2, 1),
         Like(Some(2), 3, 1),
@@ -33,7 +41,12 @@ object PostRepositoryTestData {
         "テスト投稿2",
         1,
         Some(
-          UserWhoPosted(1, "user1", Some("email1@example.com.jpg"))
+          UserWhoPosted(
+            1,
+            "user1",
+            Some("email1@example.com.jpg"),
+            Some(Department(1, "フロントエンド"))
+          )
         ),
         LocalDateTime.of(2022, 2, 22, 22, 22),
         List()
@@ -51,7 +64,12 @@ object PostRepositoryTestData {
         "テスト投稿3",
         2,
         Some(
-          UserWhoPosted(2, "user2", Some("email2@example.com.jpg"))
+          UserWhoPosted(
+            2,
+            "user2",
+            Some("email2@example.com.jpg"),
+            Some(Department(1, "フロントエンド"))
+          )
         ),
         LocalDateTime.of(2022, 3, 3, 3, 3, 3),
         List()
@@ -68,7 +86,12 @@ object PostRepositoryTestData {
         "テスト投稿4",
         2,
         Some(
-          UserWhoPosted(2, "user2", Some("email2@example.com.jpg"))
+          UserWhoPosted(
+            2,
+            "user2",
+            Some("email2@example.com.jpg"),
+            Some(Department(1, "フロントエンド"))
+          )
         ),
         LocalDateTime.of(2022, 4, 4, 4, 4, 4),
         List()
@@ -84,7 +107,12 @@ object PostRepositoryTestData {
         "テスト投稿5",
         2,
         Some(
-          UserWhoPosted(2, "user2", Some("email2@example.com.jpg"))
+          UserWhoPosted(
+            2,
+            "user2",
+            Some("email2@example.com.jpg"),
+            Some(Department(1, "フロントエンド"))
+          )
         ),
         LocalDateTime.of(2022, 5, 5, 5, 5, 5),
         List()
@@ -92,5 +120,51 @@ object PostRepositoryTestData {
       Some(5.toLong),
       List()
     )
+  )
+
+  val findByPostIdWithCommentList: (Option[Post], List[Like]) = (
+    Some(
+      Post(
+        Some(1),
+        "テスト投稿1",
+        1,
+        Some(
+          UserWhoPosted(
+            1,
+            "user1",
+            Some("email1@example.com.jpg"),
+            Some(Department(1, "フロントエンド"))
+          )
+        ),
+        LocalDateTime.of(2022, 11, 11, 11, 11),
+        List(
+          Comment(
+            Some(1),
+            2,
+            Some(UserWhoCommented(2, "user1", Some("email2@example.com.png"))),
+            1,
+            "コメント1",
+            LocalDateTime.of(2022, 11, 11, 11, 11)
+          ),
+          Comment(
+            Some(2),
+            3,
+            Some(UserWhoCommented(3, "user1", Some("email3@example.com.png"))),
+            1,
+            "コメント2",
+            LocalDateTime.of(2022, 2, 22, 22, 22)
+          ),
+          Comment(
+            Some(3),
+            4,
+            Some(UserWhoCommented(4, "user4", Some("email4@example.com.png"))),
+            1,
+            "コメント3",
+            LocalDateTime.of(2022, 3, 3, 3, 3)
+          )
+        )
+      )
+    ),
+    List()
   )
 }
