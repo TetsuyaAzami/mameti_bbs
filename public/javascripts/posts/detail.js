@@ -4,6 +4,7 @@
   const $commentContentInput = document.getElementById("content");
   const $commentList = document.getElementById("commentList");
   const $commentCount = document.getElementById("commentCount");
+  let commentCount = parseInt($commentCount.innerText);
 
   const csrfToken = $commentInsertForm.children[0].value;
   const commentPostId = document.getElementById("postId").value;
@@ -43,7 +44,14 @@
         // エラーメッセージノードを削除
         removeErrorMessage($commentContentInput);
         $commentContentInput.value = "";
-        $commentCount.innerText = parseInt($commentCount.innerText) + 1;
+
+        if ($commentCount.innerText == "") {
+          commentCount = 1;
+          $commentCount.innerText = commentCount;
+        } else {
+          commentCount += 1;
+          $commentCount.innerText = commentCount;
+        }
       })
       .catch((error) => {
         if (error.response.status == 401) {
@@ -77,7 +85,11 @@
     };
     //いいねdelete 成功パターン
     const deleteSuccessFunction = (response) => {
-      $heartCountSpan.innerText = response.data;
+      if (response.data == 0) {
+        $heartCountSpan.innerText = "";
+      } else {
+        $heartCountSpan.innerText = response.data;
+      }
       $heart.classList.remove("unlike-btn");
       $heart.classList.add("like-btn");
     };

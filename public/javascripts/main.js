@@ -78,7 +78,7 @@ const createCommentCardHeader = (commentData) => {
 
   //プロフィール画像img
   const profileImg = document.createElement("img");
-  profileImg.src = `/assets/images/profileImages/${commentData.userWhoCommented.profileImg}`;
+  profileImg.src = `https://static.mameti-bbs.com/${commentData.userWhoCommented.profileImg}`;
   profileImg.classList.add("profile-img-sm");
   profileImg.setAttribute("alt", "プロフィール画像");
 
