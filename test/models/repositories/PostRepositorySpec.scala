@@ -320,4 +320,38 @@ class PostRepositorySpec
       }
     }
   }
+
+  "postRepository#delete" should {
+    "自分の投稿を削除できること" in {
+      val deleteCount = postRepository.delete(1, 1)
+      whenReady(deleteCount) { deleteCount =>
+        assert(deleteCount == 1)
+        val deletedPost = postRepository.findByPostIdAndUserId(1, 1)
+        whenReady(deletedPost) { deletedPost =>
+          assert(deletedPost == None)
+        }
+      }
+    }
+
+    "他人の投稿を削除できないこと" in {
+      val deleteCount = postRepository.delete(1, 2)
+      whenReady(deleteCount) { deleteCount =>
+        assert(deleteCount == 0)
+
+        // 削除されそうになった投稿が存在していること
+        val deleteTargetedPost = postRepository.findByPostIdAndUserId(1, 1)
+        whenReady(deleteTargetedPost) { deleteTargetedPost =>
+          assert(deleteTargetedPost.get.content == "user1投稿1")
+        }
+      }
+    }
+
+    "存在していない投稿を削除しようとした場合、0が返ること" in {
+      val deleteCount = postRepository.delete(100, 1)
+      whenReady(deleteCount) { deleteCount =>
+        assert(deleteCount == 0)
+      }
+    }
+  }
+
 }
