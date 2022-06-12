@@ -11,6 +11,7 @@ import play.api.data.validation.Invalid
 import play.api.data.validation.ValidationError
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import java.time.LocalDateTime
 
 object PostForm {
   val postForm = Form {
@@ -39,9 +40,12 @@ object PostForm {
         val postIdResult: JsResult[Long] = (json \ "postId").validate[Long]
         val contentResult: JsResult[String] =
           (json \ "content").validate[String]
+        val postedAtResult: JsResult[LocalDateTime] =
+          (json \ "postedAt").validate[LocalDateTime]
         for {
           postId <- postIdResult
           content <- contentResult
+          postedAt <- postedAtResult
           result <-
             if (content.isBlank) {
               JsError(
@@ -59,11 +63,13 @@ object PostForm {
                 JsonValidationError("error.maxLength", 140)
               )
             } else {
-              JsSuccess(PostUpdateFormData(postId, content))
+              JsSuccess(PostUpdateFormData(postId, content, postedAt))
             }
         } yield result
-
       }
-
     }
+
+  implicit val postUpdateFormDataWrites: Writes[PostUpdateFormData] =
+    Json.writes[PostUpdateFormData]
+
 }
