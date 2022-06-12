@@ -157,7 +157,7 @@ class PostController @Inject() (
               }
               case _ => {
                 postService.findByPostIdAndUserId(post.postId, userId).map {
-                  updatedPost => Ok(Json.toJson(updatedPost.get.content))
+                  updatedPost => Ok(Json.toJson(updatedPost))
                 }
               }
             }

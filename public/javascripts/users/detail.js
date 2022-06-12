@@ -103,6 +103,7 @@
               {
                 postId: postId,
                 content: content,
+                postedAt: Date.now(),
               },
               {
                 headers: {
@@ -113,7 +114,13 @@
             .then((response) => {
               // 既存コンテンツDivに更新した投稿を反映して表示
               const updatedContent = response.data;
-              $existingPostContentDiv.innerText = updatedContent;
+              const $postCardHeader =
+                $contentEditDiv.parentNode.previousElementSibling;
+              const $postedAtSpan =
+                $postCardHeader.children[0].lastElementChild;
+              $existingPostContentDiv.innerText = updatedContent.content;
+              $postedAtSpan.innerText = formatDateUtil(updatedContent.postedAt);
+
               displayExistingContent($contentEditDiv, $existingPostContentDiv);
               $contentFooter.classList.remove("display-none");
             })
@@ -171,6 +178,7 @@
     $existingPostContentDiv.classList.add("display-none");
     $contentEditDiv.classList.remove("display-none");
   };
+
   // 既存コンテンツを表示して編集textareaを非表示にする
   const displayExistingContent = ($contentEditDiv, $existingPostContentDiv) => {
     $contentEditDiv.classList.add("display-none");
@@ -194,6 +202,7 @@
     const $errorMsgDiv = produceErrorMsgDiv(errorMsg);
     $targetNode.prepend($errorMsgDiv);
   };
+
   // エラーメッセージ表示Div作成
   const produceErrorMsgDiv = (errorMsg) => {
     const $errorMsgDiv = document.createElement("div");
@@ -203,6 +212,7 @@
     $errorMsgDiv.id = "jsPostErrorMsgDiv";
     return $errorMsgDiv;
   };
+
   // エラーメッセージを消す
   const removeErrorMsgDiv = (id) => {
     const $ErrorMsgDiv = document.getElementById(id);
