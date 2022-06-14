@@ -27,8 +27,10 @@ class PostRepository @Inject() (
 
   private[repositories] val forUpdate = {
     get[Long]("p_post_id") ~
-      get[String]("p_content") map { case postId ~ content =>
-        PostUpdateFormData(postId, content)
+      get[String]("p_content") ~
+      get[LocalDateTime]("p_posted_at") map {
+        case postId ~ content ~ postedAt =>
+          PostUpdateFormData(postId, content, postedAt)
       }
   }
 
@@ -191,6 +193,7 @@ class PostRepository @Inject() (
     }
   }
 
+  // 非同期投稿更新の際の更新した投稿を返すメソッド
   def findByPostIdAndUserId(
       postId: Long,
       userId: Long
@@ -199,7 +202,8 @@ class PostRepository @Inject() (
       SQL"""
       SELECT
       p.post_id p_post_id,
-      p.content p_content
+      p.content p_content,
+      p.posted_at p_posted_at
       FROM posts p
       WHERE p.post_id = ${postId} AND p.user_id = ${userId};""".as(
         forUpdate.singleOpt

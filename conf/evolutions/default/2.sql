@@ -30,12 +30,7 @@ INSERT INTO likes (user_id, post_id) VALUES(3,3);
 
 --!Downs
 DELETE FROM likes;
-SELECT setval ('likes_like_id_seq', 1, false);
 DELETE FROM comments;
-SELECT setval ('comments_comment_id_seq', 1, false);
 DELETE FROM posts;
-SELECT setval ('posts_post_id_seq', 1, false);
 DELETE FROM users;
-SELECT setval ('users_user_id_seq', 1, false);
 DELETE FROM departments;
-SELECT setval ('departments_department_id_seq', 1, false);

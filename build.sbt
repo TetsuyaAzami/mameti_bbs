@@ -34,6 +34,6 @@ lazy val root = (project in file("."))
       "-unchecked",
       "-Xfatal-warnings"
     ),
-    javaOptions in Test += "-Dconfig.file=/conf/test.conf",
+    javaOptions in Test += "-Dconfig.file=conf/test.conf",
     javacOptions ++= List("-Xlint:unchecked", "-Xlint:deprecation", "-Werror")
   )

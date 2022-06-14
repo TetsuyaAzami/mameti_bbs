@@ -18,5 +18,6 @@ case class PostFormData(content: String)
 // updateの際に使用
 case class PostUpdateFormData(
     postId: Long,
-    content: String
+    content: String,
+    postedAt: LocalDateTime
 )
