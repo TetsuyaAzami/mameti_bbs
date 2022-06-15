@@ -1,5 +1,7 @@
 package models.repositories
 
+import anorm._
+import anorm.SqlParser._
 import models.DatabaseExecutionContext
 import play.api.db.DBApi
 import play.api.test.Injecting
@@ -296,17 +298,34 @@ class PostRepositorySpec
       LocalDateTime.now(),
       mockComments
     )
+
+    val postParser = {
+      get[Long]("post_id") ~
+        get[String]("content") ~
+        get[Long]("user_id") ~
+        get[LocalDateTime]("posted_at") map {
+          case postId ~ content ~ userId ~ postedAt =>
+            Post(Some(postId), content, userId, None, postedAt, Nil)
+        }
+    }
+
     "投稿が正常に行われること" in {
       val result = postRepository.insert(post)
       whenReady(result) { result =>
         val insertedPostId = result.get
-        val insertedPost =
-          postRepository.findByPostIdWithCommentList(insertedPostId)
-        whenReady(insertedPost) { insertedPost =>
-          val post = insertedPost._1.get
-          val comments = insertedPost._1.get.commentList
-          val likes = insertedPost._2
-
+        val insertedPost = db.withConnection { implicit con =>
+          val sqlResult = SQL"""
+              SELECT
+                post_id,
+                content,
+                user_id,
+                posted_at
+              FROM
+                posts
+              WHERE post_id = ${insertedPostId};
+              """.as(postParser.singleOpt)
+          val post = sqlResult.get
+          assert(post.postId == Some(5))
           assert(post.content == "投稿insertテスト")
           assert(post.userId == 1)
           assert(post.postedAt.getYear() == LocalDateTime.now().getYear())
@@ -314,8 +333,6 @@ class PostRepositorySpec
           assert(
             post.postedAt.getDayOfMonth() == LocalDateTime.now().getDayOfMonth()
           )
-          assert(comments == Nil)
-          assert(likes == Nil)
         }
       }
     }
