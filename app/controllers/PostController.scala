@@ -89,6 +89,7 @@ class PostController @Inject() (
               LocalDateTime.now(),
               List()
             )
+
           postService.insert(postForInsert).flatMap { _ =>
             postService.findAll().map { allPosts =>
               Redirect(routes.PostController.index())
