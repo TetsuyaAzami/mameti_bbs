@@ -43,7 +43,7 @@
 					</a>
 				</li>
 				<li class="list-group-item">
-					@form(routes.SignInController.signOut(), Symbol("name") -> "signOutForm") {
+					@form(routes.SignInController.signOut(),Symbol("id") -> "signOutForm", Symbol("name") -> "signOutForm") {
 						@CSRF.formField
 						<i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i><a href="javascript:document.signOutForm.submit()"
 						class="fw-bold">ログアウト</a>
