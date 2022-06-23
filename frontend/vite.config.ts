@@ -9,7 +9,12 @@ export default defineConfig({
     outDir: resolve(__dirname, '..', 'public', 'javascripts'),
     rollupOptions: {
       input: {
-        post_index: resolve(__dirname, 'src', 'typescripts', 'posts', 'index.ts'),
+        posts_index: resolve(__dirname, 'src', 'typescripts', 'posts', 'index.ts'),
+        posts_detail: resolve(__dirname, 'src', 'typescripts', 'posts', 'detail.ts'),
+        ranking_index: resolve(__dirname, 'src', 'typescripts', 'ranking', 'index.ts'),
+        users_detail: resolve(__dirname, 'src', 'typescripts', 'users', 'detail.ts'),
+        users_edit: resolve(__dirname, 'src', 'typescripts', 'users', 'edit.ts'),
+        users_signIn: resolve(__dirname, 'src', 'typescripts', 'users', 'signIn.ts'),
         main: resolve(__dirname, 'src', 'typescripts', 'main.ts'),
       },
       output: {
